@@ -1,3 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  --font-primary: 'Montserrat', sans-serif;
+  --color-primary: #7B282A;   /* Deep maroon/red */
+  --color-accent: #E7C51D;    /* Gold accent */
+  --color-background: #F7F7F7;/* Light background */
+  --color-border: #E6E6E6;    /* Subtle border gray */
+}
+
+/* HTML, BODY take full height */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+/* Wrapper contains all page content */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main content grows to fill available space */
+.main-content {
+  flex: 1;
+}
+
+
+.search-bar {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  max-width: 320px;
+  width: 100%;
+  height: auto;
+  background: var(--color-border);
+  border-radius: 30px;
+  border: none;
+  padding: 5px 20px 5px 35px; 
+  background-image: url('../public/icons/search.png');
+  background-repeat: no-repeat;
+  background-position: 15px center;
+  background-size: 13px 13px;
+  transition: all 0.2s ease-in-out; 
+}
+
+.search-bar:focus-within,
+.search-bar input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 5px 1px #4512137f;
+  outline: none;
+  transform: translateY(-2px); 
+}
+
+.search-bar input {
+  width: 100%;
+  height: fit-content;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 16px;
+  font-family: 'Montserrat', sans-serif;
+}
+
 .App {
   text-align: center;
 }
@@ -24,15 +91,3 @@
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
