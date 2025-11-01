@@ -1,0 +1,337 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  --font-primary: 'Montserrat', sans-serif;
+  --color-primary: #7B282A;
+  --color-accent: #E7C51D;
+  --color-background: #F7F7F7;
+  --color-border: #E6E6E6;
+  --color-text-muted: #9A9A9A;
+  --color-success: #28A745;
+  --color-warning: #FFC107;
+  --color-danger: #DC3545;
+  --color-secondary: #6C757D;
+}
+
+.bookings-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding: 2rem;
+  font-family: var(--font-primary);
+}
+
+.bookings-card {
+  width: 100%;
+  max-width: 1222px;
+  height: 617px;
+  background: rgba(230, 230, 230, 0.08);
+  box-shadow: 0px 4px 5.7px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  padding: 10px;
+}
+
+.bookings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.bookings-title {
+  color: var(--color-primary);
+  font-size: 38px;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.book-venue-button {
+  width: 186px;
+  height: 46px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 23px;
+  color: var(--color-background);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.book-venue-button:hover {
+  opacity: 0.9;
+}
+
+.tabs-container {
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.tabs {
+  display: flex;
+  gap: 20px;
+  position: relative;
+}
+
+.tab {
+  color: var(--color-primary);
+  font-size: 18px;
+  font-weight: 700;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.2s;
+  position: relative;
+  text-align: center;
+}
+
+.tab.active {
+  color: var(--color-primary);
+}
+
+.tab-indicator {
+  width: 107px;
+  height: 3px;
+  background: var(--color-primary);
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  transition: left 0.3s ease;
+}
+
+/* Specific positions for each tab */
+.tab:nth-child(1).active ~ .tab-indicator {
+  left: 0px;
+}
+
+.tab:nth-child(2).active ~ .tab-indicator {
+  left: 121px;
+}
+
+.tab:nth-child(3).active ~ .tab-indicator {
+  left: 230px;
+}
+
+.tab:nth-child(4).active ~ .tab-indicator {
+  left: 350px;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--color-primary);
+  margin: 20px 0;
+}
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 428px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.booking-item {
+  height: 105px;
+  background: rgba(204.89, 185.41, 185.88, 0.30);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  padding: 5px 11px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+}
+
+.booking-image {
+  width: 103.45px;
+  height: 94px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.booking-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.venue-name {
+  color: var(--color-primary);
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.booking-info {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.info-group {
+  display: flex;
+  align-items: center;
+}
+
+.info-label {
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.info-value {
+  color: #484848;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.booked-by {
+  color: var(--color-primary);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.booking-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.status-indicator {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-text {
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.no-bookings {
+  text-align: center;
+  padding: 3rem;
+  color: var(--color-text-muted);
+}
+
+.no-bookings h3 {
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.no-bookings p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Scrollbar Styling */
+.bookings-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bookings-list::-webkit-scrollbar-track {
+  background: rgba(123, 40, 42, 0.1);
+  border-radius: 3px;
+}
+
+.bookings-list::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 3px;
+}
+
+.bookings-list::-webkit-scrollbar-thumb:hover {
+  background: #5a1e20;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .bookings-card {
+    height: auto;
+    min-height: 617px;
+  }
+  
+  .booking-info {
+    gap: 15px;
+  }
+  
+  .booking-status {
+    position: static;
+    transform: none;
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .bookings-container {
+    padding: 1rem;
+  }
+  
+  .bookings-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .bookings-title {
+    font-size: 28px;
+  }
+  
+  .tabs {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .tab {
+    font-size: 16px;
+  }
+  
+  .tab-indicator {
+    display: none; /* Hide indicator on mobile for simplicity */
+  }
+  
+  .booking-item {
+    flex-direction: column;
+    height: auto;
+    padding: 15px;
+    gap: 15px;
+  }
+  
+  .booking-image {
+    width: 100%;
+    height: 120px;
+  }
+  
+  .booking-status {
+    position: static;
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .bookings-title {
+    font-size: 24px;
+  }
+  
+  .tab {
+    font-size: 14px;
+  }
+}

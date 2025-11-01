@@ -1,7 +1,25 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/VenueDetails.css";
 
 export default function VenueBookingCard() {
+    // temporary
+      const navigate = useNavigate();
+
+  const handleBookNow = () => {
+    navigate("/bookings"); // Navigate to booking page
+  };
+
+  const handleVenueInquiry = () => {
+    console.log("Venue Inquiry clicked");
+    // Add inquiry logic here
+  };
+
+  const handleContactHost = () => {
+    console.log("Contact Host clicked");
+    // Add contact host logic here
+  };
+
   return (
     <div className="venue-booking-card">
       <div className="booking-header">
@@ -27,20 +45,21 @@ export default function VenueBookingCard() {
           </div>
         </div>
       </div>
-      
-      <button className="book-now-button">
+      {/* temporarily goes to venue-booking */}
+      <button className="book-now-button" onClick={handleBookNow}>
         Book Now
       </button>
       
+      
       <div className="action-links">
-        <button className="action-link">
+        <button className="action-link" onClick={handleVenueInquiry}>
           <div className="link-icon inquiry-icon">
             <img src="/icons/office-building.svg" alt="Venue Inquiry" />
           </div>
           <span>Venue Inquiry</span>
         </button>
         
-        <button className="action-link">
+        <button className="action-link" onClick={handleContactHost}>
           <div className="link-icon contact-icon">
              <img src="/icons/contact.svg" alt="Venue Inquiry" />
           </div>
