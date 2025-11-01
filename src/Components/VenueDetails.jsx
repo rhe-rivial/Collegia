@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import VenueGallery from "./VenueGallery.jsx";
 import VenueDescription from "./VenueDescription.jsx";
 import VenueBookingCard from "./VenueBookingCard.jsx";
@@ -100,12 +100,12 @@ const getDefaultVenueData = (id, title) => ({
 
 export default function VenueDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
-  // Find the venue data by ID
   const venueId = parseInt(id);
   const venueFromData = venuesData.find(venue => venue.id === venueId);
   
-  // Use the found data or create default data
+  // TEMPORARY. WILL USE DB IN FINAL    
   const venueData = venueFromData 
     ? {
         id: venueFromData.id,
@@ -133,6 +133,7 @@ export default function VenueDetails() {
 
     return (
      <div className="venue-details-container">
+     <button onClick={()=> navigate(-1)} className="back-btn"> <img alt="back-button" src="/icons/back.png"></img></button>
       <div className="venue-details-content">
         <VenueGallery images={venueData.images} />
     

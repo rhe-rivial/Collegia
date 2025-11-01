@@ -14,7 +14,6 @@ export default function VenueGallery({ images }) {
     <div className="venue-gallery-fullwidth">
       <div className="venue-gallery">
         <div className="gallery-main">
-          <div className="main-image-placeholder"></div>
           <img 
             className="main-image" 
             src={galleryImages[0]} 
@@ -25,7 +24,6 @@ export default function VenueGallery({ images }) {
         <div className="gallery-thumbnails">
           {galleryImages.slice(1, 4).map((image, index) => (
             <div key={index} className="thumbnail-container">
-              <div className="thumbnail-placeholder"></div>
               <img 
                 className={`thumbnail ${index === 2 ? 'more-photos' : ''}`} 
                 src={image} 

@@ -9,11 +9,24 @@
   --color-text-muted: #9A9A9A;
 }
 
-/* Reset and Base Styles */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+.back-btn {
+  height: 40px;
+  width: 40px;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.back-btn:hover, .back-btn img{
+  transform: scale(1.15); 
 }
 
 .venue-details-container {
@@ -47,7 +60,7 @@
 }
 
 .venue-right-column {
-  position: sticky;
+  position: static;
   top: 2rem;
 }
 
