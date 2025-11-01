@@ -8,11 +8,11 @@
 
 /* Sub Navigation Styles */
 .nav-container {
-  margin: 40px;
   display: flex;
   align-items: center;
-  justify-content: center; /* spreads nav and filter apart */
-  padding: 0 40px; /* adjust spacing */
+  justify-content: center; 
+  margin-top: 20px;
+  padding: 10px 0px; 
   position: relative;
 }
 
@@ -66,9 +66,9 @@
 /* filter sticks to screen edge */
 .filter-pill {
   position: absolute;
-  right: 40px;
-  top: 50%;
-  transform: translateY(-50%);
+  display: flex;
+  right: 20px;
+  margin-top: 5px;
 }
 
 

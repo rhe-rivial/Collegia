@@ -7,7 +7,12 @@
   border-radius: 12px;
   font-family: "Montserrat", sans-serif;
   position: relative;
-  margin: 20px;
+  transition: transform 0.2s ease; 
+}
+
+
+.venue-card:hover  {
+  transform: scale(1.02); 
 }
 
 .venue-image-container {
@@ -24,6 +29,7 @@
   height: 100%;
   object-fit: cover;
   display: block;
+
 }
 
 .favorite-button {
@@ -62,7 +68,7 @@
 }
 
 .venue-title {
-  margin-top: 12px;
+  margin-top: 25px;
   color: #7b282a;
   font-size: 18px;
   font-weight: 700;

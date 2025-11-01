@@ -69,10 +69,11 @@ export default function VenuesGrid() {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
   gap: "60px",
-  padding: "20px",
+  paddingTop: "40px",
   width: "100%",
   maxWidth: "1200px", 
   margin: "0 auto",
+  marginBottom: "100px",
 };
 
 
@@ -80,13 +81,14 @@ export default function VenuesGrid() {
     <div style={venuesGridStyle}>
       {filteredVenues.length > 0 ? (
         filteredVenues.map((venue) => (
-          <VenuesCard
-            key={venue.id}
-            title={venue.title}
-            image={venue.image}
-            isFavorite={favorites[venue.id] || false}
-            onFavoriteToggle={() => toggleFavorite(venue.id)}
-          />
+              <VenuesCard
+                key={venue.id}
+                id={venue.id}
+                title={venue.title}
+                image={venue.image}
+                isFavorite={favorites[venue.id] || false}
+                onFavoriteToggle={() => toggleFavorite(venue.id)}
+              />
         ))
       ) : (
         <p>No venues found for "{currentTag.toUpperCase()}"</p>
