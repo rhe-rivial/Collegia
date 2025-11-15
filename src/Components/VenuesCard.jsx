@@ -6,7 +6,7 @@ export default function VenuesCard({ id, title, image, isFavorite, onFavoriteTog
   const navigate = useNavigate();
 
   const handleImageClick = () => {
-    navigate(`/venue/${id}`); // Go to details page
+    navigate(`/venues/venue/${id}`); // Go to details page
   };
 
   return (
