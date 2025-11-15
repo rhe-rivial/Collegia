@@ -41,18 +41,26 @@ const venuesData = [
 
 export default function VenuesGrid() {
   const location = useLocation();
-  const currentTag = location.pathname.replace("/", "") || "NGE";
+
+  /** ⭐ FIXED CATEGORY LOGIC ⭐
+   * URL examples:
+   * /venues → path = "venues" → default category "nge"
+   * /venues/sal → path = "sal"
+   * /venues/more → path = "more"
+   */
+  const path = location.pathname.split("/").pop().toLowerCase();
+  const currentTag = (path === "venues" || path === "") ? "nge" : path;
 
   // Store favorites in state by venue ID
   const [favorites, setFavorites] = useState({});
 
-  // Optionally, load from localStorage on mount
+  // Load from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem("favorites");
     if (saved) setFavorites(JSON.parse(saved));
   }, []);
 
-  // Save to localStorage whenever favorites change
+  // Save whenever favorites change
   useEffect(() => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
@@ -61,34 +69,34 @@ export default function VenuesGrid() {
     setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  // Filter venues by tag
   const filteredVenues = venuesData.filter(
     (venue) => venue.tag.toLowerCase() === currentTag.toLowerCase()
   );
 
- const venuesGridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-  gap: "60px",
-  paddingTop: "40px",
-  width: "100%",
-  maxWidth: "1200px", 
-  margin: "0 auto",
-  marginBottom: "100px",
-};
-
+  const venuesGridStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+    gap: "60px",
+    paddingTop: "40px",
+    width: "100%",
+    maxWidth: "1200px",
+    margin: "0 auto",
+    marginBottom: "100px",
+  };
 
   return (
     <div style={venuesGridStyle}>
       {filteredVenues.length > 0 ? (
         filteredVenues.map((venue) => (
-              <VenuesCard
-                key={venue.id}
-                id={venue.id}
-                title={venue.title}
-                image={venue.image}
-                isFavorite={favorites[venue.id] || false}
-                onFavoriteToggle={() => toggleFavorite(venue.id)}
-              />
+          <VenuesCard
+            key={venue.id}
+            id={venue.id}
+            title={venue.title}
+            image={venue.image}
+            isFavorite={favorites[venue.id] || false}
+            onFavoriteToggle={() => toggleFavorite(venue.id)}
+          />
         ))
       ) : (
         <p>No venues found for "{currentTag.toUpperCase()}"</p>

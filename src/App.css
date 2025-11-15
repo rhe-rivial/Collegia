@@ -28,11 +28,12 @@ html, body {
 
 
 .search-bar {
-  margin-top: 15px;
+  /* margin-top: 15px; */
+  margin: 40px auto 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto;
+  /* margin: 0 auto; */
   max-width: 320px;
   width: 100%;
   height: auto;
