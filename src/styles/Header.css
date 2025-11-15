@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+.header {
+  background-color: #E6E6E6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 50px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.logo {
+  height: 40px;
+  width: 40px;
+  object-fit: contain;
+}
+
+.brand-name {
+  color: #7B282A;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  color: #7B282A;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.3s, border-bottom 0.3s;
+}
+
+.nav-item:hover {
+  color: #5E1E20;
+  border-bottom: 2px solid #7B282A;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-signin {
+  background-color: #7B282A;
+  color: #F7F7F7;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.btn-signin:hover {
+  background-color: #5E1E20;
+}
+
+.btn-signup {
+  background-color: #F7F7F7;
+  color: #7B282A;
+  border: 2px solid #7B282A;
+  padding: 8px 18px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-signup:hover {
+  background-color: #7B282A;
+  color: #F7F7F7;
+}
+
+/* For Logout */
+
+.btn-logout {
+  background: #7B282A;
+  color: white;
+  padding: 10px 26px;
+  border-radius: 50px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-icon {
+  width: 28px;
+}
+

@@ -4,12 +4,12 @@ import "../styles/DashboardRoutes.css";
 
 // Navigation data configuration
 const navItems = [
-  { path: '/nge', label: 'NGE', left: '0px', top: '15px', width: '116px', dotLeft: '124px' },
-  { path: '/sal', label: 'SAL', left: '152px', top: '15px', width: '66px', dotLeft: '124px' },
-  { path: '/gle', label: 'GLE', left: '266px', top: '15px', width: '51px', dotLeft: '238px' },
-  { path: '/court', label: 'Court', left: '363px', top: '15px', width: '102px', dotLeft: '335px' },
-  { path: '/acad', label: 'ACAD', left: '508px', top: '15px', width: '56px', dotLeft: '480px' },
-  { path: '/more', label: 'More', left: '607px', top: '15px', width: '46px', dotLeft: '579px' }
+  { path: '/venues/nge', label: 'NGE', left: '0px', top: '15px', width: '116px', dotLeft: '124px' },
+  { path: '/venues/sal', label: 'SAL', left: '152px', top: '15px', width: '66px', dotLeft: '124px' },
+  { path: '/venues/gle', label: 'GLE', left: '266px', top: '15px', width: '51px', dotLeft: '238px' },
+  { path: '/venues/court', label: 'Court', left: '363px', top: '15px', width: '102px', dotLeft: '335px' },
+  { path: '/venues/acad', label: 'ACAD', left: '508px', top: '15px', width: '56px', dotLeft: '480px' },
+  { path: '/venues/more', label: 'More', left: '607px', top: '15px', width: '46px', dotLeft: '579px' }
 ];
 
 // Navigation Component

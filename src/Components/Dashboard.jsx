@@ -4,21 +4,29 @@ import VenuesGrid from "./VenuesGrid.jsx";
 import Navigation from "./Navigation.jsx"; 
 import VenueDetails from "./VenueDetails.jsx"; 
 import Bookings from "./Bookings.jsx"; 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Footer from "./Footer.jsx";
+import { Routes, Route } from "react-router-dom";
 
 export default function Dashboard() {
-  // Temporarily is a router 
   return (
-    <Router>
+    <>
       <SearchBar />
       <Navigation />
+
       <Routes>
-        <Route path="/" element={<VenuesGrid />} />
-        <Route path="/:tag" element={<VenuesGrid />} />
-        <Route path="/venue/:id" element={<VenueDetails />} /> 
-        <Route path="/bookings" element={<Bookings />} /> 
+
+        {/* Default page: /venues */}
+        <Route index element={<VenuesGrid />} />
+
+        {/* Filter categories: /venues/nge, /venues/sal, etc */}
+        <Route path=":tag" element={<VenuesGrid />} />
+
+        {/* Venue details page: /venues/venue/12 */}
+        <Route path="venue/:id" element={<VenueDetails />} />
+
+        {/* Bookings: /venues/bookings */}
+        <Route path="bookings" element={<Bookings />} />
+
       </Routes>
-    </Router>
+    </>
   );
 }
