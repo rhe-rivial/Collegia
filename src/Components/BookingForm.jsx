@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/BookingForm.css";
 import VenueDetails from "./VenueDetails";
+//venue details is for later
 
 // import files, if failed use fallback
 let venuesData = [];
@@ -29,7 +30,7 @@ export default function BookingForm() {
     return venuesData.find((v) => Number(v.id) === venueIdFromRoute) || null;
   }, [venueIdFromRoute]);
 
-  const venueCode = venue?.title || "NGE 100";
+  const venueCode = venue?.title || "NGE 101"; //Doesn't work, needs fixing later
 
   // Minimum selectable date is tomorrow (UI-level)
   const tomorrow = new Date();
