@@ -7,7 +7,7 @@ export default function VenueBookingCard() {
       const navigate = useNavigate();
 
   const handleBookNow = () => {
-    navigate("/bookings"); // Navigate to booking page
+    navigate("/venues/bookings"); // Navigate to booking page
   };
 
   const handleVenueInquiry = () => {

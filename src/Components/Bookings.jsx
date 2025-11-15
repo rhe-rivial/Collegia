@@ -82,7 +82,7 @@ export default function Bookings() {
   }, []);
 
   const handleBookVenue = () => {
-    navigate("/"); // Navigate back to venues to book a venue
+    navigate("/venues"); // Navigate back to venues to book a venue
   };
 
   const getStatusColor = (status) => {
