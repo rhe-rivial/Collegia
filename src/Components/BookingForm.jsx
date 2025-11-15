@@ -2,23 +2,15 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/BookingForm.css";
+import VenueDetails from "./VenueDetails";
 
-/*
-  BookingForm.jsx
-  - Reads venue id from route param :id
-  - Looks up venue title from shared data file (if present) and falls back to defaults
-  - Enforces: future date, 24-hour advance booking, start != end, max 6-hour duration
-  - Shows confirmation modal on successful submit (with 5s auto-close)
-  - "View My Bookings" -> /bookings, "Close" -> /venues/bookings/venue/:id
-*/
-
-// Try to import a shared venuesData file. If it's not present, fall back to a minimal list.
+// import files, if failed use fallback
 let venuesData = [];
 try {
   // eslint-disable-next-line import/no-unresolved, global-require
-  venuesData = require("../data/venuesData").default || [];
+  venuesData = require("../data/VenueDetails").default || [];
 } catch (err) {
-  // fallback minimal data if you didn't extract venuesData to a module yet
+  // fallback data
   venuesData = [
     { id: 1, title: "NGE 101" },
     { id: 2, title: "NGE Hall A" },
@@ -37,7 +29,7 @@ export default function BookingForm() {
     return venuesData.find((v) => Number(v.id) === venueIdFromRoute) || null;
   }, [venueIdFromRoute]);
 
-  const venueCode = venue?.title || "NGE 101";
+  const venueCode = venue?.title || "NGE 100";
 
   // Minimum selectable date is tomorrow (UI-level)
   const tomorrow = new Date();
@@ -98,7 +90,7 @@ const allowedStartOptions = useMemo(() => {
   });
 }, [timeOptions]);
 
-  // Ensure endTime remains valid when startTime changes
+  // For ensuring endtime is valid
   useEffect(() => {
     const allowedValues = allowedEndOptions.map((o) => o.value);
     if (allowedValues.length === 0) {
@@ -109,13 +101,13 @@ const allowedStartOptions = useMemo(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startTime, allowedEndOptions]);
 
-  // sensible defaults on mount
+  // defaults
   useEffect(() => {
     if (!startTime) setStartTime("09:00");
     if (!endTime) setEndTime("10:00");
   }, []); // run once
 
-  // Validation: future date, start != end, max 6 hours, attendees positive, 24-hour advance
+  // Validation rules: future date, start != end, max 6 hours, attendees positive, 24-hour advance
   const validate = () => {
     const e = {};
 
@@ -135,7 +127,7 @@ const allowedStartOptions = useMemo(() => {
       else if (diff > 6) e.time = "Duration cannot exceed 6 hours.";
     }
 
-    // Enforce bookings must be made at least 24 hours in advance of event start
+    // 24 hour advance warning
     try {
       if (date && startTime) {
         const [year, month, day] = date.split("-").map(Number);
