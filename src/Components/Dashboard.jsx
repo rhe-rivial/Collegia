@@ -4,6 +4,7 @@ import VenuesGrid from "./VenuesGrid.jsx";
 import Navigation from "./Navigation.jsx"; 
 import VenueDetails from "./VenueDetails.jsx"; 
 import Bookings from "./Bookings.jsx"; 
+import BookingForm from "./BookingForm.jsx";
 import { Routes, Route } from "react-router-dom";
 
 export default function Dashboard() {
@@ -25,6 +26,9 @@ export default function Dashboard() {
 
         {/* Bookings: /venues/bookings */}
         <Route path="bookings" element={<Bookings />} />
+
+        {/* Bookings: /venues/bookings/venue/venue/:id/BookingForm */}
+        <Route path="venue/:id/BookingForm" element={<BookingForm />} />
 
       </Routes>
     </>

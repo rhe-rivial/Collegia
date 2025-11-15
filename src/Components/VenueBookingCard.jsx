@@ -7,7 +7,7 @@ export default function VenueBookingCard() {
       const navigate = useNavigate();
 
   const handleBookNow = () => {
-    navigate("/venues/bookings"); // Navigate to booking page
+    navigate("/venues/venue/:id/BookingForm"); // Navigate to booking page
   };
 
   const handleVenueInquiry = () => {
@@ -45,7 +45,7 @@ export default function VenueBookingCard() {
           </div>
         </div>
       </div>
-      {/* temporarily goes to venue-booking */}
+      {/* goes to BookingForm */}
       <button className="book-now-button" onClick={handleBookNow}>
         Book Now
       </button>

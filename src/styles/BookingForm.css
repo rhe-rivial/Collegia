@@ -1,0 +1,274 @@
+/* src/styles/BookingForm.css
+   Visual styling to match the provided Booking Form image.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  --font-primary: 'Montserrat', sans-serif;
+  --color-primary: #7B282A;   /* Deep maroon/red */
+  --color-accent: #E7C51D;    /* Gold accent */
+  --color-background: #F7F7F7;/* Light background */
+  --color-border: #E6E6E6;    /* Subtle border gray */
+}
+
+.booking-form-page {
+  max-width: 760px;
+  margin: 36px auto;
+  padding: 28px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+  color: #0b1220;
+}
+
+.booking-header h1 {
+  margin: 0 0 18px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #7B282A;
+}
+
+/* Form layout */
+.booking-form {
+  display: grid;
+  gap: 14px;
+}
+
+/* Row wrapper */
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Label */
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #9A9A9A;
+}
+
+/* Inputs / select / textarea */
+.booking-form input[type="text"],
+.booking-form input[type="date"],
+.booking-form input[type="number"],
+.booking-form select,
+.booking-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e6e9ee;
+  background: #ffffff;
+  font-size: 14px;
+  color: #0b1220;
+  outline: none;
+  transition: box-shadow 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+/* Focus */
+.booking-form input:focus,
+.booking-form select:focus,
+.booking-form textarea:focus {
+  border-color: #bfe3ff;
+  box-shadow: 0 8px 20px rgba(14,165,233,0.06);
+  transform: translateY(-1px);
+}
+
+/* Time row: two columns on wider screens */
+.time-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 680px) {
+  .time-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Narrow number input */
+.booking-form input[type="number"] {
+  max-width: 220px;
+}
+
+/* Textarea */
+.booking-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Buttons container */
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+/* Button base */
+.btn {
+  min-width: 120px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+/* Cancel button - gray */
+.btn.cancel {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #e5e7eb;
+}
+
+.btn.cancel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15,23,42,0.04);
+}
+
+/* Submit button - maroon */
+.btn.submit {
+  background: linear-gradient(180deg,#7a1731 0%,#5c0f27 100%);
+  color: #fff;
+  border-color: rgba(0,0,0,0.06);
+  box-shadow: 0 8px 28px rgba(122,23,49,0.12);
+}
+
+.btn.submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 34px rgba(92,15,39,0.16);
+}
+
+/* Error styling */
+.form-error {
+  color: #b91c1c;
+  background: #fff1f2;
+  border: 1px solid #fecaca;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* Invalid input outline */
+.invalid {
+  border-color: #fca5a5 !important;
+  box-shadow: 0 6px 18px rgba(249, 115, 115, 0.06) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 520px) {
+  .booking-form-page {
+    margin: 18px;
+    padding: 18px;
+  }
+
+  .btn {
+    min-width: 100px;
+    padding: 8px 12px;
+  }
+}
+
+/* Confirmation modal styles */
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 7, 11, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 20px;
+}
+
+.confirm-modal {
+  width: 420px;
+  max-width: calc(100% - 40px);
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 20px 60px rgba(11, 14, 25, 0.4);
+  font-family: 'Montserrat', sans-serif;
+  color: #0b1220;
+}
+
+.confirm-top {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.celebrate {
+  font-size: 40px;
+  margin-bottom: 6px;
+}
+
+.confirm-top h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.confirm-venue {
+  margin-top: 6px;
+  color: #6b213f; /* maroon-ish */
+  font-weight: 700;
+}
+
+.confirm-body {
+  margin-top: 10px;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff7f8;
+  border: 1px solid rgba(122, 23, 49, 0.06);
+}
+
+.confirm-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed rgba(2,6,23,0.04);
+  font-size: 14px;
+}
+
+.confirm-row:last-child {
+  border-bottom: none;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+/* Buttons */
+.btn.confirm-primary {
+  background: linear-gradient(180deg,#7a1731 0%,#5c0f27 100%);
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  min-width: 160px;
+}
+
+.btn.confirm-ghost {
+  background: #f3f4f6;
+  color: #374151;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+/* small responsiveness */
+@media (max-width: 520px) {
+  .confirm-modal { width: 96%; padding: 16px; }
+  .celebrate { font-size: 34px; }
+}
