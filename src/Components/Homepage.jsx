@@ -1,7 +1,10 @@
 import React from "react";
 import "../styles/Homepage.css";
+import { useNavigate } from "react-router-dom";
 
 export default function Homepage() {
+  const navigate = useNavigate();
+
   return (
     <div className="homepage">
 
@@ -78,7 +81,8 @@ export default function Homepage() {
         <div className="venue-text">
           <h2>Book a Venue Now!</h2>
           <p>Explore more venues</p>
-          <button className="yellow-btn">Find a Venue</button>
+          <button className="yellow-btn"
+            onClick={() => navigate("/venues")}>Find a Venue</button>
         </div>
 
         <div className="venue-carousel">
@@ -124,7 +128,8 @@ export default function Homepage() {
 
           <div className="discover-actions">
             <button className="link-btn">Ask A Question</button>
-            <button className="link-btn">Find A Venue</button>
+            <button className="link-btn"
+            onClick={() => navigate("/venues")}>Find A Venue</button>
           </div>
 
           <button className="discover-btn">Discover More</button>
