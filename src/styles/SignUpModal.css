@@ -144,3 +144,15 @@
 .modal-card::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ERROR MESSAGE STYLE */
+.error-text {
+  background: #ffe5e5;
+  color: #b30000;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 0.8rem;
+  border-left: 4px solid #b30000;
+}
+

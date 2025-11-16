@@ -19,8 +19,7 @@ export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpCl
       </nav>
 
       <div className="header-buttons">
-
-        {/* IF LOGGED OUT → Show Sign In + Sign Up */}
+        {/* LOGGED OUT → Sign In + Sign Up */}
         {!isLoggedIn && (
           <>
             <button className="btn-signin" onClick={onSignInClick}>Sign In</button>
@@ -28,12 +27,13 @@ export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpCl
           </>
         )}
 
-        {/* IF LOGGED IN → Show Logout + Profile icon */}
+        {/* LOGGED IN → Logout + Profile */}
         {isLoggedIn && (
           <>
             <button className="btn-logout" onClick={onLogout}>Logout</button>
-            <button className="profile-btn">
-              <img src="/images/profile-icon.png" alt="Profile" className="profile-icon" />
+
+            <button className="profile-btn" onClick={() => navigate("/account")}>
+              <img src="/images/default-profile.jpg" alt="Profile" className="profile-icon" />
             </button>
           </>
         )}

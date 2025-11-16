@@ -1,0 +1,72 @@
+.extend-card {
+  flex: 1;
+  background: #742B2C;
+  color: white;
+  border-radius: 12px;
+  padding: 35px 40px;
+}
+
+.extend-card h2 {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.joined-text {
+  margin-top: 4px;
+  opacity: 0.8;
+}
+
+.edit-btn {
+  margin-top: 20px;
+  background: #E7C51D;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.booking-count {
+  margin-top: 20px;
+  font-weight: 600;
+}
+
+/* EDIT MODE */
+.extend-card label {
+  display: block;
+  margin-top: 25px;
+  font-weight: 600;
+}
+
+.extend-card input,
+.extend-card textarea {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.save-btn {
+  background: white;
+  color: #742B2C;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-weight: 600;
+  border: none;
+}
+
+.cancel-btn {
+  background: transparent;
+  border: none;
+  color: #E7C51D;
+  font-weight: 600;
+  cursor: pointer;
+}

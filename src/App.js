@@ -9,7 +9,11 @@ import Header from './Components/Header.jsx';
 import SignInModal from './Components/SignInModal.jsx';
 import SignUpModal from './Components/SignUpModal.jsx';
 
+import AccountPage from './Components/AccountPage.jsx';
+import EditAccountPage from './Components/EditAccountPage.jsx';
+
 import './App.css';
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -44,6 +48,8 @@ function App() {
             <Route path="/" element={<Homepage />} />         
             <Route path="/venues/*" element={<Dashboard />} />   
             <Route path="/faq" element={<div>FAQ Coming Soon...</div>} />
+            <Route path="/account" element={<AccountPage />} />
+            <Route path="/account/edit" element={<EditAccountPage />} />
           </Routes>
         </div>
 
