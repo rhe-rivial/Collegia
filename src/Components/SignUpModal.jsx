@@ -1,168 +1,188 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "../styles/SignUpModal.css";
 
 export default function SignUpModal({ onClose, openSignIn }) {
-  const [userType, setUserType] = useState("");
-  const [formData, setFormData] = useState({
-    fullname: "",
+  const [form, setForm] = useState({
+    fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
+    userType: "",
     course: "",
     organization: "",
-    companyName: "",
+    company: "",
     department: "",
   });
 
-  // Close modal when pressing ESC
-  useEffect(() => {
-    const handleKey = (e) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [onClose]);
+  const [error, setError] = useState("");
 
-  // Handle dynamic inputs
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
+  };
+
+  const validate = () => {
+    if (!form.fullName || !form.email || !form.password || !form.confirmPassword)
+      return "Please fill in all required fields.";
+
+    if (!form.userType) return "Please select a user type.";
+
+    if (form.password !== form.confirmPassword)
+      return "Passwords do not match.";
+
+    // Dynamic fields
+    if (form.userType === "Student") {
+      if (!form.course || !form.organization)
+        return "Course and Organization are required for Students.";
+    }
+
+    if (form.userType === "Coordinator") {
+      if (!form.company) return "Company Name is required for Coordinators.";
+    }
+
+    if (form.userType === "Faculty") {
+      if (!form.department) return "Department is required for Faculty.";
+    }
+
+    return null;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Registration Successful!");
+
+    const err = validate();
+    if (err) return setError(err);
+
+    // Save to localStorage
+    localStorage.setItem("collegia_user", JSON.stringify(form));
+
+    alert("Account created successfully!");
+
     onClose();
+    openSignIn();
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        
-        <button className="close-btn" onClick={onClose}>✕</button>
+      <div
+        className="modal-card"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxHeight: "85vh", overflowY: "auto" }}
+      >
+        <button className="close-btn" onClick={onClose}>
+          ✕
+        </button>
 
         <div className="modal-header">
           <h3 className="modal-title">Sign Up</h3>
         </div>
 
+        {error && <p className="error-text">{error}</p>}
+
         <form className="modal-form" onSubmit={handleSubmit}>
-          
-          {/* FULL NAME */}
-          <label className="label">Full Name</label>
+          <label className="label">Full Name *</label>
           <input
             className="input-pill"
-            name="fullname"
-            placeholder="Enter your full name"
-            value={formData.fullname}
+            name="fullName"
+            value={form.fullName}
             onChange={handleChange}
-            required
+            placeholder="Enter your full name"
           />
 
-          {/* EMAIL */}
-          <label className="label">Email</label>
+          <label className="label">Email *</label>
           <input
             className="input-pill"
             name="email"
             type="email"
-            placeholder="Enter your email"
-            value={formData.email}
+            value={form.email}
             onChange={handleChange}
-            required
+            placeholder="Enter your email address"
           />
 
-          {/* PASSWORD */}
-          <label className="label">Password</label>
+          <label className="label">Password *</label>
           <input
             className="input-pill"
             name="password"
             type="password"
-            placeholder="Enter password"
-            value={formData.password}
+            value={form.password}
             onChange={handleChange}
-            required
+            placeholder="Create a password"
           />
 
-          {/* CONFIRM PASSWORD */}
-          <label className="label">Confirm Password</label>
+          <label className="label">Confirm Password *</label>
           <input
             className="input-pill"
             name="confirmPassword"
             type="password"
-            placeholder="Confirm password"
-            value={formData.confirmPassword}
+            value={form.confirmPassword}
             onChange={handleChange}
-            required
+            placeholder="Confirm your password"
           />
 
-          {/* USER TYPE DROPDOWN */}
-          <label className="label">Role</label>
+          <label className="label">User Type *</label>
           <select
             className="input-pill"
             name="userType"
-            value={userType}
-            onChange={(e) => setUserType(e.target.value)}
-            required
+            value={form.userType}
+            onChange={handleChange}
           >
-            <option value="">Select Role</option>
+            <option value="">Select type</option>
             <option value="Student">Student</option>
             <option value="Coordinator">Coordinator</option>
             <option value="Faculty">Faculty</option>
           </select>
 
-          {/* DYNAMIC FIELDS */}
-
-          {userType === "Student" && (
+          {/* Dynamic Fields */}
+          {form.userType === "Student" && (
             <>
-              <label className="label">Course</label>
+              <label className="label">Course *</label>
               <input
+                className="input-pill"
                 name="course"
-                className="input-pill"
-                placeholder="Enter your course"
-                value={formData.course}
+                value={form.course}
                 onChange={handleChange}
-                required
+                placeholder="e.g., BSIT, BMMA"
               />
 
-              <label className="label">Organization</label>
+              <label className="label">Organization *</label>
               <input
+                className="input-pill"
                 name="organization"
-                className="input-pill"
-                placeholder="Enter your organization"
-                value={formData.organization}
+                value={form.organization}
                 onChange={handleChange}
-                required
+                placeholder="e.g., CCS, CNAHS"
               />
             </>
           )}
 
-          {userType === "Coordinator" && (
+          {form.userType === "Coordinator" && (
             <>
-              <label className="label">Affiliated Company Name</label>
+              <label className="label">Affiliated Company *</label>
               <input
-                name="companyName"
                 className="input-pill"
+                name="company"
+                value={form.company}
+                onChange={handleChange}
                 placeholder="Enter company name"
-                value={formData.companyName}
-                onChange={handleChange}
-                required
               />
             </>
           )}
 
-          {userType === "Faculty" && (
+          {form.userType === "Faculty" && (
             <>
-              <label className="label">Department</label>
+              <label className="label">Department *</label>
               <input
-                name="department"
                 className="input-pill"
-                placeholder="Enter your department"
-                value={formData.department}
+                name="department"
+                value={form.department}
                 onChange={handleChange}
-                required
+                placeholder="Enter department"
               />
             </>
           )}
 
-          {/* SUBMIT BUTTON */}
           <button type="submit" className="btn-continue">
-            Continue
+            Create Account
           </button>
         </form>
 

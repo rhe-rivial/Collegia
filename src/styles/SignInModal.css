@@ -99,3 +99,14 @@
   background:none; border:none; color:var(--red); font-weight:700; cursor:pointer;
   text-decoration:underline; padding:0;
 }
+
+/* ERROR MESSAGE STYLE */
+.error-text {
+  background: #ffe5e5;
+  color: #b30000;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 0.8rem;
+  border-left: 4px solid #b30000;
+}

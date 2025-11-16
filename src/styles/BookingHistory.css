@@ -1,0 +1,69 @@
+.history-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--card-shadow);
+  color: var(--red);
+  min-height: 200px;
+}
+
+.history-title {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.empty-history {
+  color: #777;
+  padding: 28px 0;
+  text-align: center;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.history-thumb {
+  width: 70px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.history-info {
+  flex: 1;
+}
+
+.history-venue {
+  font-weight: 700;
+  color: #333;
+}
+
+.history-date {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.view-btn {
+  background: #7B282A;
+  color: #fafafa;
+  border: 1px solid var(--gray);
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.view-btn:hover {
+  background: #5E1E20;
+}
