@@ -122,3 +122,25 @@
 .switch-row{ text-align:center; margin-top:0.5rem; color:#4b5563; }
 
 .link-button{ background:none; border:none; color:var(--red); font-weight:700; cursor:pointer; text-decoration:underline; padding:0; }
+
+/* When the Form is long */
+/* Make the modal card scrollable */
+.modal-card {
+  max-height: 85vh;      /* Prevent going off-screen */
+  overflow-y: auto;      /* Enable vertical scrolling */
+  padding-right: 10px;   /* Space so scrollbar doesn't overlap text */
+}
+
+/* Optional: nicer scrollbar (Chrome, Edge, Safari) */
+.modal-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-card::-webkit-scrollbar-thumb {
+  background: #c4c4c4;
+  border-radius: 10px;
+}
+
+.modal-card::-webkit-scrollbar-track {
+  background: transparent;
+}

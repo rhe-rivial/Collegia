@@ -42,12 +42,6 @@ export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
           <label className="label">Enter your name</label>
           <input className="input-pill" name="username" placeholder="Enter Your name" />
 
-          <div className="alt-link-row">
-            <a className="small-link" href="#email" onClick={(e) => e.preventDefault()}>
-              or sign in with email
-            </a>
-          </div>
-
           <label className="label">Password</label>
           <input className="input-pill" name="password" type="password" placeholder="Enter Your Password" />
 
@@ -56,20 +50,7 @@ export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
 
         <hr className="divider" />
 
-        {/* SOCIAL LOGIN */}
-        <div className="social-title">Or Sign In With</div>
-
-        <div className="social-row">
-          <button className="social-btn" onClick={(e) => e.preventDefault()}>
-            <span className="social-icon">f</span>
-            <span>Facebook</span>
-          </button>
-
-          <button className="social-btn" onClick={(e) => e.preventDefault()}>
-            <span className="social-icon">G</span>
-            <span>Google</span>
-          </button>
-        </div>
+        
 
         {/* SWITCH TO SIGN UP */}
         <div className="switch-row">
