@@ -122,8 +122,8 @@ export default function Homepage() {
         <div className="discover-text">
           <h2>Discover More About The University</h2>
           <p>
-            At vero eos et accusamus et iusto odio dignissimos ducimus qui
-            blanditiis praesentium voluptatum...
+           
+              The Cebu Institute of Technology – University is an autonomous, private, non-sectarian academic institution in Cebu City, Philippines. The university provides basic and higher education with a foundation in general and technological education. 
           </p>
 
           <div className="discover-actions">
@@ -132,7 +132,7 @@ export default function Homepage() {
             onClick={() => navigate("/venues")}>Find A Venue</button>
           </div>
 
-          <button className="discover-btn">Discover More</button>
+          <button className="discover-btn"><a style={{textDecoration: 'none', color: "white"}}href="https://cit.edu">Discover More</a></button>
         </div>
 
         <img src="/images/about-image.png" alt="CIT-U" className="discover-image" />

@@ -311,7 +311,16 @@
   color: white;
   font-weight: 600;
   cursor: pointer;
+  transition: ease-in 0.3s transform;
 }
+
+.discover-btn:hover {
+  transform: translateY(-3px);
+  background: #601f21;
+  box-shadow: 0px 0px 2px 2px #4444441e;
+}
+
+
 
 .discover-image {
   flex: 1;
