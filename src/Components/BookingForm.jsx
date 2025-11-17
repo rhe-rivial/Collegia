@@ -1,55 +1,34 @@
-// src/pages/BookingForm.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../styles/BookingForm.css";
-import VenueDetails from "./VenueDetails";
-//venue details is for later
 
-// import files, if failed use fallback
-let venuesData = [];
-try {
-  // eslint-disable-next-line import/no-unresolved, global-require
-  venuesData = require("../data/VenueDetails").default || [];
-} catch (err) {
-  // fallback data
-  venuesData = [
-    { id: 1, title: "NGE 101" },
-    { id: 2, title: "NGE Hall A" },
-    { id: 3, title: "NGE Hall B" },
-  ];
-}
-
-export default function BookingForm() {
+export default function BookingForm({ venueId, venueData, onClose }) {
   const navigate = useNavigate();
-  const { id: routeId } = useParams();
-  const venueIdFromRoute = Number.parseInt(routeId, 10);
 
-  // Lookup venue by id (memoized)
-  const venue = useMemo(() => {
-    if (Number.isNaN(venueIdFromRoute)) return null;
-    return venuesData.find((v) => Number(v.id) === venueIdFromRoute) || null;
-  }, [venueIdFromRoute]);
+  const venueCode = venueData?.title || "Unknown Venue";
+  const venueImage = venueData?.image || "/images/Dining-room.jpg";
 
-  const venueCode = venue?.title || "NGE 101"; //Doesn't work, needs fixing later
-
-  // Minimum selectable date is tomorrow (UI-level)
+  // Minimum selectable date is tomorrow
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const toISODate = (d) => d.toISOString().slice(0, 10);
   const minDate = toISODate(tomorrow);
 
-// --- Replace existing generateHourlyOptions / timeOptions with this ---
-const generateHourlyOptions = () => {
-  const opts = [];
-  // produce times from 07:00 (7 AM) through 22:00 (10 PM)
-  for (let h = 7; h <= 22; h++) {
-    const hour12 = ((h + 11) % 12) + 1;
-    const ampm = h < 12 ? "AM" : "PM";
-    opts.push({ value: `${String(h).padStart(2, "0")}:00`, label: `${hour12}:00 ${ampm}`, hour24: h });
-  }
-  return opts;
-};
-const timeOptions = useMemo(generateHourlyOptions, []);
+  const generateHourlyOptions = () => {
+    const opts = [];
+    for (let h = 7; h <= 22; h++) {
+      const hour12 = ((h + 11) % 12) + 1;
+      const ampm = h < 12 ? "AM" : "PM";
+      opts.push({ 
+        value: `${String(h).padStart(2, "0")}:00`, 
+        label: `${hour12}:00 ${ampm}`, 
+        hour24: h 
+      });
+    }
+    return opts;
+  };
+
+  const timeOptions = useMemo(generateHourlyOptions, []);
 
   // Form state
   const [eventName, setEventName] = useState("");
@@ -67,31 +46,26 @@ const timeOptions = useMemo(generateHourlyOptions, []);
   const [countdown, setCountdown] = useState(5);
   const countdownRef = useRef(null);
 
-// --- Replace allowedEndOptions useMemo with this ---
-const allowedEndOptions = useMemo(() => {
-  if (!startTime) return timeOptions;
-  const startHour = Number(startTime.split(":")[0]);
-  const endHours = [];
-  for (let delta = 1; delta <= 6; delta++) {
-    const h = startHour + delta;
-    // ensure end <= 22 (10 PM)
-    if (h <= 22) endHours.push(h);
-  }
-  return timeOptions.filter((opt) => endHours.includes(opt.hour24));
-}, [startTime, timeOptions]);
+  const allowedEndOptions = useMemo(() => {
+    if (!startTime) return timeOptions;
+    const startHour = Number(startTime.split(":")[0]);
+    const endHours = [];
+    for (let delta = 1; delta <= 6; delta++) {
+      const h = startHour + delta;
+      if (h <= 22) endHours.push(h);
+    }
+    return timeOptions.filter((opt) => endHours.includes(opt.hour24));
+  }, [startTime, timeOptions]);
 
-// --- Insert allowedStartOptions after timeOptions ---
-const allowedStartOptions = useMemo(() => {
-  // start candidates are times in timeOptions where at least one end option exists
-  return timeOptions.filter((opt) => {
-    const s = opt.hour24;
-    // earliest end is s+1, latest end is min(s+6, 22)
-    const latestEnd = Math.min(s + 6, 22);
-    return s + 1 <= latestEnd; // ensures at least one possible end hour
-  });
-}, [timeOptions]);
+  const allowedStartOptions = useMemo(() => {
+    return timeOptions.filter((opt) => {
+      const s = opt.hour24;
+      const latestEnd = Math.min(s + 6, 22);
+      return s + 1 <= latestEnd;
+    });
+  }, [timeOptions]);
 
-  // For ensuring endtime is valid
+  // Ensure endTime is valid when startTime changes
   useEffect(() => {
     const allowedValues = allowedEndOptions.map((o) => o.value);
     if (allowedValues.length === 0) {
@@ -99,16 +73,14 @@ const allowedStartOptions = useMemo(() => {
     } else if (!allowedValues.includes(endTime)) {
       setEndTime(allowedValues[0]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startTime, allowedEndOptions]);
 
-  // defaults
+  // Defaults
   useEffect(() => {
     if (!startTime) setStartTime("09:00");
     if (!endTime) setEndTime("10:00");
-  }, []); // run once
+  }, []);
 
-  // Validation rules: future date, start != end, max 6 hours, attendees positive, 24-hour advance
   const validate = () => {
     const e = {};
 
@@ -152,12 +124,15 @@ const allowedStartOptions = useMemo(() => {
     return Object.keys(e).length === 0;
   };
 
-  const handleCancel = (ev) => {
-    ev.preventDefault();
-    navigate(-1);
+  const formatEventDate = (isoDate) => {
+    try {
+      const d = new Date(isoDate);
+      return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+    } catch {
+      return isoDate;
+    }
   };
 
-  // helper: format "HH:MM" to localized time string like "10:00 AM"
   const toLocaleTime = (t) => {
     const [h, m] = t.split(":").map(Number);
     const d = new Date();
@@ -165,19 +140,7 @@ const allowedStartOptions = useMemo(() => {
     return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   };
 
-// --- Insert inside BookingForm component, above handleSubmit ---
-const formatEventDate = (isoDate) => {
-  try {
-    const d = new Date(isoDate);
-    // "12 Mar 2021" style
-    return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
-  } catch {
-    return isoDate;
-  }
-};
-
 const saveBookingToLocal = (payload) => {
-  // read existing bookings (or fallback to empty array)
   const existing = (() => {
     try {
       const raw = localStorage.getItem("userBookings");
@@ -188,8 +151,8 @@ const saveBookingToLocal = (payload) => {
   })();
 
   const newBooking = {
-    id: Date.now(), // simple unique id
-    venueName: payload.venueCode || "Unknown Venue",
+    id: Date.now(),
+    venueName: payload.venueCode,
     eventDate: formatEventDate(payload.date),
     duration: `${toLocaleTime(payload.startTime)} - ${toLocaleTime(payload.endTime)}`,
     guests: `${payload.attendees} pax`,
@@ -199,55 +162,94 @@ const saveBookingToLocal = (payload) => {
   };
 
   const updated = [newBooking, ...existing];
+  
   try {
+    // Save to bookings
     localStorage.setItem("userBookings", JSON.stringify(updated));
+    
+    window.dispatchEvent(new Event('bookingUpdated'));
+    
+    updateUserBookings(updated);
   } catch (err) {
-    // ignore write errors for now
     console.error("Failed to save booking to localStorage", err);
   }
 };
 
-const handleSubmit = (ev) => {
-  ev.preventDefault();
-  if (!validate()) return;
-
-  const payload = {
-    venueCode,
-    eventName: eventName.trim(),
-    eventType,
-    date,
-    startTime,
-    endTime,
-    attendees: Number(attendees),
-    description: description.trim(),
-    image: venue?.image || "/images/Dining-room.jpg",
-  };
-
-  // used in order to save to booking
-  saveBookingToLocal(payload);
-
-  // for confirmation modal
-  setSubmittedData(payload);
-  setShowConfirm(true);
-  setCountdown(5);
-
-  // countdown until the thing closes
-  if (countdownRef.current) clearInterval(countdownRef.current);
-  countdownRef.current = setInterval(() => {
-    setCountdown((c) => {
-      if (c <= 1) {
-        clearInterval(countdownRef.current);
-        setShowConfirm(false);
-        navigate(`/venues`);
-        return 0;
-      }
-      return c - 1;
-    });
-  }, 1000);
+const updateUserBookings = (bookings) => {
+  try {
+    const userRaw = localStorage.getItem("user");
+    if (userRaw) {
+      const user = JSON.parse(userRaw);
+      const updatedUser = {
+        ...user,
+        bookings: bookings.map((booking, index) => ({ 
+          id: booking.id || index 
+        }))
+      };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+  } catch (error) {
+    console.error("Error updating user bookings:", error);
+  }
 };
 
+const updateUserBookingCount = (count) => {
+  try {
+    const userRaw = localStorage.getItem("user");
+    if (userRaw) {
+      const user = JSON.parse(userRaw);
+      const updatedUser = {
+        ...user,
+        bookings: Array(count).fill().map((_, index) => ({ id: index + 1 })) // Create dummy booking objects
+      };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+  } catch (error) {
+    console.error("Error updating user booking count:", error);
+  }
+};
 
-  // cleanup countdown
+  const handleSubmit = (ev) => {
+    ev.preventDefault();
+    if (!validate()) return;
+
+    const payload = {
+      venueCode,
+      eventName: eventName.trim(),
+      eventType,
+      date,
+      startTime,
+      endTime,
+      attendees: Number(attendees),
+      description: description.trim(),
+      image: venueImage,
+    };
+
+    saveBookingToLocal(payload);
+    setSubmittedData(payload);
+    setShowConfirm(true);
+    setCountdown(5);
+
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    countdownRef.current = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(countdownRef.current);
+          setShowConfirm(false);
+          onClose();
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
+  };
+
+  const handleCancel = (ev) => {
+    ev.preventDefault();
+    onClose();
+  };
+
+  // Cleanup countdown
   useEffect(() => {
     return () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
@@ -255,12 +257,14 @@ const handleSubmit = (ev) => {
   }, []);
 
   return (
-    <main className="booking-form-page" aria-labelledby="bookingTitle">
-      <header className="booking-header">
-        <h1 id="bookingTitle">Booking Form - {venueCode}</h1>
-      </header>
+    <div className="booking-form-modal">
+      <div className="modal-header">
+        <h2 id="bookingTitle">Booking Form - {venueCode}</h2>
+        <button className="close-button" onClick={onClose}>×</button>
+      </div>
 
       <form className="booking-form" onSubmit={handleSubmit} noValidate>
+        {/* Form fields remain the same as your original */}
         <div className="row">
           <label className="field-label">Date</label>
           <input
@@ -386,7 +390,7 @@ const handleSubmit = (ev) => {
         </div>
       </form>
 
-      {/* This is the Confirmation modal */}
+      {/* Confirmation Modal */}
       {showConfirm && submittedData && (
         <div className="confirm-backdrop" role="dialog" aria-modal="true" aria-label="Booking confirmation">
           <div className="confirm-modal">
@@ -417,6 +421,7 @@ const handleSubmit = (ev) => {
                 onClick={() => {
                   if (countdownRef.current) clearInterval(countdownRef.current);
                   setShowConfirm(false);
+                  onClose();
                   navigate("/venues/bookings");
                 }}
               >
@@ -428,7 +433,7 @@ const handleSubmit = (ev) => {
                 onClick={() => {
                   if (countdownRef.current) clearInterval(countdownRef.current);
                   setShowConfirm(false);
-                  navigate(`/venues`);
+                  onClose();
                 }}
               >
                 Close ({countdown})
@@ -437,6 +442,6 @@ const handleSubmit = (ev) => {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/BookingHistory.css";
 
 export default function BookingHistory() {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate(); // Add this
 
   useEffect(() => {
     // Load bookings from localStorage
@@ -21,6 +23,10 @@ export default function BookingHistory() {
 
     loadBookings();
   }, []);
+
+  const handleViewClick = () => {
+    navigate("/venues/bookings"); // Navigate to bookings page
+  };
 
   if (isLoading) {
     return (
@@ -55,7 +61,9 @@ export default function BookingHistory() {
                   {booking.status || "Pending"}
                 </div>
               </div>
-              <button className="view-btn">View</button>
+              <button className="view-btn" onClick={handleViewClick}>
+                View
+              </button>
             </div>
           ))}
         </div>

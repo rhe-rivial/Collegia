@@ -7,70 +7,58 @@ export function UserProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadUser = () => {
-      const savedUser = JSON.parse(localStorage.getItem("collegia_user"));
-      if (savedUser) {
-        setUser({
-          name: savedUser.fullName || "User",
-          joined: savedUser.joined || new Date().getFullYear().toString(),
-          about: savedUser.about || "Add something about yourself...",
-          location: savedUser.location || "Not specified",
-          work: savedUser.work || "Not specified",
-          email: savedUser.email,
-          userType: savedUser.userType,
-          course: savedUser.course,
-          organization: savedUser.organization,
-          company: savedUser.company,
-          department: savedUser.department,
-        });
+    // Check if user is logged in from localStorage
+    const savedUser = localStorage.getItem("collegia_user");
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        
+        // Transform the signup data into profile data
+        const profileData = {
+          name: userData.fullName || "User",
+          about: userData.about || `${userData.userType} at ${userData.course || userData.company || userData.department || 'University'}`,
+          location: userData.location || "Cebu City, Philippines",
+          work: userData.work || `${userData.userType} - ${userData.course || userData.company || userData.department || 'University'}`,
+          joined: new Date().getFullYear().toString(),
+          bookings: []
+        };
+        
+        setUser(profileData);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
       }
-      setIsLoading(false);
-    };
-
-    loadUser();
+    }
+    setIsLoading(false);
   }, []);
 
-  const updateUser = (newUserData) => {
-    setUser(prev => {
-      const updatedUser = { ...prev, ...newUserData };
-      
-      const savedUser = JSON.parse(localStorage.getItem("collegia_user")) || {};
-      const updatedSavedUser = { ...savedUser, ...newUserData };
-      localStorage.setItem("collegia_user", JSON.stringify(updatedSavedUser));
-      
-      return updatedUser;
-    });
+  const updateUser = (newData) => {
+    setUser(prev => ({ ...prev, ...newData }));
   };
 
   const login = (userData) => {
-    const userObj = {
+    const profileData = {
       name: userData.fullName || "User",
-      joined: userData.joined || new Date().getFullYear().toString(),
-      about: userData.about || "Add something about yourself...",
-      location: userData.location || "Not specified",
-      work: userData.work || "Not specified",
-      email: userData.email,
-      userType: userData.userType,
-      course: userData.course,
-      organization: userData.organization,
-      company: userData.company,
-      department: userData.department,
+      about: userData.about || `${userData.userType} at ${userData.course || userData.company || userData.department || 'University'}`,
+      location: userData.location || "Cebu City, Philippines",
+      work: userData.work || `${userData.userType} - ${userData.course || userData.company || userData.department || 'University'}`,
+      joined: new Date().getFullYear().toString(),
+      bookings: []
     };
-    setUser(userObj);
+    setUser(profileData);
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("collegia_user");
   };
 
   return (
     <UserContext.Provider value={{ 
       user, 
-      updateUser, 
-      login, 
-      logout,
-      isLoading 
+      setUser, 
+      isLoading, 
+      updateUser,
+      login,
+      logout 
     }}>
       {children}
     </UserContext.Provider>
