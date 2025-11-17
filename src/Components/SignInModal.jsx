@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { UserContext } from "./UserContext";
 import "../styles/SignInModal.css";
 
 export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const { login } = useContext(UserContext);
 
   // Close on ESC
   useEffect(() => {
@@ -28,14 +30,16 @@ export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
       return setError("Incorrect password.");
 
     alert("Login Successfully!");
+    
+    // Update both state and context
     setIsLoggedIn(true);
+    login(savedUser); 
     onClose();
   };
 
-  // ⭐ Smooth transition (matches SignUp → SignIn behavior)
   const smoothlySwitchToSignup = () => {
-    onClose();     // close THIS modal
-    openSignUp();  // instantly open Sign Up (same smoothness as before)
+    onClose();
+    openSignUp();
   };
 
   return (
@@ -82,7 +86,7 @@ export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
 
         <div className="switch-row">
           <p>
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <button
               className="link-button"
               onClick={smoothlySwitchToSignup}

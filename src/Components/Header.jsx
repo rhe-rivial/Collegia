@@ -1,9 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "./UserContext";
 import "../styles/Header.css";
 
 export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpClick }) {
   const navigate = useNavigate();
+  const { logout } = useContext(UserContext); 
+
+  const handleLogout = () => {
+    logout(); 
+    onLogout(); 
+  };
 
   return (
     <header className="header">
@@ -19,7 +26,6 @@ export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpCl
       </nav>
 
       <div className="header-buttons">
-        {/* LOGGED OUT → Sign In + Sign Up */}
         {!isLoggedIn && (
           <>
             <button className="btn-signin" onClick={onSignInClick}>Sign In</button>
@@ -27,11 +33,9 @@ export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpCl
           </>
         )}
 
-        {/* LOGGED IN → Logout + Profile */}
         {isLoggedIn && (
           <>
-            <button className="btn-logout" onClick={onLogout}>Logout</button>
-
+            <button className="btn-logout" onClick={handleLogout}>Logout</button>
             <button className="profile-btn" onClick={() => navigate("/account")}>
               <img src="/images/default-profile.jpg" alt="Profile" className="profile-icon" />
             </button>
