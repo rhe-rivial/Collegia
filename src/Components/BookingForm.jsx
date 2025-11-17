@@ -422,7 +422,7 @@ const updateUserBookingCount = (count) => {
                   if (countdownRef.current) clearInterval(countdownRef.current);
                   setShowConfirm(false);
                   onClose();
-                  navigate("/venues/bookings");
+                  navigate("/bookings");
                 }}
               >
                 View My Bookings

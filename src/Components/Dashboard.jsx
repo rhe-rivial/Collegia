@@ -24,9 +24,6 @@ export default function Dashboard() {
         {/* Venue details page: /venues/venue/12 */}
         <Route path="venue/:id" element={<VenueDetails />} />
 
-        {/* Bookings: /venues/bookings */}
-        <Route path="bookings" element={<Bookings />} />
-
         {/* Bookings: /venues/bookings/venue/venue/:id/BookingForm */}
         <Route path="venue/:id/BookingForm" element={<BookingForm />} />
 
