@@ -1,20 +1,23 @@
 import React, { useState } from "react";
+import { authAPI } from "../api";
 import "../styles/SignUpModal.css";
 
 export default function SignUpModal({ onClose, openSignIn }) {
   const [form, setForm] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
     userType: "",
     course: "",
     organization: "",
-    company: "",
-    department: "",
+    affiliation: "", // For Coordinator ONLY
+    department: "", // For Faculty ONLY
   });
 
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,7 +25,7 @@ export default function SignUpModal({ onClose, openSignIn }) {
   };
 
   const validate = () => {
-    if (!form.fullName || !form.email || !form.password || !form.confirmPassword)
+    if (!form.firstName || !form.lastName || !form.email || !form.password || !form.confirmPassword)
       return "Please fill in all required fields.";
 
     if (!form.userType) return "Please select a user type.";
@@ -30,14 +33,17 @@ export default function SignUpModal({ onClose, openSignIn }) {
     if (form.password !== form.confirmPassword)
       return "Passwords do not match.";
 
-    // Dynamic fields
+    if (form.password.length < 6)
+      return "Password must be at least 6 characters long.";
+
+    // Dynamic fields validation
     if (form.userType === "Student") {
       if (!form.course || !form.organization)
         return "Course and Organization are required for Students.";
     }
 
     if (form.userType === "Coordinator") {
-      if (!form.company) return "Company Name is required for Coordinators.";
+      if (!form.affiliation) return "Affiliation is required for Coordinators.";
     }
 
     if (form.userType === "Faculty") {
@@ -47,31 +53,54 @@ export default function SignUpModal({ onClose, openSignIn }) {
     return null;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const err = validate();
-    if (err) return setError(err);
+    if (err) {
+      setError(err);
+      setIsLoading(false);
+      return;
+    }
 
-    // Save to localStorage
-    localStorage.setItem("collegia_user", JSON.stringify(form));
+    try {
+      const userData = {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        password: form.password,
+        userType: form.userType,
+        ...(form.userType === "Student" && { 
+          course: form.course, 
+          organization: form.organization 
+        }),
+        ...(form.userType === "Coordinator" && { 
+          affiliation: form.affiliation 
+        }),
+        ...(form.userType === "Faculty" && { 
+          department: form.department 
+        }),
+      };
 
-    alert("Account created successfully!");
-
-    onClose();
-    openSignIn();
+      // Added api call 
+      await authAPI.signUp(userData);
+      
+      alert("Account created successfully!");
+      onClose();
+      openSignIn();
+      
+    } catch (error) {
+      setError(error.message || "Sign up failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal-card"
-        onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: "85vh", overflowY: "auto" }}
-      >
-        <button className="close-btn" onClick={onClose}>
-          ✕
-        </button>
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        <button className="close-btn" onClick={onClose}>✕</button>
 
         <div className="modal-header">
           <h3 className="modal-title">Sign Up</h3>
@@ -80,14 +109,30 @@ export default function SignUpModal({ onClose, openSignIn }) {
         {error && <p className="error-text">{error}</p>}
 
         <form className="modal-form" onSubmit={handleSubmit}>
-          <label className="label">Full Name *</label>
-          <input
-            className="input-pill"
-            name="fullName"
-            value={form.fullName}
-            onChange={handleChange}
-            placeholder="Enter your full name"
-          />
+          <div className="form-row">
+            <div className="form-group">
+              <label className="label">First Name *</label>
+              <input
+                className="input-pill"
+                name="firstName"
+                value={form.firstName}
+                onChange={handleChange}
+                placeholder="Enter your first name"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="label">Last Name *</label>
+              <input
+                className="input-pill"
+                name="lastName"
+                value={form.lastName}
+                onChange={handleChange}
+                placeholder="Enter your last name"
+                required
+              />
+            </div>
+          </div>
 
           <label className="label">Email *</label>
           <input
@@ -97,6 +142,7 @@ export default function SignUpModal({ onClose, openSignIn }) {
             value={form.email}
             onChange={handleChange}
             placeholder="Enter your email address"
+            required
           />
 
           <label className="label">Password *</label>
@@ -106,7 +152,8 @@ export default function SignUpModal({ onClose, openSignIn }) {
             type="password"
             value={form.password}
             onChange={handleChange}
-            placeholder="Create a password"
+            placeholder="Create a password (min. 6 characters)"
+            required
           />
 
           <label className="label">Confirm Password *</label>
@@ -117,6 +164,7 @@ export default function SignUpModal({ onClose, openSignIn }) {
             value={form.confirmPassword}
             onChange={handleChange}
             placeholder="Confirm your password"
+            required
           />
 
           <label className="label">User Type *</label>
@@ -125,6 +173,7 @@ export default function SignUpModal({ onClose, openSignIn }) {
             name="userType"
             value={form.userType}
             onChange={handleChange}
+            required
           >
             <option value="">Select type</option>
             <option value="Student">Student</option>
@@ -132,7 +181,6 @@ export default function SignUpModal({ onClose, openSignIn }) {
             <option value="Faculty">Faculty</option>
           </select>
 
-          {/* Dynamic Fields */}
           {form.userType === "Student" && (
             <>
               <label className="label">Course *</label>
@@ -142,6 +190,7 @@ export default function SignUpModal({ onClose, openSignIn }) {
                 value={form.course}
                 onChange={handleChange}
                 placeholder="e.g., BSIT, BMMA"
+                required
               />
 
               <label className="label">Organization *</label>
@@ -151,19 +200,21 @@ export default function SignUpModal({ onClose, openSignIn }) {
                 value={form.organization}
                 onChange={handleChange}
                 placeholder="e.g., CCS, CNAHS"
+                required
               />
             </>
           )}
 
           {form.userType === "Coordinator" && (
             <>
-              <label className="label">Affiliated Company *</label>
+              <label className="label">Affiliation *</label>
               <input
                 className="input-pill"
-                name="company"
-                value={form.company}
+                name="affiliation"
+                value={form.affiliation}
                 onChange={handleChange}
-                placeholder="Enter company name"
+                placeholder="Enter company or organization name"
+                required
               />
             </>
           )}
@@ -177,12 +228,17 @@ export default function SignUpModal({ onClose, openSignIn }) {
                 value={form.department}
                 onChange={handleChange}
                 placeholder="Enter department"
+                required
               />
             </>
           )}
 
-          <button type="submit" className="btn-continue">
-            Create Account
+          <button 
+            type="submit" 
+            className="btn-continue"
+            disabled={isLoading}
+          >
+            {isLoading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
@@ -202,7 +258,6 @@ export default function SignUpModal({ onClose, openSignIn }) {
             </button>
           </p>
         </div>
-
       </div>
     </div>
   );

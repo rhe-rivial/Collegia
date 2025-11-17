@@ -1,4 +1,4 @@
-package com.example.entity;
+package com.example.collegia.entity;
 
 import jakarta.persistence.*;
 
@@ -12,13 +12,32 @@ public class UserEntity {
     private String lastName;
     private String email;
     private String userType;
+    private String password;
+    private String about;
+    private String location;
+    private String work;
+
+    public String getAbout() { return about; }
+    public void setAbout(String about) { this.about = about; }
+    
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+    
+    public String getWork() { return work; }
+    public void setWork(String work) { this.work = work; }
+
+    public String getName() {
+        return firstName + " " + lastName;
+    }
+
+    public String getPassword() { 
+        return password; }
+        
+    public void setPassword(String password) { 
+        this.password = password; }
 
     public Long getUserId() {
         return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public String getFirstName() {

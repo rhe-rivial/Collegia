@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { bookingAPI } from "../api.js";
 import "../styles/BookingForm.css";
 
 export default function BookingForm({ venueId, venueData, onClose }) {
@@ -140,40 +141,45 @@ export default function BookingForm({ venueId, venueData, onClose }) {
     return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   };
 
-const saveBookingToLocal = (payload) => {
-  const existing = (() => {
-    try {
-      const raw = localStorage.getItem("userBookings");
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  })();
-
-  const newBooking = {
-    id: Date.now(),
-    venueName: payload.venueCode,
-    eventDate: formatEventDate(payload.date),
-    duration: `${toLocaleTime(payload.startTime)} - ${toLocaleTime(payload.endTime)}`,
-    guests: `${payload.attendees} pax`,
-    bookedBy: "You",
-    status: "pending",
-    image: payload.image || "https://placehold.co/103x94",
-  };
-
-  const updated = [newBooking, ...existing];
-  
+const saveBookingToBackend = async (payload) => {
   try {
-    // Save to bookings
+    const bookingData = {
+      eventName: payload.eventName,
+      date: payload.date,
+      timeSlot: `${payload.startTime}-${payload.endTime}`,
+      capacity: parseInt(payload.attendees),
+      venueId: venueId,
+      description: payload.description,
+      eventType: payload.eventType
+    };
+
+    const savedBooking = await bookingAPI.createBooking(bookingData);
+    
+    // Update local cache for immediate UI update
+    const existing = JSON.parse(localStorage.getItem("userBookings") || "[]");
+    const newBooking = {
+      id: savedBooking.bookingId,
+      venueName: payload.venueCode,
+      eventDate: formatEventDate(payload.date),
+      duration: `${toLocaleTime(payload.startTime)} - ${toLocaleTime(payload.endTime)}`,
+      guests: `${payload.attendees} pax`,
+      bookedBy: "You",
+      status: savedBooking.status || "pending",
+      image: payload.image || "https://placehold.co/103x94",
+    };
+
+    const updated = [newBooking, ...existing];
     localStorage.setItem("userBookings", JSON.stringify(updated));
     
     window.dispatchEvent(new Event('bookingUpdated'));
     
-    updateUserBookings(updated);
-  } catch (err) {
-    console.error("Failed to save booking to localStorage", err);
+    return savedBooking;
+  } catch (error) {
+    console.error("Failed to save booking:", error);
+    throw error;
   }
 };
+
 
 const updateUserBookings = (bookings) => {
   try {
@@ -209,24 +215,26 @@ const updateUserBookingCount = (count) => {
   }
 };
 
-  const handleSubmit = (ev) => {
-    ev.preventDefault();
-    if (!validate()) return;
+// Updated handleSubmit function to deal with backend on Springboot
+const handleSubmit = async (ev) => {
+  ev.preventDefault();
+  if (!validate()) return;
 
-    const payload = {
-      venueCode,
-      eventName: eventName.trim(),
-      eventType,
-      date,
-      startTime,
-      endTime,
-      attendees: Number(attendees),
-      description: description.trim(),
-      image: venueImage,
-    };
+  const payload = {
+    venueCode,
+    eventName: eventName.trim(),
+    eventType,
+    date,
+    startTime,
+    endTime,
+    attendees: Number(attendees),
+    description: description.trim(),
+    image: venueImage,
+  };
 
-    saveBookingToLocal(payload);
-    setSubmittedData(payload);
+  try {
+    const savedBooking = await saveBookingToBackend(payload);
+    setSubmittedData({ ...payload, bookingId: savedBooking.bookingId });
     setShowConfirm(true);
     setCountdown(5);
 
@@ -242,7 +250,10 @@ const updateUserBookingCount = (count) => {
         return c - 1;
       });
     }, 1000);
-  };
+  } catch (error) {
+    setErrors({ submit: error.message });
+  }
+};
 
   const handleCancel = (ev) => {
     ev.preventDefault();
