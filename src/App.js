@@ -5,6 +5,7 @@ import Homepage from './Components/Homepage.jsx';
 import Dashboard from './Components/Dashboard.jsx';
 import Footer from './Components/Footer.jsx';
 import Header from './Components/Header.jsx';
+import Bookings from './Components/Bookings.jsx';
 
 import SignInModal from './Components/SignInModal.jsx';
 import SignUpModal from './Components/SignUpModal.jsx';
@@ -46,7 +47,8 @@ function App() {
           <div className="main-content">
             <Routes>
               <Route path="/" element={<Homepage />} />         
-              <Route path="/venues/*" element={<Dashboard />} />   
+              <Route path="/venues/*" element={<Dashboard />} />  
+              <Route path="/bookings/*" element={<Bookings />} />  
               <Route path="/faq" element={<div>FAQ Coming Soon...</div>} />
               <Route path="/account" element={<AccountPage />} />
               <Route path="/account/edit" element={<EditAccountPage />} />
