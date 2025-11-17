@@ -1,28 +1,20 @@
-package com.example.entity;
+package com.example.collegia.entity;
 
 import jakarta.persistence.*;
 
-import java.util.List;
-
 @Entity
-public class CustodianEntity {
+@Inheritance(strategy = InheritanceType.JOINED)
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long custodianId;
+    private Long userId;
     private String firstName;
     private String lastName;
-    private String department;
     private String email;
+    private String userType;
 
-    @OneToMany(mappedBy = "custodian", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VenueEntity> venueList;
-
-    public Long getCustodianId() {
-        return custodianId;
-    }
-
-    public void setCustodianId(Long custodianId) {
-        this.custodianId = custodianId;
+    public Long getUserId() {
+        return userId;
     }
 
     public String getFirstName() {
@@ -41,19 +33,19 @@ public class CustodianEntity {
         this.lastName = lastName;
     }
 
-    public String getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 }

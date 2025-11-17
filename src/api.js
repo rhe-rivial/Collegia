@@ -1,16 +1,10 @@
 const API_BASE_URL = 'http://localhost:8080/api';
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('authToken');
-  return token ? { 'Authorization': `Bearer ${token}` } : {};
-};
-
 async function apiCall(endpoint, options = {}) {
   try {
     const config = {
       headers: {
         'Content-Type': 'application/json',
-        ...getAuthHeaders(),
         ...options.headers,
       },
       ...options,
@@ -20,19 +14,47 @@ async function apiCall(endpoint, options = {}) {
       config.body = JSON.stringify(options.body);
     }
 
+    console.log('🔵 MAKING API CALL:', `${API_BASE_URL}${endpoint}`);
+    console.log('🔵 REQUEST BODY:', options.body);
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
+    console.log('🔵 RESPONSE STATUS:', response.status);
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `API error: ${response.status}`);
+      let errorMessage = `HTTP error! status: ${response.status}`;
+      try {
+        const errorText = await response.text();
+        console.log('🔵 ERROR RESPONSE TEXT:', errorText);
+        errorMessage = errorText || errorMessage;
+        
+        // Try to parse as JSON if possible
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (e) {
+          // Not JSON, use text as is
+        }
+      } catch (e) {
+        console.log('🔵 ERROR READING RESPONSE:', e);
+      }
+      throw new Error(errorMessage);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('🟢 SUCCESS RESPONSE:', data);
+    return data;
+
   } catch (error) {
-    console.error('API call failed:', error);
-    throw error;
+    console.error('🔴 API CALL FAILED:', error);
+    throw new Error(error.message || 'Network error');
   }
 }
+
+// Test connection first
+export const testAPI = {
+  testConnection: () => apiCall('/test'),
+};
 
 // Auth APIs for Login/Signup
 export const authAPI = {
@@ -89,7 +111,5 @@ export const venueAPI = {
   getVenue: (venueId) => apiCall(`/venues/${venueId}`),
   getVenuesByBuilding: (building) => apiCall(`/venues/building/${building}`),
 };
-
-//More to come?? 
 
 export default apiCall;

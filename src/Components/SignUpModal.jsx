@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { authAPI } from "./api";
+import { authAPI } from "../api";
 import "../styles/SignUpModal.css";
 
 export default function SignUpModal({ onClose, openSignIn }) {

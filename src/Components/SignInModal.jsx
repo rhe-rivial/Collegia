@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "./UserContext";
-import { authAPI } from "./api";
+import { authAPI } from "../api";
 import "../styles/SignInModal.css";
 
 export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
