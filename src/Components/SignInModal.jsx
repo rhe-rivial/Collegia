@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "./UserContext";
+import { authAPI } from "./api";
 import "../styles/SignInModal.css";
 
 export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useContext(UserContext);
 
-  // Close on ESC
+  //Please change here because it exits the window when selecting text all the way to the left
   useEffect(() => {
     const handler = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", handler);
@@ -19,22 +21,33 @@ export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    const savedUser = JSON.parse(localStorage.getItem("collegia_user"));
+    try {
+      const credentials = {
+        email: form.email,
+        password: form.password
+      };
 
-    if (!savedUser) return setError("No account found. Please sign up.");
-    if (form.email !== savedUser.email) return setError("Email not found.");
-    if (form.password !== savedUser.password)
-      return setError("Incorrect password.");
-
-    alert("Login Successfully!");
-    
-    // Update both state and context
-    setIsLoggedIn(true);
-    login(savedUser); 
-    onClose();
+      // api call 
+      const response = await authAPI.signIn(credentials);
+      
+      localStorage.setItem("authToken", response.token);
+      localStorage.setItem("currentUser", JSON.stringify(response.user));
+      
+      alert("Login Successful!");
+      
+      setIsLoggedIn(true);
+      login(response.user);
+      onClose();
+      
+    } catch (error) {
+      setError(error.message || "Login failed. Please check your credentials.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const smoothlySwitchToSignup = () => {
@@ -44,10 +57,7 @@ export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal-card"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <button className="close-btn" onClick={onClose}>✕</button>
 
         <div className="modal-header">
@@ -65,6 +75,7 @@ export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
             placeholder="Enter your email"
             value={form.email}
             onChange={handleChange}
+            required
           />
 
           <label className="label">Password</label>
@@ -75,10 +86,15 @@ export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
             placeholder="Enter your password"
             value={form.password}
             onChange={handleChange}
+            required
           />
 
-          <button type="submit" className="btn-continue">
-            Continue
+          <button 
+            type="submit" 
+            className="btn-continue"
+            disabled={isLoading}
+          >
+            {isLoading ? "Signing In..." : "Continue"}
           </button>
         </form>
 
