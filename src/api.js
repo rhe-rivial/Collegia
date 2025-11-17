@@ -28,21 +28,22 @@ async function apiCall(endpoint, options = {}) {
         const errorText = await response.text();
         console.log('🔵 ERROR RESPONSE TEXT:', errorText);
         errorMessage = errorText || errorMessage;
-        
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch (e) {
-        }
       } catch (e) {
         console.log('🔵 ERROR READING RESPONSE:', e);
       }
       throw new Error(errorMessage);
     }
 
-    const data = await response.json();
-    console.log('🟢 SUCCESS RESPONSE:', data);
-    return data;
+    // Check if response has content before parsing JSON
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const data = await response.json();
+      console.log('🟢 SUCCESS RESPONSE:', data);
+      return data;
+    } else {
+      console.log('🟢 SUCCESS RESPONSE: No content');
+      return null;
+    }
 
   } catch (error) {
     console.error('🔴 API CALL FAILED:', error);
@@ -50,30 +51,7 @@ async function apiCall(endpoint, options = {}) {
   }
 }
 
-// Test connection first
-export const testAPI = {
-  testConnection: () => apiCall('/test'),
-};
-
-// Auth APIs for Login/Signup
-export const authAPI = {
-  signUp: (userData) => apiCall('/auth/signup', {
-    method: 'POST',
-    body: userData,
-  }),
-  
-  signIn: (credentials) => apiCall('/auth/signin', {
-    method: 'POST',
-    body: credentials,
-  }),
-  
-  logout: () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
-  }
-};
-
-// Booking APIs 
+//Booking APIs - temp
 export const bookingAPI = {
   createBooking: (bookingData) => apiCall('/bookings', {
     method: 'POST',
@@ -94,21 +72,36 @@ export const bookingAPI = {
   }),
 };
 
-// User APIs
+// User APIs 
 export const userAPI = {
-  getCurrentUser: () => apiCall('/users/me'),
+  getUserById: (id) => apiCall(`/users/${id}`),
   
-  updateUserProfile: (profileData) => apiCall('/users/profile', {
+  updateUser: (id, userData) => apiCall(`/users/${id}`, {
     method: 'PUT',
-    body: profileData,
+    body: userData,
   }),
+  
+  getUserByEmail: (email) => apiCall(`/users/email/${email}`),
 };
 
-// Venue APIs
-export const venueAPI = {
-  getVenues: () => apiCall('/venues'),
-  getVenue: (venueId) => apiCall(`/venues/${venueId}`),
-  getVenuesByBuilding: (building) => apiCall(`/venues/building/${building}`),
+// Auth APIs 
+export const authAPI = {
+  signUp: (userData) => apiCall('/auth/signup', {
+    method: 'POST',
+    body: userData,
+  }),
+  
+  signIn: (credentials) => apiCall('/auth/signin', {
+    method: 'POST',
+    body: credentials,
+  }),
+  
+  logout: () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("currentUser");
+    localStorage.removeItem("userId");
+  }
+  
 };
 
 export default apiCall;

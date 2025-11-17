@@ -21,6 +21,7 @@ public class UserController {
         return userService.getAllUsers();
     }
     
+    // Keep only one getUserById method
     @GetMapping("/{id}")
     public ResponseEntity<UserEntity> getUserById(@PathVariable Long id) {
         Optional<UserEntity> user = userService.getUserById(id);
@@ -59,4 +60,5 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+    
 }

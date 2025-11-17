@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { bookingAPI } from "../api";
+import { bookingAPI } from "../api.js";
 import "../styles/BookingForm.css";
 
 export default function BookingForm({ venueId, venueData, onClose }) {
