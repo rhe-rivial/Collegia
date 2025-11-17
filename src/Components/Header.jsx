@@ -8,9 +8,19 @@ export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpCl
   const { logout } = useContext(UserContext); 
 
   const handleLogout = () => {
-    logout(); 
-    onLogout(); 
+      const isConfirmed = window.confirm("Are you sure you want to log out?");
+
+    if (isConfirmed) {
+      console.log("Logging out...");
+          onLogout();
+          navigate("/");
+    } else {
+      console.log("Logout cancelled.");
+    }
   };
+
+//{handleLogout}
+
 
   return (
     <header className="header">

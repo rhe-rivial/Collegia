@@ -37,7 +37,7 @@ function App() {
           {/* HEADER */}
           <Header
             isLoggedIn={isLoggedIn}
-            onLogout={() => setIsLoggedIn(false)} 
+            onLogout={() => setIsLoggedIn()} 
             onSignInClick={handleSignInClick}
             onSignUpClick={handleSignUpClick}
           />

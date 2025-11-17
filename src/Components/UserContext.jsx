@@ -6,6 +6,7 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+
   useEffect(() => {
     // Check if user is logged in from localStorage
     const savedUser = localStorage.getItem("collegia_user");
@@ -50,6 +51,7 @@ export function UserProvider({ children }) {
   const logout = () => {
     setUser(null);
   };
+
 
   return (
     <UserContext.Provider value={{ 
