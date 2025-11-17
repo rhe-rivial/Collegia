@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import "../styles/ExtendProfile.css";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
@@ -6,6 +6,29 @@ import { UserContext } from "./UserContext";
 export default function ExtendProfile({ isEditing }) {
   const navigate = useNavigate();
   const { user, updateUser } = useContext(UserContext);
+  const [bookingCount, setBookingCount] = useState(0);
+
+  // Load actual booking count from localStorage - FIXED: removed updateUser call
+  useEffect(() => {
+    const loadBookingCount = () => {
+      try {
+        const savedBookings = JSON.parse(localStorage.getItem("userBookings")) || [];
+        setBookingCount(savedBookings.length);
+      } catch (error) {
+        console.error("Error loading booking count:", error);
+      }
+    };
+
+    loadBookingCount();
+
+    // Listen for booking updates
+    const handleBookingUpdate = () => {
+      loadBookingCount();
+    };
+
+    window.addEventListener('bookingUpdated', handleBookingUpdate);
+    return () => window.removeEventListener('bookingUpdated', handleBookingUpdate);
+  }, []); // Empty dependency array to run only once
 
   if (!user) {
     return (
@@ -31,7 +54,8 @@ export default function ExtendProfile({ isEditing }) {
             Edit Profile
           </button>
 
-          <p className="booking-count">{user.bookings?.length || 0} Booking(s)</p>
+          {/* Use the actual booking count from localStorage */}
+          <p className="booking-count">{bookingCount} Booking(s)</p>
         </div>
       )}
 
@@ -42,11 +66,12 @@ export default function ExtendProfile({ isEditing }) {
   );
 }
 
+// Separate component for edit form
 function EditForm({ user, onSave, onCancel }) {
   const [formData, setFormData] = React.useState({
-    about: user.about,
-    location: user.location,
-    work: user.work
+    about: user.about || "",
+    location: user.location || "",
+    work: user.work || ""
   });
 
   const handleInputChange = (e) => {

@@ -140,34 +140,74 @@ export default function BookingForm({ venueId, venueData, onClose }) {
     return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   };
 
-  const saveBookingToLocal = (payload) => {
-    const existing = (() => {
-      try {
-        const raw = localStorage.getItem("userBookings");
-        return raw ? JSON.parse(raw) : [];
-      } catch {
-        return [];
-      }
-    })();
-
-    const newBooking = {
-      id: Date.now(),
-      venueName: payload.venueCode,
-      eventDate: formatEventDate(payload.date),
-      duration: `${toLocaleTime(payload.startTime)} - ${toLocaleTime(payload.endTime)}`,
-      guests: `${payload.attendees} pax`,
-      bookedBy: "You",
-      status: "pending",
-      image: payload.image,
-    };
-
-    const updated = [newBooking, ...existing];
+const saveBookingToLocal = (payload) => {
+  const existing = (() => {
     try {
-      localStorage.setItem("userBookings", JSON.stringify(updated));
-    } catch (err) {
-      console.error("Failed to save booking to localStorage", err);
+      const raw = localStorage.getItem("userBookings");
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
     }
+  })();
+
+  const newBooking = {
+    id: Date.now(),
+    venueName: payload.venueCode,
+    eventDate: formatEventDate(payload.date),
+    duration: `${toLocaleTime(payload.startTime)} - ${toLocaleTime(payload.endTime)}`,
+    guests: `${payload.attendees} pax`,
+    bookedBy: "You",
+    status: "pending",
+    image: payload.image || "https://placehold.co/103x94",
   };
+
+  const updated = [newBooking, ...existing];
+  
+  try {
+    // Save to bookings
+    localStorage.setItem("userBookings", JSON.stringify(updated));
+    
+    window.dispatchEvent(new Event('bookingUpdated'));
+    
+    updateUserBookings(updated);
+  } catch (err) {
+    console.error("Failed to save booking to localStorage", err);
+  }
+};
+
+const updateUserBookings = (bookings) => {
+  try {
+    const userRaw = localStorage.getItem("user");
+    if (userRaw) {
+      const user = JSON.parse(userRaw);
+      const updatedUser = {
+        ...user,
+        bookings: bookings.map((booking, index) => ({ 
+          id: booking.id || index 
+        }))
+      };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+  } catch (error) {
+    console.error("Error updating user bookings:", error);
+  }
+};
+
+const updateUserBookingCount = (count) => {
+  try {
+    const userRaw = localStorage.getItem("user");
+    if (userRaw) {
+      const user = JSON.parse(userRaw);
+      const updatedUser = {
+        ...user,
+        bookings: Array(count).fill().map((_, index) => ({ id: index + 1 })) // Create dummy booking objects
+      };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+  } catch (error) {
+    console.error("Error updating user booking count:", error);
+  }
+};
 
   const handleSubmit = (ev) => {
     ev.preventDefault();
