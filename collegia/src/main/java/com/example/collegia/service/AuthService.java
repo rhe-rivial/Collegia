@@ -1,6 +1,6 @@
 package com.example.collegia.service;
 
-import com.example.collegia.controller.AuthController; // Import the controller to access inner classes
+import com.example.collegia.controller.AuthController;
 import com.example.collegia.entity.CoordinatorEntity;
 import com.example.collegia.entity.FacultyEntity;
 import com.example.collegia.entity.StudentEntity;
@@ -28,29 +28,25 @@ public class AuthService {
     @Autowired
     private CoordinatorRepository coordinatorRepository;
 
-    // inner class from AuthController
     public UserEntity registerUser(AuthController.SignUpRequest request) {
         // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registered");
         }
 
-        // base user
+        // Create base user (no hashing)
         UserEntity user = new UserEntity();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setUserType(request.getUserType());
+        user.setPassword(request.getPassword()); // store raw password temporarily
 
         UserEntity savedUser = userRepository.save(user);
 
         switch (request.getUserType()) {
             case "Student":
                 StudentEntity student = new StudentEntity();
-                student.setFirstName(request.getFirstName());
-                student.setLastName(request.getLastName());
-                student.setEmail(request.getEmail());
-                student.setUserType(request.getUserType());
                 student.setCourse(request.getCourse());
                 student.setOrganization(request.getOrganization());
                 studentRepository.save(student);
@@ -58,20 +54,12 @@ public class AuthService {
 
             case "Faculty":
                 FacultyEntity faculty = new FacultyEntity();
-                faculty.setFirstName(request.getFirstName());
-                faculty.setLastName(request.getLastName());
-                faculty.setEmail(request.getEmail());
-                faculty.setUserType(request.getUserType());
                 faculty.setDepartment(request.getDepartment());
                 facultyRepository.save(faculty);
                 break;
 
             case "Coordinator":
                 CoordinatorEntity coordinator = new CoordinatorEntity();
-                coordinator.setFirstName(request.getFirstName());
-                coordinator.setLastName(request.getLastName());
-                coordinator.setEmail(request.getEmail());
-                coordinator.setUserType(request.getUserType());
                 coordinator.setAffiliation(request.getAffiliation());
                 coordinatorRepository.save(coordinator);
                 break;
@@ -80,12 +68,15 @@ public class AuthService {
         return savedUser;
     }
 
-    public UserEntity authenticateUser(String email, String password) {
-        Optional<UserEntity> user = userRepository.findByEmail(email);
-        if (user.isPresent()) {
-            // FOR FINAL use password hashing - pls
-            return user.get();
+    public UserEntity authenticateUser(String email, String rawPassword) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+        // Direct comparison of raw password
+        if (!rawPassword.equals(user.getPassword())) {
+            throw new RuntimeException("Invalid email or password");
         }
-        throw new RuntimeException("Invalid email or password");
+
+        return user;
     }
 }

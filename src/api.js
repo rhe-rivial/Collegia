@@ -3,6 +3,7 @@ const API_BASE_URL = 'http://localhost:8080/api';
 async function apiCall(endpoint, options = {}) {
   try {
     const config = {
+      credentials: 'include', 
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
@@ -28,12 +29,10 @@ async function apiCall(endpoint, options = {}) {
         console.log('🔵 ERROR RESPONSE TEXT:', errorText);
         errorMessage = errorText || errorMessage;
         
-        // Try to parse as JSON if possible
         try {
           const errorData = JSON.parse(errorText);
           errorMessage = errorData.message || errorData.error || errorMessage;
         } catch (e) {
-          // Not JSON, use text as is
         }
       } catch (e) {
         console.log('🔵 ERROR READING RESPONSE:', e);
