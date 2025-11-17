@@ -149,9 +149,9 @@ export default function VenueDetails() {
           </div>
 
           <div className="venue-right-column">
-            {/* <VenueBookingCard /> */}
-            <VenueBookingCard venueId={venueData.id}/>
-          </div>
+          <VenueBookingCard venueId={venueData.id} venueData={venueData} />
+        </div>
+        
         </div>
       </div>
     </div>
