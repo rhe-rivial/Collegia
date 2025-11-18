@@ -48,7 +48,7 @@ export default function ExtendProfile({ isEditing }) {
       {!isEditing && (
         <div className="extend-view">
           <h2>Hello, {user.name}</h2>
-          <p className="joined">Joined in {user.joined}</p>
+          <p className="joined">Joined in {user.joined || "2025"}</p>
 
           <button className="edit-btn" onClick={() => navigate("/account/edit")}>
             Edit Profile
@@ -89,7 +89,7 @@ function EditForm({ user, onSave, onCancel }) {
   return (
     <div className="extend-edit">
       <h2>Hello, {user.name}</h2>
-      <p className="joined">Joined in {user.joined}</p>
+      <p className="joined">Joined in {user.joined || "2025"}</p>
 
       <label>About</label>
       <textarea 

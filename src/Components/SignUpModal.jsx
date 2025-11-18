@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { authAPI } from "../api";
 import "../styles/SignUpModal.css";
+import CustomModal from "./CustomModal";
 
 export default function SignUpModal({ onClose, openSignIn }) {
   const [form, setForm] = useState({
@@ -18,6 +19,27 @@ export default function SignUpModal({ onClose, openSignIn }) {
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // For Success/Error message popups (use CustomModal instead of alert)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [closeAfterModal, setCloseAfterModal] = useState(false);
+
+  const handleAction = (message, shouldCloseParent = false) => {
+    setModalMessage(message);
+    setCloseAfterModal(shouldCloseParent);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setModalMessage("");
+    if (closeAfterModal) {
+      setCloseAfterModal(false);
+      onClose();
+      openSignIn();
+    }
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -85,21 +107,24 @@ export default function SignUpModal({ onClose, openSignIn }) {
 
       // Added api call 
       await authAPI.signUp(userData);
+
+      // Show success modal (will close the sign-up modal and open sign-in when dismissed)
+      handleAction("Account created successfully!", true);
       
-      alert("Account created successfully!");
-      onClose();
-      openSignIn();
-      
-    } catch (error) {
-      setError(error.message || "Sign up failed. Please try again.");
+    } catch (err) {
+      const message = err?.message || "Sign up failed. Please try again.";
+      setError(message);
+      // show error using CustomModal instead of alert
+      handleAction(message, false);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+    <>
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <button className="close-btn" onClick={onClose}>✕</button>
 
         <div className="modal-header">
@@ -259,6 +284,9 @@ export default function SignUpModal({ onClose, openSignIn }) {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+
+      <CustomModal isOpen={isModalOpen} message={modalMessage} onClose={handleCloseModal} />
+    </>
   );
 }
