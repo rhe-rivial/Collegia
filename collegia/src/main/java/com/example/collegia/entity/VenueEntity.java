@@ -13,7 +13,7 @@ public class VenueEntity {
     private String venueLocation;
     private int venueCapacity;
     private String image;
-    
+
     public String getImage() {
         return image;
     }
@@ -22,7 +22,7 @@ public class VenueEntity {
         this.image = image;
     }
     @ManyToOne
-    @JoinColumn(name = "custodianID")
+    @JoinColumn(name = "custodian_id")
     private CustodianEntity custodian;
 
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)

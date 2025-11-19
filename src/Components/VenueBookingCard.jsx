@@ -1,51 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/VenueDetails.css";
 import BookingForm from "./BookingForm.jsx";
 
 export default function VenueBookingCard({ venueId }) {
   const [showBookingForm, setShowBookingForm] = useState(false);
-  
+  const [venueData, setVenueData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const getVenueData = () => {
-    // TEMPORARY
-    const venuesData = [
-      // NGE
-      { id: 1, title: "NGE 101", image: "/images/Dining-room.jpg", tag: "NGE" },
-      { id: 2, title: "NGE Hall A", image: "/images/Dining-room.jpg", tag: "NGE" },
-      { id: 3, title: "NGE Hall B", image: "/images/Dining-room.jpg", tag: "NGE" },
+  // Fetch specific venue data
+  useEffect(() => {
+    const fetchVenueData = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/venues/${venueId}`);
+        if (response.ok) {
+          const venueFromApi = await response.json();
+          setVenueData(venueFromApi);
+        } else {
+          // Fallback data if venue not found
+          setVenueData({ 
+            venueName: "Unknown Venue", 
+            image: "/images/Dining-room.jpg" 
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching venue:", error);
+        setVenueData({ 
+          venueName: "Unknown Venue", 
+          image: "/images/Dining-room.jpg" 
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      // SAL
-      { id: 7, title: "Aurora Hall", image: "/images/Dining-room.jpg", tag: "SAL" },
-      { id: 8, title: "SAL Main Hall", image: "/images/Dining-room.jpg", tag: "SAL" },
-      { id: 9, title: "SAL Conference", image: "/images/Dining-room.jpg", tag: "SAL" },
-      { id: 10, title: "SAL Lounge", image: "/images/Dining-room.jpg", tag: "SAL" },
-
-      // GLE
-      { id: 13, title: "Skyline Lounge", image: "/images/Dining-room.jpg", tag: "GLE" },
-      { id: 14, title: "GLE Hall A", image: "/images/Dining-room.jpg", tag: "GLE" },
-      { id: 15, title: "GLE Hall B", image: "/images/Dining-room.jpg", tag: "GLE" },
-      { id: 16, title: "GLE Garden", image: "/images/Dining-room.jpg", tag: "GLE" },
-
-      // Court
-      { id: 19, title: "Court Pavilion", image: "/images/Dining-room.jpg", tag: "Court" },
-      { id: 20, title: "Court Hall A", image: "/images/Dining-room.jpg", tag: "Court" },
-      { id: 21, title: "Court Hall B", image: "/images/Dining-room.jpg", tag: "Court" },
-
-      // ACAD
-      { id: 25, title: "ACAD Hall", image: "/images/Dining-room.jpg", tag: "ACAD" },
-      { id: 26, title: "ACAD Conference", image: "/images/Dining-room.jpg", tag: "ACAD" },
-      { id: 27, title: "ACAD Lounge", image: "/images/Dining-room.jpg", tag: "ACAD" },
-
-      // More
-      { id: 31, title: "More Venue 1", image: "/images/Dining-room.jpg", tag: "More" },
-      { id: 32, title: "More Venue 2", image: "/images/Dining-room.jpg", tag: "More" },
-      { id: 33, title: "More Venue 3", image: "/images/Dining-room.jpg", tag: "More" },
-      { id: 34, title: "More Venue 4", image: "/images/Dining-room.jpg", tag: "More" },
-    ];
-    return venuesData.find(venue => venue.id === venueId) || { title: "Unknown Venue", image: "/images/Dining-room.jpg" };
-  };
-
-  const venueData = getVenueData();
+    fetchVenueData();
+  }, [venueId]);
 
   const handleBookNow = () => {
     setShowBookingForm(true);
@@ -62,6 +51,10 @@ export default function VenueBookingCard({ venueId }) {
   const handleContactHost = () => {
     console.log("Contact Host clicked");
   };
+
+  if (loading) {
+    return <div className="venue-booking-card">Loading...</div>;
+  }
 
   return (
     <>
