@@ -1,13 +1,113 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { bookingAPI } from "../api.js";
+import CustomModal from "./CustomModal.jsx";
 import "../styles/BookingForm.css";
+import { useUser } from "./UserContext";
+
 
 export default function BookingForm({ venueId, venueData, onClose }) {
   const navigate = useNavigate();
+  const { user } = useUser();
+  
+  const currentUser = user;
 
-  const venueCode = venueData?.title || "Unknown Venue";
+  const venueName = venueData?.venueName || "Unknown Venue";
   const venueImage = venueData?.image || "/images/Dining-room.jpg";
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+
+  useEffect(() => {
+    console.log('🔵 BookingForm - Context user:', user);
+    console.log('🔵 BookingForm - User ID:', user?.userId);
+    console.log('🔵 BookingForm - Venue ID:', venueId);
+    console.log('🔵 Extracted venueName:', venueName);
+    console.log('🔵 Extracted venueImage:', venueImage);
+  }, [user, venueId, venueName, venueImage]);
+
+  const saveBookingToBackend = async (payload) => {
+  console.log('🔵 saveBookingToBackend - currentUser:', currentUser);
+  
+  if (!currentUser || !currentUser.userId) {
+    const errorMsg = "You must be logged in to book a venue.";
+    setModalMessage(errorMsg);
+    setModalOpen(true);
+    throw new Error(errorMsg);
+  }
+
+  try {
+    const bookingDate = payload.date; 
+    
+    // "HH:mm:ss" format for java.sql.Time
+    const formattedTimeSlot = `${payload.startTime}:00`;
+    
+    const bookingData = {
+      eventName: payload.eventName,
+      date: bookingDate, 
+      timeSlot: formattedTimeSlot,
+      capacity: parseInt(payload.attendees),
+      description: payload.description,
+      eventType: payload.eventType,
+      status: false,
+      venue: payload.venue, 
+      user: { 
+        userId: parseInt(currentUser.userId) 
+      }
+    };
+
+    console.log('🔵 Sending booking data:', JSON.stringify(bookingData, null, 2));
+
+    const response = await fetch(`http://localhost:8080/api/bookings/user/${currentUser.userId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bookingData)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('🔴 Backend error response:', errorText);
+      throw new Error(`Failed to create booking: ${errorText}`);
+    }
+
+    const savedBooking = await response.json();
+    console.log('🟢 Booking saved successfully:', savedBooking);
+    
+    // Update local storage for immediate UI update
+    updateLocalBookings(savedBooking, payload);
+    
+    return savedBooking;
+  } catch (error) {
+    console.error("Failed to save booking:", error);
+    throw error;
+  }
+};
+
+
+  const updateLocalBookings = (savedBooking, payload) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("userBookings") || "[]");
+      const newBooking = {
+        id: savedBooking.bookingId,
+        venueName: venueName,
+        eventDate: formatEventDate(payload.date),
+        duration: `${toLocaleTime(payload.startTime)} - ${toLocaleTime(payload.endTime)}`,
+        guests: `${payload.attendees} pax`,
+        bookedBy: currentUser?.firstName || "You", // Use currentUser here
+        status: savedBooking.status ? "confirmed" : "pending",
+        image: venueImage,
+      };
+
+      const updated = [newBooking, ...existing];
+      localStorage.setItem("userBookings", JSON.stringify(updated));
+      
+      // Trigger event for other components
+      window.dispatchEvent(new Event('bookingUpdated'));
+    } catch (error) {
+      console.error("Error updating local bookings:", error);
+    }
+  };
 
   // Minimum selectable date is tomorrow
   const tomorrow = new Date();
@@ -141,45 +241,6 @@ export default function BookingForm({ venueId, venueData, onClose }) {
     return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   };
 
-const saveBookingToBackend = async (payload) => {
-  try {
-    const bookingData = {
-      eventName: payload.eventName,
-      date: payload.date,
-      timeSlot: `${payload.startTime}-${payload.endTime}`,
-      capacity: parseInt(payload.attendees),
-      venueId: venueId,
-      description: payload.description,
-      eventType: payload.eventType
-    };
-
-    const savedBooking = await bookingAPI.createBooking(bookingData);
-    
-    // Update local cache for immediate UI update
-    const existing = JSON.parse(localStorage.getItem("userBookings") || "[]");
-    const newBooking = {
-      id: savedBooking.bookingId,
-      venueName: payload.venueCode,
-      eventDate: formatEventDate(payload.date),
-      duration: `${toLocaleTime(payload.startTime)} - ${toLocaleTime(payload.endTime)}`,
-      guests: `${payload.attendees} pax`,
-      bookedBy: "You",
-      status: savedBooking.status || "pending",
-      image: payload.image || "https://placehold.co/103x94",
-    };
-
-    const updated = [newBooking, ...existing];
-    localStorage.setItem("userBookings", JSON.stringify(updated));
-    
-    window.dispatchEvent(new Event('bookingUpdated'));
-    
-    return savedBooking;
-  } catch (error) {
-    console.error("Failed to save booking:", error);
-    throw error;
-  }
-};
-
 
 const updateUserBookings = (bookings) => {
   try {
@@ -215,25 +276,44 @@ const updateUserBookingCount = (count) => {
   }
 };
 
-// Updated handleSubmit function to deal with backend on Springboot
 const handleSubmit = async (ev) => {
   ev.preventDefault();
-  if (!validate()) return;
+  console.log('🔵 Form submitted');
+  
+  const isValid = validate();
+  console.log('🔵 Form validation result:', isValid);
+  console.log('🔵 Current errors:', errors);
+  
+  if (!isValid) {
+    console.log('🔴 Form validation failed');
+    return;
+  }
 
+  // Debug the date before creating payload
+  console.log('🔵 Raw date from form:', date);
+  console.log('🔵 Date type:', typeof date);
+  
   const payload = {
-    venueCode,
+    venueName, 
     eventName: eventName.trim(),
     eventType,
-    date,
+    date: date, // Use the date directly as it's already in YYYY-MM-DD
     startTime,
     endTime,
     attendees: Number(attendees),
     description: description.trim(),
     image: venueImage,
+    venue: { venueId: parseInt(venueId) }
   };
 
+  console.log('🔵 Payload to submit:', payload);
+  console.log('🔵 Venue ID being sent:', venueId);
+
   try {
+    console.log('🟡 Starting saveBookingToBackend...');
     const savedBooking = await saveBookingToBackend(payload);
+    console.log('🟢 Booking saved successfully:', savedBooking);
+    
     setSubmittedData({ ...payload, bookingId: savedBooking.bookingId });
     setShowConfirm(true);
     setCountdown(5);
@@ -251,10 +331,10 @@ const handleSubmit = async (ev) => {
       });
     }, 1000);
   } catch (error) {
+    console.error('🔴 Error submitting form:', error);
     setErrors({ submit: error.message });
   }
 };
-
   const handleCancel = (ev) => {
     ev.preventDefault();
     onClose();
@@ -270,7 +350,7 @@ const handleSubmit = async (ev) => {
   return (
     <div className="booking-form-modal">
       <div className="modal-header">
-        <h2 id="bookingTitle">Booking Form - {venueCode}</h2>
+        <h2 id="bookingTitle">Booking Form - {venueName}</h2>
         <button className="close-button" onClick={onClose}>×</button>
       </div>
 
@@ -408,7 +488,7 @@ const handleSubmit = async (ev) => {
             <div className="confirm-top">
               <div className="celebrate">🎉</div>
               <h2>Booking submitted</h2>
-              <p className="confirm-venue">{submittedData.venueCode}</p>
+              <p className="confirm-venue">{submittedData.venueName}</p>
             </div>
 
             <div className="confirm-body">
@@ -453,6 +533,14 @@ const handleSubmit = async (ev) => {
           </div>
         </div>
       )}
+
+      
+      {/* Custom modal for errors */}
+      <CustomModal
+        isOpen={modalOpen}
+        message={modalMessage}
+        onClose={() => setModalOpen(false)}
+      />
     </div>
   );
 }

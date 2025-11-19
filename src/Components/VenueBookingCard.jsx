@@ -1,53 +1,90 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "../styles/VenueDetails.css";
 import BookingForm from "./BookingForm.jsx";
+import { UserContext } from "./UserContext"; // Import UserContext
 
-export default function VenueBookingCard({ venueId }) {
+export default function VenueBookingCard({ venueId, venueData, onOpenLoginModal }) {
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [venue, setVenue] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  //Debug receive login modal
+  console.log('🔵 VenueBookingCard - Received onOpenLoginModal:', !!onOpenLoginModal);
+
   
+  // Use UserContext to get authentication state
+  const { user, isLoading } = useContext(UserContext);
+  const isLoggedIn = !!user;
 
-  const getVenueData = () => {
-    // TEMPORARY
-    const venuesData = [
-      // NGE
-      { id: 1, title: "NGE 101", image: "/images/Dining-room.jpg", tag: "NGE" },
-      { id: 2, title: "NGE Hall A", image: "/images/Dining-room.jpg", tag: "NGE" },
-      { id: 3, title: "NGE Hall B", image: "/images/Dining-room.jpg", tag: "NGE" },
+  // Check login status - simplified using context
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      console.log('🔵 VenueBookingCard - Login check:', {
+        user: user ? 'exists' : 'null',
+        isLoggedIn: !!user
+      });
+    };
 
-      // SAL
-      { id: 7, title: "Aurora Hall", image: "/images/Dining-room.jpg", tag: "SAL" },
-      { id: 8, title: "SAL Main Hall", image: "/images/Dining-room.jpg", tag: "SAL" },
-      { id: 9, title: "SAL Conference", image: "/images/Dining-room.jpg", tag: "SAL" },
-      { id: 10, title: "SAL Lounge", image: "/images/Dining-room.jpg", tag: "SAL" },
+    checkLoginStatus();
+    
+    // Listen for login status changes
+    window.addEventListener('storage', checkLoginStatus);
+    window.addEventListener('loginStatusChange', checkLoginStatus);
+    
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+      window.removeEventListener('loginStatusChange', checkLoginStatus);
+    };
+  }, [user]); // Add user as dependency
 
-      // GLE
-      { id: 13, title: "Skyline Lounge", image: "/images/Dining-room.jpg", tag: "GLE" },
-      { id: 14, title: "GLE Hall A", image: "/images/Dining-room.jpg", tag: "GLE" },
-      { id: 15, title: "GLE Hall B", image: "/images/Dining-room.jpg", tag: "GLE" },
-      { id: 16, title: "GLE Garden", image: "/images/Dining-room.jpg", tag: "GLE" },
+  // Fetch or use venue data
+  useEffect(() => {
+    const initializeVenueData = async () => {
+      try {
+        if (venueData) {
+          setVenue(venueData);
+          setLoading(false);
+        } else {
+          const response = await fetch(`http://localhost:8080/api/venues/${venueId}`);
+          if (response.ok) {
+            const venueFromApi = await response.json();
+            setVenue(venueFromApi);
+          } else {
+            console.error("Failed to fetch venue data");
+            setVenue({
+              venueName: `Venue ${venueId}`,
+              venueLocation: "Unknown Location",
+              venueCapacity: 0,
+              image: "/images/Dining-room.jpg"
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching venue:", error);
+        setVenue({
+          venueName: `Venue ${venueId}`,
+          venueLocation: "Unknown Location", 
+          venueCapacity: 0,
+          image: "/images/Dining-room.jpg"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      // Court
-      { id: 19, title: "Court Pavilion", image: "/images/Dining-room.jpg", tag: "Court" },
-      { id: 20, title: "Court Hall A", image: "/images/Dining-room.jpg", tag: "Court" },
-      { id: 21, title: "Court Hall B", image: "/images/Dining-room.jpg", tag: "Court" },
-
-      // ACAD
-      { id: 25, title: "ACAD Hall", image: "/images/Dining-room.jpg", tag: "ACAD" },
-      { id: 26, title: "ACAD Conference", image: "/images/Dining-room.jpg", tag: "ACAD" },
-      { id: 27, title: "ACAD Lounge", image: "/images/Dining-room.jpg", tag: "ACAD" },
-
-      // More
-      { id: 31, title: "More Venue 1", image: "/images/Dining-room.jpg", tag: "More" },
-      { id: 32, title: "More Venue 2", image: "/images/Dining-room.jpg", tag: "More" },
-      { id: 33, title: "More Venue 3", image: "/images/Dining-room.jpg", tag: "More" },
-      { id: 34, title: "More Venue 4", image: "/images/Dining-room.jpg", tag: "More" },
-    ];
-    return venuesData.find(venue => venue.id === venueId) || { title: "Unknown Venue", image: "/images/Dining-room.jpg" };
-  };
-
-  const venueData = getVenueData();
+    initializeVenueData();
+  }, [venueId, venueData]);
 
   const handleBookNow = () => {
+    if (!isLoggedIn) {
+      if (onOpenLoginModal) {
+        console.log('🟡 VenueBookingCard - Opening login modal');
+        onOpenLoginModal();
+      } else {
+        console.error('🟠 VenueBookingCard - onOpenLoginModal not provided');
+      }
+      return;
+    }
     setShowBookingForm(true);
   };
 
@@ -56,12 +93,32 @@ export default function VenueBookingCard({ venueId }) {
   };
 
   const handleVenueInquiry = () => {
+    if (!isLoggedIn) {
+      if (onOpenLoginModal) {
+        onOpenLoginModal();
+      }
+      return;
+    }
     console.log("Venue Inquiry clicked");
   };
 
   const handleContactHost = () => {
+    if (!isLoggedIn) {
+      if (onOpenLoginModal) {
+        onOpenLoginModal();
+      }
+      return;
+    }
     console.log("Contact Host clicked");
   };
+
+  if (loading || isLoading) {
+    return <div className="venue-booking-card">Loading...</div>;
+  }
+
+  if (!venue) {
+    return <div className="venue-booking-card">Venue not found</div>;
+  }
 
   return (
     <>
@@ -90,19 +147,30 @@ export default function VenueBookingCard({ venueId }) {
           </div>
         </div>
         
-        <button className="book-now-button" onClick={handleBookNow}>
-          Book Now
+            <button 
+          className={`book-now-button`}
+          onClick={handleBookNow}
+        >
+          {isLoggedIn ? "Book Now" : "Sign in to book"}
         </button>
         
         <div className="action-links">
-          <button className="action-link" onClick={handleVenueInquiry}>
+          <button 
+            className={`action-link ${!isLoggedIn ? 'disabled' : ''}`}
+            onClick={handleVenueInquiry}
+            disabled={!isLoggedIn}
+          >
             <div className="link-icon inquiry-icon">
               <img src="/icons/office-building.svg" alt="Venue Inquiry" />
             </div>
             <span>Venue Inquiry</span>
           </button>
           
-          <button className="action-link" onClick={handleContactHost}>
+          <button 
+            className={`action-link ${!isLoggedIn ? 'disabled' : ''}`}
+            onClick={handleContactHost}
+            disabled={!isLoggedIn}
+          >
             <div className="link-icon contact-icon">
               <img src="/icons/contact.svg" alt="Contact Host" />
             </div>
@@ -112,12 +180,12 @@ export default function VenueBookingCard({ venueId }) {
       </div>
 
       {/* Booking Form Modal */}
-      {showBookingForm && (
+      {showBookingForm && venue && (
         <div className="modal-backdrop">
           <div className="modal-content">
             <BookingForm 
               venueId={venueId}
-              venueData={venueData}
+              venueData={venue}
               onClose={handleCloseBookingForm}
             />
           </div>

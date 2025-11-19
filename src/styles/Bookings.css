@@ -51,7 +51,6 @@
   font-weight: 800;
   margin: 0;
   line-height: 1.2;
-  
 }
 
 .book-venue-button {
@@ -143,20 +142,22 @@
 }
 
 .booking-item {
-  height: 105px;
+  height: fit-content;
   background: rgba(204.89, 185.41, 185.88, 0.30);
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 12px;
-  padding: 5px 11px;
+  padding: 15px 11px; 
   display: flex;
-  align-items: center;
+  align-items: flex-start; 
   gap: 20px;
   position: relative;
 }
 
 .booking-image {
-  width: 103.45px;
-  height: 94px;
+  margin: auto;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
   border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
@@ -167,6 +168,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0; /* Important for text overflow */
 }
 
 .venue-name {
@@ -174,6 +176,17 @@
   font-size: 16px;
   font-weight: 700;
   margin: 0;
+  line-height: 1.2;
+}
+
+.event-type {
+  color: #484848;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .booking-info {
@@ -185,24 +198,39 @@
 .info-group {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .info-label {
   color: var(--color-primary);
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .info-value {
   color: #484848;
   font-size: 13px;
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.event-description {
+  color: #666;
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  margin-top: 4px;
 }
 
 .booked-by {
   color: var(--color-primary);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
+  margin-top: 4px;
 }
 
 .booking-status {
@@ -213,6 +241,7 @@
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
+  flex-shrink: 0;
 }
 
 .status-indicator {
@@ -242,6 +271,13 @@
 .no-bookings p {
   font-size: 1.1rem;
   margin-bottom: 1.5rem;
+}
+
+.loading-bookings {
+  text-align: center;
+  padding: 3rem;
+  color: var(--color-primary);
+  font-size: 1.2rem;
 }
 
 /* Scrollbar Styling */
@@ -278,6 +314,7 @@
     position: static;
     transform: none;
     margin-left: auto;
+    margin-top: 10px;
   }
 }
 
@@ -316,14 +353,14 @@
     gap: 15px;
   }
   
-  .booking-image {
-    width: 100%;
-    height: 120px;
-  }
-  
   .booking-status {
     position: static;
     align-self: flex-end;
+    margin-top: 10px;
+  }
+  
+  .booking-details {
+    width: 100%;
   }
 }
 
@@ -339,5 +376,13 @@
   
   .tab {
     font-size: 14px;
+  }
+  
+  .event-type {
+    font-size: 13px;
+  }
+  
+  .venue-name {
+    font-size: 15px;
   }
 }

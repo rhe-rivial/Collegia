@@ -6,27 +6,55 @@ import VenueDetails from "./VenueDetails.jsx";
 import Bookings from "./Bookings.jsx"; 
 import BookingForm from "./BookingForm.jsx";
 import { Routes, Route } from "react-router-dom";
+import { useState } from "react";
 
-export default function Dashboard() {
+export default function Dashboard({ onOpenLoginModal }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    capacity: "",
+    location: ""
+  });
+
   return (
     <>
-      <SearchBar />
-      <Navigation />
+      <SearchBar 
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onFilterToggle={() => setShowFilters(!showFilters)}
+      />
+      <Navigation 
+        searchQuery={searchQuery}
+        filters={filters}
+        showFilters={showFilters}
+        onFiltersChange={setFilters}
+        onFilterToggle={() => setShowFilters(!showFilters)}
+      />
 
       <Routes>
-
         {/* Default page: /venues */}
-        <Route index element={<VenuesGrid />} />
+        <Route index element={
+          <VenuesGrid 
+            searchQuery={searchQuery}
+            filters={filters}
+            showFilters={showFilters}
+          />
+        } />
 
         {/* Filter categories: /venues/nge, /venues/sal, etc */}
-        <Route path=":tag" element={<VenuesGrid />} />
+        <Route path=":tag" element={
+          <VenuesGrid 
+            searchQuery={searchQuery}
+            filters={filters}
+            showFilters={showFilters}
+          />
+        } />
 
-        {/* Venue details page: /venues/venue/12 */}
-        <Route path="venue/:id" element={<VenueDetails />} />
-
-        {/* Bookings: /venues/bookings/venue/venue/:id/BookingForm */}
+        {/* Venue details page */}
+        <Route path="venue/:id" element={
+          <VenueDetails onOpenLoginModal={onOpenLoginModal} />
+        } />
         <Route path="venue/:id/BookingForm" element={<BookingForm />} />
-
       </Routes>
     </>
   );

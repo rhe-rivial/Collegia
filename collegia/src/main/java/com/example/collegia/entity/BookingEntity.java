@@ -1,4 +1,4 @@
-package com.example.collegia.entity;
+    package com.example.collegia.entity;
 
 import jakarta.persistence.*;
 
@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Entity
 public class BookingEntity {
-    @Id
+   @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookingId;
     private String eventName;
@@ -15,22 +15,25 @@ public class BookingEntity {
     private Time timeSlot;
     private boolean status;
     private int capacity;
+    private String description;
+    private String eventType;
 
     @ManyToOne
-    @JoinColumn(name = "custodianID")
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
+
+    @ManyToOne
+    @JoinColumn(name = "custodian_id")
     private CustodianEntity custodian;
 
     @ManyToOne
-    @JoinColumn(name = "venueID")
+    @JoinColumn(name = "venue_id")
     private VenueEntity venue;
 
     public Long getBookingId() {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
-        this.bookingId = bookingId;
-    }
 
     public String getEventName() {
         return eventName;
@@ -86,5 +89,30 @@ public class BookingEntity {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+        // Add getters and setters for new fields
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 }

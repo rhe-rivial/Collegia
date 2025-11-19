@@ -12,9 +12,17 @@ public class VenueEntity {
     private String venueName;
     private String venueLocation;
     private int venueCapacity;
+    private String image;
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
     @ManyToOne
-    @JoinColumn(name = "custodianID")
+    @JoinColumn(name = "custodian_id")
     private CustodianEntity custodian;
 
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -23,10 +31,6 @@ public class VenueEntity {
 
     public Long getVenueId() {
         return venueId;
-    }
-
-    public void setVenueId(Long venueId) {
-        this.venueId = venueId;
     }
 
     public String getVenueName() {

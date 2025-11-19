@@ -1,3 +1,4 @@
+
 package com.example.collegia.repository;
 
 import com.example.collegia.entity.BookingEntity;
@@ -12,4 +13,5 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
     List<BookingEntity> findByDate(Date date);
     List<BookingEntity> findByStatus(boolean status);
     List<BookingEntity> findByDateAndVenueVenueId(Date date, Long venueId);
+    List<BookingEntity> findByUserUserId(Long userId); 
 }

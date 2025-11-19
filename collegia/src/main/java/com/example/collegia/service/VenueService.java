@@ -43,7 +43,7 @@ public class VenueService {
     }
     
     public List<VenueEntity> getVenuesByLocation(String location) {
-        return venueRepository.findByVenueLocationContaining(location);
+        return venueRepository.findByVenueLocationIgnoreCase(location);
     }
     
     public List<VenueEntity> getVenuesByCapacity(int minCapacity) {

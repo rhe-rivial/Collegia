@@ -16,6 +16,17 @@ public class BookingController {
     
     @Autowired
     private BookingService bookingService;
+
+     @GetMapping("/user/{userId}")
+    public List<BookingEntity> getBookingsByUser(@PathVariable Long userId) {
+        return bookingService.getBookingsByUser(userId);
+    }
+
+    @PostMapping("/user/{userId}")
+    public BookingEntity createBookingForUser(@PathVariable Long userId, @RequestBody BookingEntity booking) {
+        return bookingService.createBooking(booking, userId);
+    }
+    
     
     @GetMapping
     public List<BookingEntity> getAllBookings() {
@@ -49,10 +60,6 @@ public class BookingController {
         return bookingService.isVenueAvailable(venueId, date);
     }
     
-    @PostMapping
-    public BookingEntity createBooking(@RequestBody BookingEntity booking) {
-        return bookingService.createBooking(booking);
-    }
     
     @PutMapping("/{id}")
     public ResponseEntity<BookingEntity> updateBooking(@PathVariable Long id, @RequestBody BookingEntity bookingDetails) {

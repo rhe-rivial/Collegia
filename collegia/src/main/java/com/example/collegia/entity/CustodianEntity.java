@@ -21,10 +21,6 @@ public class CustodianEntity {
         return custodianId;
     }
 
-    public void setCustodianId(Long custodianId) {
-        this.custodianId = custodianId;
-    }
-
     public String getFirstName() {
         return firstName;
     }
