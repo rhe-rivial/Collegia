@@ -1,46 +1,85 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "./UserContext";
+import { bookingAPI } from "../api";
 import "../styles/BookingHistory.css";
 
 export default function BookingHistory() {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { user } = useUser();
 
   useEffect(() => {
-    const loadBookings = () => {
+    const fetchBookingsFromDB = async () => {
+      if (!user || !user.userId) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const savedBookings = JSON.parse(localStorage.getItem("userBookings")) || [];
-        console.log('🔵 BookingHistory - Loaded bookings:', savedBookings);
-        setBookings(savedBookings);
-      } catch (error) {
-        console.error("Error loading bookings:", error);
+        console.log('🔵 BookingHistory - Fetching bookings for user:', user.userId);
+        const userBookings = await bookingAPI.getUserBookings(user.userId);
+        console.log('🟢 BookingHistory - Bookings from DB:', userBookings);
+        
+        // Transform the data to match your frontend format
+        const transformedBookings = userBookings.map(booking => ({
+          id: booking.bookingId,
+          venueName: booking.venue?.venueName || "Unknown Venue",
+          eventDate: formatEventDate(booking.date),
+          duration: formatTimeSlot(booking.timeSlot),
+          guests: `${booking.capacity} pax`,
+          bookedBy: user.firstName || "You",
+          status: booking.status ? "approved" : "pending",
+          image: booking.venue?.image || "/images/Dining-room.jpg",
+          eventName: booking.eventName,
+          eventType: booking.eventType
+        }));
+        
+        setBookings(transformedBookings);
+        setError(null);
+      } catch (err) {
+        console.error('🔴 BookingHistory - Error fetching bookings:', err);
+        setError("Failed to load bookings");
         setBookings([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Load initially
-    loadBookings();
+    fetchBookingsFromDB();
+  }, [user]);
 
-    // Listen for booking updates from other components
-    const handleBookingUpdate = () => {
-      console.log('🟡 BookingHistory - Booking update detected, reloading...');
-      loadBookings();
-    };
+  const formatEventDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString(undefined, { 
+        day: "2-digit", 
+        month: "short", 
+        year: "numeric" 
+      });
+    } catch {
+      return "Invalid date";
+    }
+  };
 
-    window.addEventListener('bookingUpdated', handleBookingUpdate);
-    window.addEventListener('storage', handleBookingUpdate);
-
-    return () => {
-      window.removeEventListener('bookingUpdated', handleBookingUpdate);
-      window.removeEventListener('storage', handleBookingUpdate);
-    };
-  }, []);
-
-  const handleViewClick = () => {
-    navigate("/bookings");
+  const formatTimeSlot = (timeSlot) => {
+    if (!timeSlot) return "";
+    
+    try {
+      // Handle both "HH:mm:ss" and Time object
+      const timeStr = typeof timeSlot === 'string' ? timeSlot : timeSlot.toString();
+      const [hours, minutes] = timeStr.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      
+      // For now, show just the start time. You might want to calculate end time based on your business logic
+      return `${hour12}:${minutes} ${ampm}`;
+    } catch {
+      return timeSlot;
+    }
   };
 
   const getStatusColor = (status) => {
@@ -53,6 +92,10 @@ export default function BookingHistory() {
     }
   };
 
+  const handleViewClick = () => {
+    navigate("/bookings");
+  };
+
   if (isLoading) {
     return (
       <div className="history-card">
@@ -62,47 +105,59 @@ export default function BookingHistory() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="history-card">
+        <h3 className="history-title">Booking History</h3>
+        <div className="empty-history">{error}</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="history-card">
+        <h3 className="history-title">Booking History</h3>
+        <div className="empty-history">Please log in to view your bookings</div>
+      </div>
+    );
+  }
+
   return (
     <div className="history-card">
       <h3 className="history-title">Booking History</h3>
 
       {bookings.length === 0 ? (
-        <div className="empty-history">No bookings yet.</div>
-      ) : (
-        <div className="history-list">
-          {bookings.slice(0, 3).map((booking, index) => ( // Show only latest 3
-            <div className="history-item" key={booking.id || index}>
-              <img 
-                src={booking.image || "/images/Dining-room.jpg"} 
-                alt="venue" 
-                className="history-thumb" 
-              />
-              <div className="history-info">
-                <div className="history-venue">{booking.venueName || "Venue"}</div>
-                <div className="history-date">{booking.eventDate || ""}</div>
-                <div className="history-time">{booking.duration || ""}</div>
-                <div className="history-guests">{booking.guests || ""}</div>
-                <div 
-                  className="history-status" 
-                  style={{ color: getStatusColor(booking.status) }}
-                >
-                  {booking.status || "Pending"}
-                </div>
-              </div>
-              <button className="view-btn" onClick={handleViewClick}>
-                View
-              </button>
+    <div className="empty-history">No bookings yet.</div>
+  ) : (
+    <div className="history-list">
+      {bookings.map((booking) => ( // Show all bookings
+        <div className="history-item" key={booking.id}>
+          <img 
+            src={booking.image} 
+            alt="venue" 
+            className="history-thumb" 
+          />
+          <div className="history-info">
+            <div className="history-venue">{booking.venueName}</div>
+            <div className="history-event">{booking.eventName} - {booking.eventType}</div>
+            <div className="history-date">{booking.eventDate}</div>
+            <div className="history-time">{booking.duration}</div>
+            <div className="history-guests">{booking.guests}</div>
+            <div 
+              className="history-status" 
+              style={{ color: getStatusColor(booking.status) }}
+            >
+              {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
             </div>
-          ))}
-          {bookings.length > 3 && (
-            <div className="view-all-container">
-              <button className="view-all-btn" onClick={handleViewClick}>
-                View All Bookings ({bookings.length})
-              </button>
-            </div>
-          )}
+          </div>
+          <button className="view-btn" onClick={handleViewClick}>
+            View
+          </button>
         </div>
-      )}
+      ))}
+    </div>
+  )}
     </div>
   );
 }
