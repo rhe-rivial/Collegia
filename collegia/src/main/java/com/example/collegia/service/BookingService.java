@@ -55,9 +55,6 @@ public class BookingService {
         return bookingRepository.findById(id);
     }
     
-    public BookingEntity createBooking(BookingEntity booking) {
-        return bookingRepository.save(booking);
-    }
     
     public BookingEntity updateBooking(Long id, BookingEntity bookingDetails) {
         BookingEntity booking = bookingRepository.findById(id)

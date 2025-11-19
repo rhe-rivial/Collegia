@@ -36,25 +36,26 @@ export default function BookingForm({ venueId, venueData, onClose }) {
   }
 
   try {
-    // Convert date format for backend
-    const bookingDate = new Date(payload.date);
+    const bookingDate = payload.date; 
     
     // "HH:mm:ss" format for java.sql.Time
     const formattedTimeSlot = `${payload.startTime}:00`;
     
     const bookingData = {
       eventName: payload.eventName,
-      date: bookingDate.toISOString().split('T')[0], // Send as "YYYY-MM-DD" string
-      timeSlot: formattedTimeSlot, // Send as "HH:mm:ss" string
+      date: bookingDate, 
+      timeSlot: formattedTimeSlot,
       capacity: parseInt(payload.attendees),
       description: payload.description,
       eventType: payload.eventType,
       status: false,
-      venue: { venueId: venueId },
-      user: { userId: currentUser.userId }
+      venue: payload.venue, 
+      user: { 
+        userId: parseInt(currentUser.userId) 
+      }
     };
 
-    console.log('🔵 Sending booking data:', bookingData);
+    console.log('🔵 Sending booking data:', JSON.stringify(bookingData, null, 2));
 
     const response = await fetch(`http://localhost:8080/api/bookings/user/${currentUser.userId}`, {
       method: 'POST',
@@ -66,6 +67,7 @@ export default function BookingForm({ venueId, venueData, onClose }) {
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('🔴 Backend error response:', errorText);
       throw new Error(`Failed to create booking: ${errorText}`);
     }
 
@@ -81,6 +83,7 @@ export default function BookingForm({ venueId, venueData, onClose }) {
     throw error;
   }
 };
+
 
   const updateLocalBookings = (savedBooking, payload) => {
     try {
@@ -273,60 +276,65 @@ const updateUserBookingCount = (count) => {
   }
 };
 
-  const handleSubmit = async (ev) => {
-    ev.preventDefault();
-    console.log('🔵 Form submitted');
-    
-    const isValid = validate();
-    console.log('🔵 Form validation result:', isValid);
-    console.log('🔵 Current errors:', errors);
-    
-    if (!isValid) {
-      console.log('🔴 Form validation failed');
-      return;
-    }
+const handleSubmit = async (ev) => {
+  ev.preventDefault();
+  console.log('🔵 Form submitted');
+  
+  const isValid = validate();
+  console.log('🔵 Form validation result:', isValid);
+  console.log('🔵 Current errors:', errors);
+  
+  if (!isValid) {
+    console.log('🔴 Form validation failed');
+    return;
+  }
 
-    const payload = {
-      venueName, 
-      eventName: eventName.trim(),
-      eventType,
-      date,
-      startTime,
-      endTime,
-      attendees: Number(attendees),
-      description: description.trim(),
-      image: venueImage,
-    };
-
-    console.log('🔵 Payload to submit:', payload);
-
-    try {
-      console.log('🟡 Starting saveBookingToBackend...');
-      const savedBooking = await saveBookingToBackend(payload);
-      console.log('🟢 Booking saved successfully:', savedBooking);
-      
-      setSubmittedData({ ...payload, bookingId: savedBooking.bookingId });
-      setShowConfirm(true);
-      setCountdown(5);
-
-      if (countdownRef.current) clearInterval(countdownRef.current);
-      countdownRef.current = setInterval(() => {
-        setCountdown((c) => {
-          if (c <= 1) {
-            clearInterval(countdownRef.current);
-            setShowConfirm(false);
-            onClose();
-            return 0;
-          }
-          return c - 1;
-        });
-      }, 1000);
-    } catch (error) {
-      console.error('🔴 Error submitting form:', error);
-      setErrors({ submit: error.message });
-    }
+  // Debug the date before creating payload
+  console.log('🔵 Raw date from form:', date);
+  console.log('🔵 Date type:', typeof date);
+  
+  const payload = {
+    venueName, 
+    eventName: eventName.trim(),
+    eventType,
+    date: date, // Use the date directly as it's already in YYYY-MM-DD
+    startTime,
+    endTime,
+    attendees: Number(attendees),
+    description: description.trim(),
+    image: venueImage,
+    venue: { venueId: parseInt(venueId) }
   };
 
+  console.log('🔵 Payload to submit:', payload);
+  console.log('🔵 Venue ID being sent:', venueId);
+
+  try {
+    console.log('🟡 Starting saveBookingToBackend...');
+    const savedBooking = await saveBookingToBackend(payload);
+    console.log('🟢 Booking saved successfully:', savedBooking);
+    
+    setSubmittedData({ ...payload, bookingId: savedBooking.bookingId });
+    setShowConfirm(true);
+    setCountdown(5);
+
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    countdownRef.current = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(countdownRef.current);
+          setShowConfirm(false);
+          onClose();
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
+  } catch (error) {
+    console.error('🔴 Error submitting form:', error);
+    setErrors({ submit: error.message });
+  }
+};
   const handleCancel = (ev) => {
     ev.preventDefault();
     onClose();
