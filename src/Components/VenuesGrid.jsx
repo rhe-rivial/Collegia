@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import VenuesCard from "./VenuesCard.jsx";
 import "../styles/VenuesCard.css";
 
-export default function VenuesGrid() {
+export default function VenuesGrid({ searchQuery, showFilters, filters }) {
   const location = useLocation();
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,9 +49,28 @@ export default function VenuesGrid() {
     setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const filteredVenues = venues.filter(
-    (venue) => venue.venueLocation.toLowerCase() === currentTag.toLowerCase()
-  );
+  const filteredVenues = venues.filter((venue) => {
+    // Only apply category filter when NOT searching and NOT showing filters
+    const categoryMatch = !searchQuery && !showFilters && currentTag !== "VENUES" 
+      ? venue.venueLocation.toLowerCase() === currentTag.toLowerCase()
+      : true; 
+
+    // Search filter
+    const searchMatch = !searchQuery || 
+      venue.venueName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      venue.venueLocation.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Capacity filter
+    const capacityMatch = !filters.capacity || 
+      venue.venueCapacity >= parseInt(filters.capacity);
+
+    // Location filter
+    const locationFilterMatch = !filters.location || 
+      venue.venueLocation === filters.location;
+
+    return categoryMatch && searchMatch && capacityMatch && locationFilterMatch;
+  });
+
 
   const venuesGridStyle = {
     display: "grid",
@@ -70,19 +89,40 @@ export default function VenuesGrid() {
 
   return (
     <div style={venuesGridStyle}>
+    {(searchQuery || filters.capacity || filters.location) && (
+      <div className="results-info">
+        <p>
+          Showing {filteredVenues.length} venue{filteredVenues.length !== 1 ? 's' : ''}
+          {searchQuery && ` for "${searchQuery}"`}
+          {filters.location && ` in ${filters.location}`}
+          {filters.capacity && ` with ${filters.capacity}+ capacity`}
+        </p>
+      </div>
+    )}
+
+
       {filteredVenues.length > 0 ? (
         filteredVenues.map((venue) => (
           <VenuesCard
             key={venue.venueId}
             id={venue.venueId}
             title={venue.venueName}
-            image={venue.image || "/images/Dining-room.jpg"} // Fallback image
+            image={venue.image || "/images/Dining-room.jpg"}
             isFavorite={favorites[venue.venueId] || false}
             onFavoriteToggle={() => toggleFavorite(venue.venueId)}
           />
         ))
       ) : (
-        <p>No venues found for "{currentTag.toUpperCase()}"</p>
+        <div className="no-results">
+        <p>
+          {(!searchQuery && !showFilters)
+            ? `No venues found for "${currentTag}"`
+            : "No venues match your search or filters"}
+        </p>
+        {(searchQuery || filters.capacity || filters.location) && (
+          <p>Try adjusting your search or filters</p>
+        )}
+      </div>
       )}
     </div>
   );
