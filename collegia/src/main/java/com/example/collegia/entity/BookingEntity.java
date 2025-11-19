@@ -1,4 +1,4 @@
-package com.example.collegia.entity;
+    package com.example.collegia.entity;
 
 import jakarta.persistence.*;
 
@@ -28,9 +28,6 @@ public class BookingEntity {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
-        this.bookingId = bookingId;
-    }
 
     public String getEventName() {
         return eventName;

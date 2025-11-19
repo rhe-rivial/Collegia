@@ -25,10 +25,6 @@ public class VenueEntity {
         return venueId;
     }
 
-    public void setVenueId(Long venueId) {
-        this.venueId = venueId;
-    }
-
     public String getVenueName() {
         return venueName;
     }

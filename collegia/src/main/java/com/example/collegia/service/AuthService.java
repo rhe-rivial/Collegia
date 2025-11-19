@@ -34,7 +34,6 @@ public class AuthService {
             throw new RuntimeException("Email already registered");
         }
 
-        // Create base user (no hashing)
         UserEntity user = new UserEntity();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());

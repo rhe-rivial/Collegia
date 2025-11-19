@@ -1,26 +1,31 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
+import CustomModal from "./CustomModal";
 import "../styles/Header.css";
 
 export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpClick }) {
   const navigate = useNavigate();
-  const { logout } = useContext(UserContext); 
+  const { logout } = useContext(UserContext);
+
+  // Modal state
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const handleLogout = () => {
-      const isConfirmed = window.confirm("Are you sure you want to log out?");
-
-    if (isConfirmed) {
-      console.log("Logging out...");
-          onLogout();
-          navigate("/");
-    } else {
-      console.log("Logout cancelled.");
-    }
+    setModalMessage("Are you sure you want to log out?");
+    setShowLogoutModal(true);
   };
 
-//{handleLogout}
+  const confirmLogout = () => {
+    onLogout();
+    navigate("/");
+    setShowLogoutModal(false);
+  };
 
+  const closeLogoutModal = () => {
+    setShowLogoutModal(false);
+  };
 
   return (
     <header className="header">
@@ -52,6 +57,15 @@ export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpCl
           </>
         )}
       </div>
+
+      {/* --- Custom Logout Modal --- */}
+      <CustomModal
+        isOpen={showLogoutModal}
+        message={modalMessage}
+        onClose={closeLogoutModal}
+        onConfirm={confirmLogout}
+        isConfirmOnly={false}
+      />
     </header>
   );
 }
