@@ -8,7 +8,7 @@ import BookingForm from "./BookingForm.jsx";
 import { Routes, Route } from "react-router-dom";
 import { useState } from "react";
 
-export default function Dashboard() {
+export default function Dashboard({ onOpenLoginModal }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -31,13 +31,13 @@ export default function Dashboard() {
         onFilterToggle={() => setShowFilters(!showFilters)}
       />
 
-        <Routes>
+      <Routes>
         {/* Default page: /venues */}
         <Route index element={
           <VenuesGrid 
             searchQuery={searchQuery}
             filters={filters}
-            showFilters={showFilters}       // <-- add this
+            showFilters={showFilters}
           />
         } />
 
@@ -46,12 +46,14 @@ export default function Dashboard() {
           <VenuesGrid 
             searchQuery={searchQuery}
             filters={filters}
-            showFilters={showFilters}       // <-- add this
+            showFilters={showFilters}
           />
         } />
 
         {/* Venue details page */}
-        <Route path="venue/:id" element={<VenueDetails />} />
+        <Route path="venue/:id" element={
+          <VenueDetails onOpenLoginModal={onOpenLoginModal} />
+        } />
         <Route path="venue/:id/BookingForm" element={<BookingForm />} />
       </Routes>
     </>

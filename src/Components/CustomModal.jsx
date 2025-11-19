@@ -1,9 +1,6 @@
 import React from 'react';
 import '../styles/CustomModal.css';
 
-// Supports three modes:
-// 1️⃣ Informational: onClose only → single OK button
-// 2️⃣ Confirmation: onConfirm and onCancel (or onClose) → Confirm + Cancel buttons
 const CustomModal = ({
   isOpen,
   message,

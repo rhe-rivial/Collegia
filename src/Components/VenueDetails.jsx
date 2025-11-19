@@ -29,7 +29,7 @@ const getDefaultVenueData = (id, title) => ({
   ]
 });
 
-export default function VenueDetails() {
+export default function VenueDetails({ onOpenLoginModal }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [venueData, setVenueData] = useState(null);
@@ -116,7 +116,11 @@ export default function VenueDetails() {
           </div>
 
           <div className="venue-right-column">
-            <VenueBookingCard venueId={venueData.venueId} venueData={venueData} />
+            <VenueBookingCard 
+              venueId={venueData.venueId} 
+              venueData={venueData}
+              onOpenLoginModal={onOpenLoginModal}
+            />
           </div>
         </div>
       </div>

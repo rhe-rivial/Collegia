@@ -1,7 +1,15 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { userAPI, authAPI } from '../api';
 
 export const UserContext = createContext();
+
+export function useUser() {
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  return context;
+}
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -12,16 +20,22 @@ export function UserProvider({ children }) {
       const token = localStorage.getItem("authToken");
       const savedUser = localStorage.getItem("currentUser");
       
+      console.log('🟡 UserContext - Initializing user:', {
+        token: token ? 'exists' : 'null',
+        savedUser: savedUser ? 'exists' : 'null'
+      });
+      
       if (token && savedUser) {
         try {
-          // Parse the saved user to get the ID
           const userData = JSON.parse(savedUser);
+          console.log('🟡 UserContext - Parsed user data:', userData);
           setUser(userData);
           
-          // Fetch fresh user data from backend using the user ID
+          // Fetch user data from backend using the user ID
           if (userData.userId) {
             try {
               const freshUserData = await userAPI.getUserById(userData.userId);
+              console.log('🟢 UserContext - Fresh user data:', freshUserData);
               setUser(freshUserData);
               localStorage.setItem("currentUser", JSON.stringify(freshUserData));
             } catch (error) {
@@ -32,6 +46,9 @@ export function UserProvider({ children }) {
           console.error("Error loading user:", error);
           authAPI.logout();
         }
+      } else {
+        console.log('🔴 UserContext - No user data found, setting user to null');
+        setUser(null); 
       }
       setIsLoading(false);
     };
@@ -79,7 +96,12 @@ export function UserProvider({ children }) {
 
   const logout = () => {
     setUser(null);
-    authAPI.logout();
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("currentUser");
+    localStorage.removeItem("userId");
+    
+    window.dispatchEvent(new Event('loginStatusChange'));
+    console.log('🔴 UserContext - User logged out');
   };
 
   return (

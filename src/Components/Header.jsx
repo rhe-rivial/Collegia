@@ -6,18 +6,25 @@ import "../styles/Header.css";
 
 export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpClick }) {
   const navigate = useNavigate();
-  const { logout } = useContext(UserContext);
+  const { logout, user } = useContext(UserContext); // Get user from context
 
   // Modal state
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
+  // Debug logging
+  console.log('🔵 Header - Props isLoggedIn:', isLoggedIn);
+  console.log('🔵 Header - Context user:', user);
+  console.log('🔵 Header - Context user ID:', user?.userId);
+
   const handleLogout = () => {
+    console.log('🟡 Header - Logout initiated');
     setModalMessage("Are you sure you want to log out?");
     setShowLogoutModal(true);
   };
 
   const confirmLogout = () => {
+    console.log('🔴 Header - Logout confirmed');
     onLogout();
     navigate("/");
     setShowLogoutModal(false);

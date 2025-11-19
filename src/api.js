@@ -51,25 +51,31 @@ async function apiCall(endpoint, options = {}) {
   }
 }
 
-//Booking APIs - temp
+//Booking API
 export const bookingAPI = {
-  createBooking: (bookingData) => apiCall('/bookings', {
-    method: 'POST',
-    body: bookingData,
-  }),
+  createBooking: async (bookingData, userId) => {
+    const response = await fetch(`http://localhost:8080/api/bookings/user/${userId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bookingData)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to create booking');
+    }
+    
+    return await response.json();
+  },
   
-  getUserBookings: () => apiCall('/bookings/my-bookings'),
-  
-  getBooking: (bookingId) => apiCall(`/bookings/${bookingId}`),
-  
-  updateBooking: (bookingId, updates) => apiCall(`/bookings/${bookingId}`, {
-    method: 'PUT',
-    body: updates,
-  }),
-  
-  deleteBooking: (bookingId) => apiCall(`/bookings/${bookingId}`, {
-    method: 'DELETE',
-  }),
+  getUserBookings: async (userId) => {
+    const response = await fetch(`http://localhost:8080/api/bookings/user/${userId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch bookings');
+    }
+    return await response.json();
+  }
 };
 
 // User APIs 

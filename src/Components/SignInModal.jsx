@@ -4,7 +4,7 @@ import { authAPI } from "../api";
 import "../styles/SignInModal.css";
 import CustomModal from "./CustomModal";
 
-export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
+export default function SignInModal({ onClose, openSignUp }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -57,10 +57,13 @@ export default function SignInModal({ onClose, setIsLoggedIn, openSignUp }) {
       localStorage.setItem("authToken", response.token);
       localStorage.setItem("currentUser", JSON.stringify(response.user));
 
+      // Trigger login status change event
+      const loginEvent = new Event('loginStatusChange');
+      window.dispatchEvent(loginEvent);
+
       // show success modal and close the sign-in modal when the user closes the CustomModal
       handleAction("Login successful", true);
 
-      setIsLoggedIn(true);
       login(response.user);
     } catch (err) {
       const message = err?.message || "Login failed. Please check your credentials.";
