@@ -12,7 +12,15 @@ public class VenueEntity {
     private String venueName;
     private String venueLocation;
     private int venueCapacity;
+    private String image;
+    
+    public String getImage() {
+        return image;
+    }
 
+    public void setImage(String image) {
+        this.image = image;
+    }
     @ManyToOne
     @JoinColumn(name = "custodianID")
     private CustodianEntity custodian;
