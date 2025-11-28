@@ -45,7 +45,7 @@
 }
 
 .input-pill{
-  width:100%;
+  width: 98%;
   background:var(--light-gray);
   border: none;
   padding:0.9rem 1rem;

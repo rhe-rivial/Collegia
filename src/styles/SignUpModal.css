@@ -45,7 +45,7 @@
 .hint-text{ font-size:0.78rem; color:#6b6b6b; margin-bottom:0.4rem; }
 
 .input-pill{
-  width:100%;
+  width:98%;
   background:var(--light-gray);
   border: none;
   padding:0.9rem 1rem;
@@ -55,6 +55,7 @@
   color:#111827;
   box-shadow: inset 0 0 0 1px transparent;
   transition: box-shadow .15s, transform .08s;
+
 }
 
 .input-pill:focus{
@@ -75,6 +76,21 @@
   background:transparent; border:none; outline:none; padding:0.6rem 0.4rem; border-radius:999px;
   font-size:0.95rem; appearance:none; -webkit-appearance:none;
 }
+
+/* Fix for the select dropdown pill */
+.input-pill[name="userType"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  position: relative;
+  padding-right: 2.5rem; /* space for the arrow */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%236b6b6b' height='20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5 8l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 14px;
+}
+
 
 .chev{ background:transparent; border:none; cursor:pointer; color:var(--red); font-size:1rem; }
 
