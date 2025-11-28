@@ -13,6 +13,8 @@ import SignUpModal from './Components/SignUpModal.jsx';
 import AccountPage from './Components/AccountPage.jsx';
 import EditAccountPage from './Components/EditAccountPage.jsx';
 
+import GuidePage from './Components/GuidePage.jsx';
+
 import { UserProvider, UserContext } from './Components/UserContext'; // Added UserContext import
 import './App.css';
 
@@ -71,6 +73,7 @@ function AppContent() {
             <Route path="/faq" element={<div>FAQ Coming Soon...</div>} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/account/edit" element={<EditAccountPage />} />
+            <Route path="/guide" element={<GuidePage />} />
           </Routes>
         </div>
 

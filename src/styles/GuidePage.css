@@ -1,0 +1,66 @@
+.guide-page {
+  width: 80%;
+  margin: 60px auto;
+}
+
+.guide-title {
+  color: var(--red);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.guide-subtitle {
+  color: #555;
+  margin-bottom: 30px;
+  font-size: 1rem;
+}
+
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.guide-step {
+  display: flex;
+  gap: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.step-icon {
+  width: 55px;
+  height: 55px;
+  filter: brightness(0) saturate(100%) invert(18%) sepia(38%) saturate(1500%) hue-rotate(330deg) brightness(90%);
+}
+
+.guide-step h2 {
+  margin: 0;
+  color: var(--red);
+  font-size: 1.3rem;
+}
+
+.guide-step p {
+  margin-top: 6px;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.back-button {
+  margin-top: 40px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 999px;
+  background: var(--red);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.back-button:hover {
+  background: #5e1e20;
+}

@@ -1,0 +1,79 @@
+/* MAIN CAROUSEL LAYOUT */
+.home-carousel-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Row of 3 images */
+.home-carousel-three {
+  display: flex;
+  gap: 12px;
+}
+
+.home-carousel-item {
+  width: 140px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.home-carousel-item:hover {
+  transform: scale(1.06);
+}
+
+/* Arrows */
+.home-carousel-arrow {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+}
+
+/* MODAL */
+.home-carousel-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+}
+
+.home-modal-content {
+  position: relative;
+  z-index: 3001;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.home-modal-image {
+  width: 600px;
+  max-height: 80vh;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.home-modal-arrow {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 3rem;
+  cursor: pointer;
+}
+
+/* Remove dots entirely */
+.home-carousel-dots,
+.home-dot {
+  display: none !important;
+}

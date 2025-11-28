@@ -5,8 +5,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 50px;
+  padding: 15px 50px;
   font-family: 'Montserrat', sans-serif;
+
+  /* Make the header stay at top when scrolled down */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .header-left {

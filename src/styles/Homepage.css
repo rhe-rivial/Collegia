@@ -31,8 +31,10 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -10%);
+  transform: translate(-43%, 95%);
   width: 80%;
+  display: flex;
+  justify-content: center;
 }
 
 /* FIND title + tabs */
@@ -74,6 +76,33 @@
   font-weight: 700;
   border-bottom: 2px solid white;
 }
+
+/* Hover underline for tabs */
+.find-tab {
+  position: relative;
+  transition: color 0.25s ease;
+}
+
+.find-tab::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0%;
+  height: 2px;
+  background: var(--yellow);
+  transition: width 0.25s ease;
+}
+
+.find-tab:hover {
+  color: var(--yellow);
+}
+
+.find-tab:hover::after {
+  width: 100%;
+}
+
 
 /* FIND SEARCH BAR */
 .find-search-bar {
@@ -220,7 +249,7 @@
   object-fit: cover;
 }
 
-/* GUIDE */
+/* GUIDE SECTION */
 .guide-section {
   margin: 50px auto;
   width: 85%;
@@ -233,14 +262,47 @@
   margin-top: 20px;
 }
 
+/* CLEAN SINGLE VERSION — FINAL GUIDE CARD STYLE */
 .guide-card {
   width: 30%;
-  height: 170px;
   background: white;
-  border-radius: 12px;
+  padding: 25px 20px;
+  border-radius: 14px;
   box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
 }
 
+/* Hover animation */
+.guide-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+}
+
+.guide-icon {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 18px;
+  filter: brightness(0) saturate(100%) invert(18%) sepia(38%) saturate(1500%) hue-rotate(330deg) brightness(90%);
+}
+
+.guide-card h3 {
+  font-size: 1.25rem;
+  color: var(--red);
+  margin-bottom: 8px;
+}
+
+.guide-card p {
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Guide row captions below cards */
 .guide-row-text {
   display: flex;
   justify-content: space-between;
@@ -257,6 +319,7 @@
   font-weight: 600;
   cursor: pointer;
 }
+
 
 /* DISCOVER SECTION */
 .discover-section {

@@ -50,7 +50,7 @@ export default function SignUpModal({ onClose, openSignIn }) {
     if (!form.firstName || !form.lastName || !form.email || !form.password || !form.confirmPassword)
       return "Please fill in all required fields.";
 
-    if (!form.userType) return "Please select a user type.";
+    if (!form.userType) return "Please select a role.";
 
     if (form.password !== form.confirmPassword)
       return "Passwords do not match.";
@@ -192,7 +192,7 @@ export default function SignUpModal({ onClose, openSignIn }) {
             required
           />
 
-          <label className="label">User Type *</label>
+          <label className="label">Role *</label>
           <select
             className="input-pill"
             name="userType"
@@ -200,7 +200,7 @@ export default function SignUpModal({ onClose, openSignIn }) {
             onChange={handleChange}
             required
           >
-            <option value="">Select type</option>
+            <option value="">Select Role</option>
             <option value="Student">Student</option>
             <option value="Coordinator">Coordinator</option>
             <option value="Faculty">Faculty</option>
