@@ -40,7 +40,6 @@ public class UserService {
         
         user.setAbout(userDetails.getAbout());
         user.setLocation(userDetails.getLocation());
-        user.setWork(userDetails.getWork());
         
         return userRepository.save(user);
     }

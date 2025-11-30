@@ -2,33 +2,31 @@ import React, { useContext, useState, useEffect } from "react";
 import "../styles/ExtendProfile.css";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
+import { bookingAPI } from "../api";
 
 export default function ExtendProfile({ isEditing }) {
   const navigate = useNavigate();
   const { user, updateUser } = useContext(UserContext);
   const [bookingCount, setBookingCount] = useState(0);
 
-  // Load actual booking count from localStorage - FIXED: removed updateUser call
   useEffect(() => {
-    const loadBookingCount = () => {
+    if (!user || !user.userId) {
+      return;
+    }
+
+    const loadBookingCount = async () => {
       try {
-        const savedBookings = JSON.parse(localStorage.getItem("userBookings")) || [];
-        setBookingCount(savedBookings.length);
+        const userBookings = await bookingAPI.getUserBookings(user.userId);
+        const validBookings = Array.isArray(userBookings) ? userBookings : [];
+        setBookingCount(validBookings.length);
       } catch (error) {
         console.error("Error loading booking count:", error);
+        setBookingCount(0);
       }
     };
 
     loadBookingCount();
-
-    // Listen for booking updates
-    const handleBookingUpdate = () => {
-      loadBookingCount();
-    };
-
-    window.addEventListener('bookingUpdated', handleBookingUpdate);
-    return () => window.removeEventListener('bookingUpdated', handleBookingUpdate);
-  }, []); // Empty dependency array to run only once
+  }, [user]); 
 
   if (!user) {
     return (
@@ -54,8 +52,7 @@ export default function ExtendProfile({ isEditing }) {
             Edit Profile
           </button>
 
-          {/* Use the actual booking count from localStorage */}
-          <p className="booking-count">{bookingCount} Booking(s)</p>
+          <p className="booking-count">{bookingCount} Booking{bookingCount !== 1 ? 's' : ''}</p>
         </div>
       )}
 
@@ -66,7 +63,6 @@ export default function ExtendProfile({ isEditing }) {
   );
 }
 
-// Separate component for edit form
 function EditForm({ user, onSave, onCancel }) {
   const [formData, setFormData] = React.useState({
     about: user.about || "",
