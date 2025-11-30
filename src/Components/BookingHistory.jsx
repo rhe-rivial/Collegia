@@ -4,13 +4,14 @@ import { useUser } from "./UserContext";
 import { bookingAPI } from "../api";
 import "../styles/BookingHistory.css";
 
+
 export default function BookingHistory() {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { user } = useUser();
-
+  
   useEffect(() => {
     const fetchBookingsFromDB = async () => {
       if (!user || !user.userId) {
@@ -24,18 +25,25 @@ export default function BookingHistory() {
         console.log('🟢 BookingHistory - Bookings from DB:', userBookings);
         
         // Transform the data to match your frontend format
-        const transformedBookings = userBookings.map(booking => ({
-          id: booking.bookingId,
-          venueName: booking.venue?.venueName || "Unknown Venue",
-          eventDate: formatEventDate(booking.date),
-          duration: formatTimeSlot(booking.timeSlot),
-          guests: `${booking.capacity} pax`,
-          bookedBy: user.firstName || "You",
-          status: booking.status ? "approved" : "pending",
-          image: booking.venue?.image || "/images/Dining-room.jpg",
-          eventName: booking.eventName,
-          eventType: booking.eventType
-        }));
+const transformedBookings = userBookings.map(booking => {
+  const startTime = formatTimeSlot(booking.timeSlot);
+  const endTime = calculateEndTime(booking.timeSlot, 1); // default +1 hour
+
+  return {
+    id: booking.bookingId,
+    venueName: booking.venue?.venueName || "Unknown Venue",
+    startTime,
+    endTime,
+    duration: `${startTime} - ${endTime}`,
+    guests: `${booking.capacity} pax`,
+    bookedBy: user.firstName || "You",
+    status: booking.status ? "approved" : "pending",
+    image: booking.venue?.image || "/images/Dining-room.jpg",
+    eventName: booking.eventName,
+    eventType: booking.eventType
+  };
+});
+
         
         setBookings(transformedBookings);
         setError(null);
@@ -63,6 +71,21 @@ export default function BookingHistory() {
       return "Invalid date";
     }
   };
+
+const calculateEndTime = (timeSlot, durationHours = 1) => {
+  try {
+    const timeStr = typeof timeSlot === "string" ? timeSlot : timeSlot.toString();
+    const [hours, minutes] = timeStr.split(":").slice(0, 2).map(Number);
+    const start = new Date();
+    start.setHours(hours, minutes || 0, 0, 0);
+    const end = new Date(start.getTime() + durationHours * 60 * 60 * 1000);
+    return end.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  } catch {
+    return "";
+  }
+};
+
+
 
   const formatTimeSlot = (timeSlot) => {
     if (!timeSlot) return "";

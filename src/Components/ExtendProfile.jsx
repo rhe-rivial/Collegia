@@ -8,27 +8,38 @@ export default function ExtendProfile({ isEditing }) {
   const { user, updateUser } = useContext(UserContext);
   const [bookingCount, setBookingCount] = useState(0);
 
-  // Load actual booking count from localStorage - FIXED: removed updateUser call
   useEffect(() => {
     const loadBookingCount = () => {
       try {
-        const savedBookings = JSON.parse(localStorage.getItem("userBookings")) || [];
-        setBookingCount(savedBookings.length);
+        const raw = localStorage.getItem("userBookings");
+        let savedBookings = [];
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          savedBookings = Array.isArray(parsed)
+            ? parsed
+            : Array.isArray(parsed?.bookings)
+            ? parsed.bookings
+            : Array.isArray(parsed?.content)
+            ? parsed.content
+            : [];
+        }
+        const count = Number(Array.isArray(savedBookings) ? savedBookings.length : 0);
+        console.log("Booking count loaded:", count, savedBookings);
+        setBookingCount(count);
       } catch (error) {
         console.error("Error loading booking count:", error);
+        setBookingCount(0);
       }
     };
 
     loadBookingCount();
-
-    // Listen for booking updates
-    const handleBookingUpdate = () => {
-      loadBookingCount();
+    window.addEventListener("bookingUpdated", loadBookingCount);
+    window.addEventListener("loginStatusChange", loadBookingCount);
+    return () => {
+      window.removeEventListener("bookingUpdated", loadBookingCount);
+      window.removeEventListener("loginStatusChange", loadBookingCount);
     };
-
-    window.addEventListener('bookingUpdated', handleBookingUpdate);
-    return () => window.removeEventListener('bookingUpdated', handleBookingUpdate);
-  }, []); // Empty dependency array to run only once
+  }, []);
 
   if (!user) {
     return (
@@ -54,8 +65,9 @@ export default function ExtendProfile({ isEditing }) {
             Edit Profile
           </button>
 
-          {/* Use the actual booking count from localStorage */}
-          <p className="booking-count">{bookingCount} Booking(s)</p>
+          <p className="booking-count">
+            {Number(bookingCount) > 0 ? `${bookingCount} Booking(s)` : "No bookings yet"}
+          </p>
         </div>
       )}
 
@@ -66,7 +78,6 @@ export default function ExtendProfile({ isEditing }) {
   );
 }
 
-// Separate component for edit form
 function EditForm({ user, onSave, onCancel }) {
   const [formData, setFormData] = React.useState({
     about: user.about || "",

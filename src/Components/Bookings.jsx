@@ -42,7 +42,7 @@ export default function Bookings() {
           id: booking.bookingId,
           venueName: booking.venue?.venueName || "Unknown Venue",
           eventDate: formatEventDate(booking.date),
-          duration: formatTimeSlot(booking.timeSlot),
+          duration: formatTimeSlot(booking.timeSlot, 1),
           guests: `${booking.capacity} pax`,
           bookedBy: user.firstName || "You",
           status: booking.status ? "approved" : "pending",
@@ -219,9 +219,11 @@ export default function Bookings() {
                     </div>
                     
                     <div className="info-group">
-                      <span className="info-label">Duration: </span>
+                      <span className="info-label">Start time: </span>
                       <span className="info-value">{booking.duration}</span>
                     </div>
+
+                    
                     
                     <div className="info-group">
                       <span className="info-label">Guests</span>
