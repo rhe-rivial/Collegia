@@ -30,7 +30,7 @@ export default function ProfileDetails() {
       </div>
 
       <div className="profile-section">
-        <h4>User Type</h4>
+        <h4>Role</h4>
         <p>{user.userType}</p>
       </div>
 
