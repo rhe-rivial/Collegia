@@ -92,6 +92,7 @@ export default function BookingForm({ venueId, venueData, onClose }) {
         id: savedBooking.bookingId,
         venueName: venueName,
         eventDate: formatEventDate(payload.date),
+        endTime: toLocaleTime(payload.endTime),
         duration: `${toLocaleTime(payload.startTime)} - ${toLocaleTime(payload.endTime)}`,
         guests: `${payload.attendees} pax`,
         bookedBy: currentUser?.firstName || "You", // Use currentUser here
@@ -257,22 +258,6 @@ const updateUserBookings = (bookings) => {
     }
   } catch (error) {
     console.error("Error updating user bookings:", error);
-  }
-};
-
-const updateUserBookingCount = (count) => {
-  try {
-    const userRaw = localStorage.getItem("user");
-    if (userRaw) {
-      const user = JSON.parse(userRaw);
-      const updatedUser = {
-        ...user,
-        bookings: Array(count).fill().map((_, index) => ({ id: index + 1 })) // Create dummy booking objects
-      };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-    }
-  } catch (error) {
-    console.error("Error updating user booking count:", error);
   }
 };
 

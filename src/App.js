@@ -17,6 +17,7 @@ import GuidePage from './Components/GuidePage.jsx';
 
 import { UserProvider, UserContext } from './Components/UserContext'; // Added UserContext import
 import './App.css';
+import FAQ from './Components/FAQ.jsx';
 
 // Create a separate component that uses the UserContext
 function AppContent() {
@@ -70,7 +71,7 @@ function AppContent() {
               <Dashboard onOpenLoginModal={handleOpenLoginModal} />
             } />  
             <Route path="/bookings/*" element={<Bookings />} />  
-            <Route path="/faq" element={<div>FAQ Coming Soon...</div>} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/account/edit" element={<EditAccountPage />} />
             <Route path="/guide" element={<GuidePage />} />

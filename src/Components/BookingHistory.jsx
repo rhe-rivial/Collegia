@@ -4,13 +4,14 @@ import { useUser } from "./UserContext";
 import { bookingAPI } from "../api";
 import "../styles/BookingHistory.css";
 
+
 export default function BookingHistory() {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { user } = useUser();
-
+  
   useEffect(() => {
     const fetchBookingsFromDB = async () => {
       if (!user || !user.userId) {
@@ -60,6 +61,21 @@ export default function BookingHistory() {
       return "Invalid date";
     }
   };
+
+const calculateEndTime = (timeSlot, durationHours = 1) => {
+  try {
+    const timeStr = typeof timeSlot === "string" ? timeSlot : timeSlot.toString();
+    const [hours, minutes] = timeStr.split(":").slice(0, 2).map(Number);
+    const start = new Date();
+    start.setHours(hours, minutes || 0, 0, 0);
+    const end = new Date(start.getTime() + durationHours * 60 * 60 * 1000);
+    return end.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  } catch {
+    return "";
+  }
+};
+
+
 
   const formatTimeSlot = (timeSlot) => {
     if (!timeSlot) return "";

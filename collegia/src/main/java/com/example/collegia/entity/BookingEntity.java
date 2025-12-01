@@ -34,7 +34,6 @@ public class BookingEntity {
         return bookingId;
     }
 
-
     public String getEventName() {
         return eventName;
     }
@@ -115,4 +114,9 @@ public class BookingEntity {
     public void setUser(UserEntity user) {
         this.user = user;
     }
+
+    public Long getUserId() {
+    return user != null ? user.getUserId() : null;
+    }
+
 }
