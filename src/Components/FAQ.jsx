@@ -37,7 +37,7 @@ export default function FAQ() {
 
       </div>
 
-      <button className="back-button" onClick={() => navigate(-1)}>← Back to Homepage</button>
+      <button className="back-button" onClick={() => navigate("/")}>← Back to Homepage</button>
 
     </div>
   );
