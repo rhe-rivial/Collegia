@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import "../styles/ExtendProfile.css";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
+import { bookingAPI } from "../api";
 
 export default function ExtendProfile({ isEditing }) {
   const navigate = useNavigate();
@@ -9,23 +10,15 @@ export default function ExtendProfile({ isEditing }) {
   const [bookingCount, setBookingCount] = useState(0);
 
   useEffect(() => {
-    const loadBookingCount = () => {
+    if (!user || !user.userId) {
+      return;
+    }
+
+    const loadBookingCount = async () => {
       try {
-        const raw = localStorage.getItem("userBookings");
-        let savedBookings = [];
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          savedBookings = Array.isArray(parsed)
-            ? parsed
-            : Array.isArray(parsed?.bookings)
-            ? parsed.bookings
-            : Array.isArray(parsed?.content)
-            ? parsed.content
-            : [];
-        }
-        const count = Number(Array.isArray(savedBookings) ? savedBookings.length : 0);
-        console.log("Booking count loaded:", count, savedBookings);
-        setBookingCount(count);
+        const userBookings = await bookingAPI.getUserBookings(user.userId);
+        const validBookings = Array.isArray(userBookings) ? userBookings : [];
+        setBookingCount(validBookings.length);
       } catch (error) {
         console.error("Error loading booking count:", error);
         setBookingCount(0);
@@ -33,13 +26,7 @@ export default function ExtendProfile({ isEditing }) {
     };
 
     loadBookingCount();
-    window.addEventListener("bookingUpdated", loadBookingCount);
-    window.addEventListener("loginStatusChange", loadBookingCount);
-    return () => {
-      window.removeEventListener("bookingUpdated", loadBookingCount);
-      window.removeEventListener("loginStatusChange", loadBookingCount);
-    };
-  }, []);
+  }, [user]); 
 
   if (!user) {
     return (
@@ -65,9 +52,7 @@ export default function ExtendProfile({ isEditing }) {
             Edit Profile
           </button>
 
-          <p className="booking-count">
-            {Number(bookingCount) > 0 ? `${bookingCount} Booking(s)` : "No bookings yet"}
-          </p>
+          <p className="booking-count">{bookingCount} Booking{bookingCount !== 1 ? 's' : ''}</p>
         </div>
       )}
 

@@ -20,35 +20,25 @@ export default function BookingHistory() {
       }
 
       try {
-        console.log('🔵 BookingHistory - Fetching bookings for user:', user.userId);
         const userBookings = await bookingAPI.getUserBookings(user.userId);
-        console.log('🟢 BookingHistory - Bookings from DB:', userBookings);
         
-        // Transform the data to match your frontend format
-const transformedBookings = userBookings.map(booking => {
-  const startTime = formatTimeSlot(booking.timeSlot);
-  const endTime = calculateEndTime(booking.timeSlot, 1); // default +1 hour
-
-  return {
-    id: booking.bookingId,
-    venueName: booking.venue?.venueName || "Unknown Venue",
-    startTime,
-    endTime,
-    duration: `${startTime} - ${endTime}`,
-    guests: `${booking.capacity} pax`,
-    bookedBy: user.firstName || "You",
-    status: booking.status ? "approved" : "pending",
-    image: booking.venue?.image || "/images/Dining-room.jpg",
-    eventName: booking.eventName,
-    eventType: booking.eventType
-  };
-});
-
+        const transformedBookings = userBookings.map(booking => ({
+          id: booking.bookingId,
+          venueName: booking.venue?.venueName || "Unknown Venue",
+          eventDate: formatEventDate(booking.date),
+          duration: formatTimeSlot(booking.timeSlot),
+          guests: `${booking.capacity} pax`,
+          bookedBy: user.firstName || "You",
+          status: booking.status ? "approved" : "pending",
+          image: booking.venue?.image || "/images/Dining-room.jpg",
+          eventName: booking.eventName,
+          eventType: booking.eventType
+        }));
         
         setBookings(transformedBookings);
         setError(null);
       } catch (err) {
-        console.error('🔴 BookingHistory - Error fetching bookings:', err);
+        console.error('Error fetching bookings:', err);
         setError("Failed to load bookings");
         setBookings([]);
       } finally {
@@ -91,14 +81,12 @@ const calculateEndTime = (timeSlot, durationHours = 1) => {
     if (!timeSlot) return "";
     
     try {
-      // Handle both "HH:mm:ss" and Time object
       const timeStr = typeof timeSlot === 'string' ? timeSlot : timeSlot.toString();
       const [hours, minutes] = timeStr.split(':');
       const hour = parseInt(hours);
       const ampm = hour >= 12 ? 'PM' : 'AM';
       const hour12 = hour % 12 || 12;
       
-      // For now, show just the start time. You might want to calculate end time based on your business logic
       return `${hour12}:${minutes} ${ampm}`;
     } catch {
       return timeSlot;
@@ -151,36 +139,36 @@ const calculateEndTime = (timeSlot, durationHours = 1) => {
       <h3 className="history-title">Booking History</h3>
 
       {bookings.length === 0 ? (
-    <div className="empty-history">No bookings yet.</div>
-  ) : (
-    <div className="history-list">
-      {bookings.map((booking) => ( // Show all bookings
-        <div className="history-item" key={booking.id}>
-          <img 
-            src={booking.image} 
-            alt="venue" 
-            className="history-thumb" 
-          />
-          <div className="history-info">
-            <div className="history-venue">{booking.venueName}</div>
-            <div className="history-event">{booking.eventName} - {booking.eventType}</div>
-            <div className="history-date">{booking.eventDate}</div>
-            <div className="history-time">{booking.duration}</div>
-            <div className="history-guests">{booking.guests}</div>
-            <div 
-              className="history-status" 
-              style={{ color: getStatusColor(booking.status) }}
-            >
-              {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+        <div className="empty-history">No bookings yet.</div>
+      ) : (
+        <div className="history-list">
+          {bookings.map((booking) => (
+            <div className="history-item" key={booking.id}>
+              <img 
+                src={booking.image} 
+                alt="venue" 
+                className="history-thumb" 
+              />
+              <div className="history-info">
+                <div className="history-venue">{booking.venueName}</div>
+                <div className="history-event">{booking.eventName} - {booking.eventType}</div>
+                <div className="history-date">{booking.eventDate}</div>
+                <div className="history-time">{booking.duration}</div>
+                <div className="history-guests">{booking.guests}</div>
+                <div 
+                  className="history-status" 
+                  style={{ color: getStatusColor(booking.status) }}
+                >
+                  {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                </div>
+              </div>
+              <button className="view-btn" onClick={handleViewClick}>
+                View
+              </button>
             </div>
-          </div>
-          <button className="view-btn" onClick={handleViewClick}>
-            View
-          </button>
+          ))}
         </div>
-      ))}
-    </div>
-  )}
+      )}
     </div>
   );
 }
