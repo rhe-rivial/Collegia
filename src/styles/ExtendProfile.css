@@ -1,3 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  --font-primary: 'Montserrat', sans-serif;
+}
+
+
 .extend-card {
   flex: 1;
   background: #742B2C;
@@ -9,6 +16,7 @@
 .extend-card h2 {
   font-size: 28px;
   font-weight: 700;
+  font-family: var(--font-primary);
 }
 
 .joined-text {
@@ -24,11 +32,13 @@
   border-radius: 999px;
   font-weight: 600;
   cursor: pointer;
+  font-family: var(--font-primary);
 }
 
 .booking-count {
   margin-top: 20px;
   font-weight: 600;
+  font-family: var(--font-primary);
 }
 
 /* EDIT MODE */
@@ -36,6 +46,7 @@
   display: block;
   margin-top: 25px;
   font-weight: 600;
+  font-family: var(--font-primary);
 }
 
 .extend-card input,
@@ -45,6 +56,7 @@
   padding: 12px;
   border-radius: 8px;
   border: none;
+  font-family: var(--font-primary);
 }
 
 .edit-actions {
@@ -61,6 +73,7 @@
   border-radius: 999px;
   font-weight: 600;
   border: none;
+  font-family: var(--font-primary);
 }
 
 .cancel-btn {
@@ -69,4 +82,10 @@
   color: #E7C51D;
   font-weight: 600;
   cursor: pointer;
+  font-family: var(--font-primary);
+}
+
+.note {
+  padding-top: 25px;
+  font-family: var(--font-primary);
 }

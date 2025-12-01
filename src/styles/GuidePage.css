@@ -7,7 +7,7 @@
   color: var(--red);
   font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 10px;
+  margin-bottom: 30px;  /* originally 10px */
 }
 
 .guide-subtitle {
@@ -22,33 +22,80 @@
   gap: 30px;
 }
 
+/* MAIN CARD */
 .guide-step {
-  display: flex;
-  gap: 20px;
   background: white;
-  padding: 20px;
+  padding: 26px 28px;
   border-radius: 12px;
   box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: 0.2s ease;
 }
 
+.guide-step:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+/* HEADER: ICON + TEXT */
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+/* BIG ICON */
 .step-icon {
-  width: 55px;
-  height: 55px;
-  filter: brightness(0) saturate(100%) invert(18%) sepia(38%) saturate(1500%) hue-rotate(330deg) brightness(90%);
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  filter: brightness(0) saturate(100%) invert(18%) sepia(38%) saturate(1500%)
+    hue-rotate(330deg) brightness(90%);
 }
 
-.guide-step h2 {
+/* TEXT BLOCK (Title + Description) */
+.step-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.step-text h2 {
   margin: 0;
+  font-size: 1.35rem;
   color: var(--red);
-  font-size: 1.3rem;
 }
 
-.guide-step p {
-  margin-top: 6px;
+.step-short {
+  margin: 6px 0 0 0;
   color: #555;
-  font-size: 0.95rem;
+  font-size: 0.97rem;
 }
 
+/* EXPANDED SECTION */
+.step-expanded {
+  margin-top: 16px;
+  animation: fadeDown 0.25s ease;
+}
+
+/* NUMBERED STEPS */
+.step-list {
+  margin-left: 88px; /* aligns under the text block */
+  padding-left: 18px;
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.step-list li {
+  margin-bottom: 6px;
+}
+
+/* ANIMATION */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* BACK BUTTON */
 .back-button {
   margin-top: 40px;
   padding: 10px 22px;
@@ -58,7 +105,7 @@
   color: white;
   cursor: pointer;
   font-weight: 600;
-  transition: 0.2s;
+  transition: 0.2s ease;
 }
 
 .back-button:hover {
