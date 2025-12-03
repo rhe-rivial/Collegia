@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'; // Added useContext import
+import React, { useState, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Homepage from './Components/Homepage.jsx';
@@ -12,83 +12,89 @@ import SignUpModal from './Components/SignUpModal.jsx';
 
 import AccountPage from './Components/AccountPage.jsx';
 import EditAccountPage from './Components/EditAccountPage.jsx';
-
 import GuidePage from './Components/GuidePage.jsx';
 
-import { UserProvider, UserContext } from './Components/UserContext'; // Added UserContext import
+import { UserProvider, UserContext } from './Components/UserContext';
 import './App.css';
 import FAQ from './Components/FAQ.jsx';
 
-// Create a separate component that uses the UserContext
+// Admin components
+import AdminRightSidebar from "./Components/AdminRightSidebar.jsx";
+import AdminDashboard from "./Components/AdminDashboard.jsx";
+import UserManagement from "./Components/UserManagement.jsx";
+import VenueManagement from "./Components/VenueManagement.jsx";
+import BookingRequests from "./Components/BookingRequests.jsx";
+import Analytics from "./Components/Analytics.jsx";
+
 function AppContent() {
   const [showSignIn, setShowSignIn] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
+  const [showAdminSidebar, setShowAdminSidebar] = useState(true);
 
-  // Use UserContext inside UserProvider
   const { user, setUser } = useContext(UserContext);
   const isLoggedIn = !!user;
 
-  const handleSignInClick = () => setShowSignIn(true);
-  const handleSignUpClick = () => setShowSignUp(true);
-
-  const openSignIn = () => setShowSignIn(true);
-  const openSignUp = () => setShowSignUp(true);
-
-  const closeSignIn = () => setShowSignIn(false);
-  const closeSignUp = () => setShowSignUp(false);
+  const isAdmin = user?.userType?.toLowerCase() === "admin";
 
   const handleLogout = () => {
-    setUser(null); // Clear user in context
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("userId");
-    
-    const logoutEvent = new Event('loginStatusChange');
-    window.dispatchEvent(logoutEvent);
-  };
-
-  // Function to open login modal from child components
-  const handleOpenLoginModal = () => {
-    setShowSignIn(true);
+    setUser(null);
+    localStorage.clear();
   };
 
   return (
     <Router>
       <div className="page-wrapper">
-        {/* HEADER */}
+
+        {/* Header */}
         <Header
           isLoggedIn={isLoggedIn}
           onLogout={handleLogout}
-          onSignInClick={handleSignInClick}
-          onSignUpClick={handleSignUpClick}
+          onSignInClick={() => setShowSignIn(true)}
+          onSignUpClick={() => setShowSignUp(true)}
         />
 
-        {/* MAIN CONTENT */}
+        {/* ADMIN SIDEBAR (ONLY IF ADMIN) */}
+        {isAdmin && (
+          <AdminRightSidebar
+            isOpen={showAdminSidebar}
+            toggleSidebar={() => setShowAdminSidebar(!showAdminSidebar)}
+          />
+        )}
+
         <div className="main-content">
+
           <Routes>
-            <Route path="/" element={<Homepage />} />         
-            <Route path="/venues/*" element={
-              <Dashboard onOpenLoginModal={handleOpenLoginModal} />
-            } />  
-            <Route path="/bookings/*" element={<Bookings />} />  
+            {/* PUBLIC ROUTES */}
+            <Route path="/" element={<Homepage />} />
+            <Route path="/venues/*" element={<Dashboard />} />
+            <Route path="/bookings/*" element={<Bookings />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/account/edit" element={<EditAccountPage />} />
             <Route path="/guide" element={<GuidePage />} />
+
+            {/* ADMIN ROUTES */}
+            {isAdmin && (
+              <>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<UserManagement />} />
+                <Route path="/admin/venues" element={<VenueManagement />} />
+                <Route path="/admin/bookings" element={<BookingRequests />} />
+                <Route path="/admin/analytics" element={<Analytics />} />
+              </>
+            )}
           </Routes>
         </div>
 
-        {/* FOOTER */}
         <Footer />
 
         {/* SIGN IN MODAL */}
         {showSignIn && (
           <SignInModal
-            onClose={closeSignIn}
-            setUser={setUser} // Pass setUser instead of setIsLoggedIn
+            onClose={() => setShowSignIn(false)}
             openSignUp={() => {
-              closeSignIn();
-              openSignUp();
+              setShowSignIn(false);
+              setShowSignUp(true);
             }}
           />
         )}
@@ -96,10 +102,10 @@ function AppContent() {
         {/* SIGN UP MODAL */}
         {showSignUp && (
           <SignUpModal
-            onClose={closeSignUp}
+            onClose={() => setShowSignUp(false)}
             openSignIn={() => {
-              closeSignUp();
-              openSignIn();
+              setShowSignUp(false);
+              setShowSignIn(true);
             }}
           />
         )}

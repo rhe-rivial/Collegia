@@ -102,7 +102,7 @@ export default function GuidePage() {
 
       </div>
 
-      <button className="back-button" onClick={() => navigate(-1)}>
+      <button className="back-button" onClick={() => navigate("/")}>
         ← Back to Homepage
       </button>
 

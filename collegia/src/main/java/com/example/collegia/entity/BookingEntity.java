@@ -1,4 +1,4 @@
-    package com.example.collegia.entity;
+package com.example.collegia.entity;
 
 import jakarta.persistence.*;
 
