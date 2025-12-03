@@ -1,30 +1,62 @@
-// AdminRightSidebar.jsx
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/AdminRightSidebar.css";
 
 export default function AdminRightSidebar({ isOpen, toggleSidebar }) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  function isActive(path) {
+    return location.pathname === path ? "active" : "";
+  }
 
   return (
     <div className={`admin-sidebar ${isOpen ? "open" : ""}`}>
       
-      {/* Arrow toggle attached to the sidebar */}
       <button className="admin-sidebar-toggle" onClick={toggleSidebar}>
         {isOpen ? "›" : "‹"}
       </button>
 
-
       <h2 className="admin-title">Admin Panel</h2>
 
       <ul className="admin-menu">
-        <li onClick={() => navigate("/admin/dashboard")}>📊 Dashboard</li>
-        <li onClick={() => navigate("/admin/users")}>👥 User Management</li>
-        <li onClick={() => navigate("/admin/venues")}>🏛️ Venue Management</li>
-        <li onClick={() => navigate("/admin/bookings")}>📝 Booking Requests</li>
-        <li onClick={() => navigate("/admin/analytics")}>📈 Analytics</li>
-      </ul>
 
+        <li 
+          className={isActive("/admin/dashboard")}
+          onClick={() => navigate("/admin/dashboard")}
+        >
+          📊 Dashboard
+        </li>
+
+        <li 
+          className={isActive("/admin/users")}
+          onClick={() => navigate("/admin/users")}
+        >
+          👥 User Management
+        </li>
+
+        <li 
+          className={isActive("/admin/venues")}
+          onClick={() => navigate("/admin/venues")}
+        >
+          🏛️ Venue Management
+        </li>
+
+        <li 
+          className={isActive("/admin/bookings")}
+          onClick={() => navigate("/admin/bookings")}
+        >
+          📝 Booking Requests
+        </li>
+
+        <li 
+          className={isActive("/admin/analytics")}
+          onClick={() => navigate("/admin/analytics")}
+        >
+          📈 Analytics
+        </li>
+
+      </ul>
     </div>
   );
 }
