@@ -35,17 +35,33 @@
   gap: 14px;
 }
 
+/* Menu items */
 .admin-menu li {
   cursor: pointer;
   padding: 12px 10px;
   border-radius: 8px;
+
   font-weight: 600;
+  color: white;
+
+  transition: all 0.25s ease;
 }
 
+/* Hover -->
+   slight movement + background fade */
 .admin-menu li:hover {
-  background: rgba(255,255,255,0.10);
-  transform: translateX(-4px);
+  background: rgba(255,255,255,0.12);
+  transform: translateX(-6px);
 }
+
+/* ACTIVE menu item highlight */
+.admin-menu li.active {
+  background: rgba(255,255,255,0.20);
+  border-left: 4px solid white;   /* left bar highlight */
+  padding-left: 14px;             /* compensates for bar */
+  font-weight: 700;
+}
+
 
 /* Rectangular vertical toggle (clean + centered) */
 .admin-sidebar-toggle {
