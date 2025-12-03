@@ -9,7 +9,7 @@ export default function SignInModal({ onClose, openSignUp }) {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useContext(UserContext);
-  // For Success/Error message popups
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [closeAfterModal, setCloseAfterModal] = useState(false);
@@ -29,12 +29,12 @@ export default function SignInModal({ onClose, openSignUp }) {
     }
   };
 
-  //Please change here because it exits the window when selecting text all the way to the left
-  useEffect(() => {
-    const handler = (e) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [onClose]);
+  // FIX: prevent modal from closing during text selection
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -46,29 +46,24 @@ export default function SignInModal({ onClose, openSignUp }) {
     setIsLoading(true);
 
     try {
-      const credentials = {
+      const response = await authAPI.signIn({
         email: form.email,
         password: form.password,
-      };
-
-      // api call
-      const response = await authAPI.signIn(credentials);
+      });
 
       localStorage.setItem("authToken", response.token);
       localStorage.setItem("currentUser", JSON.stringify(response.user));
 
-      // Trigger login status change event
-      const loginEvent = new Event('loginStatusChange');
+      const loginEvent = new Event("loginStatusChange");
       window.dispatchEvent(loginEvent);
 
-      // show success modal and close the sign-in modal when the user closes the CustomModal
       handleAction("Login successful", true);
-
       login(response.user);
+
     } catch (err) {
-      const message = err?.message || "Login failed. Please check your credentials.";
+      const message =
+        err?.message || "Login failed. Please check your credentials.";
       setError(message);
-      // show error in CustomModal instead of alert
       handleAction(message, false);
     } finally {
       setIsLoading(false);
@@ -82,11 +77,9 @@ export default function SignInModal({ onClose, openSignUp }) {
 
   return (
     <>
-      <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-overlay" onClick={handleOverlayClick}>
         <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-          <button className="close-btn" onClick={onClose}>
-            ✕
-          </button>
+          <button className="close-btn" onClick={onClose}>✕</button>
 
           <div className="modal-header">
             <h3 className="modal-title">Sign in</h3>
@@ -135,7 +128,11 @@ export default function SignInModal({ onClose, openSignUp }) {
         </div>
       </div>
 
-      <CustomModal isOpen={isModalOpen} message={modalMessage} onClose={handleCloseModal} />
+      <CustomModal
+        isOpen={isModalOpen}
+        message={modalMessage}
+        onClose={handleCloseModal}
+      />
     </>
   );
 }
