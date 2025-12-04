@@ -48,7 +48,7 @@ export default function ExtendProfile({ isEditing }) {
           <h2>Hello, {user.name}</h2>
           <p className="joined">Joined in {user.joined || "2025"}</p>
 
-          <button className="edit-btn" onClick={() => navigate("/account/edit")}>
+          <button className="ep-edit-btn" onClick={() => navigate("/account/edit")}>
             Edit Profile
           </button>
 
