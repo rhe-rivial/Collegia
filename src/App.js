@@ -14,9 +14,9 @@ import AccountPage from "./Components/AccountPage.jsx";
 import EditAccountPage from "./Components/EditAccountPage.jsx";
 import GuidePage from "./Components/GuidePage.jsx";
 
-import { UserProvider, UserContext } from './Components/UserContext'; // Added UserContext import
-import './App.css';
-import CustodianDashboard from './Components/CustodianDashboard.jsx';
+import { UserProvider, UserContext } from "./Components/UserContext";
+import "./App.css";
+import CustodianDashboard from "./Components/CustodianDashboard.jsx";
 import FAQ from "./Components/FAQ.jsx";
 
 import AdminRightSidebar from "./Components/AdminRightSidebar.jsx";
@@ -28,28 +28,27 @@ import Analytics from "./Components/Analytics.jsx";
 import ProtectedAdminRoute from "./Components/ProtectedAdminRoute.jsx";
 
 function AppContent() {
-  const navigate = useNavigate();                // ✅ FIXED
+  const navigate = useNavigate();
+  const { user, setUser } = useContext(UserContext);
+
   const [showSignIn, setShowSignIn] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
   const [showAdminSidebar, setShowAdminSidebar] = useState(true);
 
-  const { user, setUser } = useContext(UserContext);
   const isLoggedIn = !!user;
   const isAdmin = user?.userType?.toLowerCase() === "admin";
 
-  // redirect if not admin anymore
+  // Redirect user if they are not admin while inside admin routes
   useEffect(() => {
     if (!isAdmin) {
       setShowAdminSidebar(false);
       navigate("/", { replace: true });
     }
-  }, [isAdmin]);    
+  }, [isAdmin]);
 
-  // LOGOUT FIX
   const handleLogout = () => {
     setUser(null);
     localStorage.clear();
-
     setShowAdminSidebar(false);
     navigate("/", { replace: true });
   };
@@ -57,6 +56,7 @@ function AppContent() {
   return (
     <div className="page-wrapper">
 
+      {/* HEADER */}
       <Header
         isLoggedIn={isLoggedIn}
         onLogout={handleLogout}
@@ -64,31 +64,18 @@ function AppContent() {
         onSignUpClick={() => setShowSignUp(true)}
       />
 
+      {/* ADMIN SIDEBAR (only visible for admin) */}
       {isAdmin && (
         <AdminRightSidebar
           isOpen={showAdminSidebar}
           toggleSidebar={() => setShowAdminSidebar(!showAdminSidebar)}
         />
-
-        {/* MAIN CONTENT */}
-        <div className="main-content">
-          <Routes>
-            <Route path="/" element={<Homepage />} />         
-            <Route path="/venues/*" element={
-              <Dashboard onOpenLoginModal={handleOpenLoginModal} />
-            } />  
-            <Route path="/bookings/*" element={<Bookings />} />  
-            <Route path="/faq" element={<div>FAQ Coming Soon...</div>} />
-            <Route path="/account" element={<AccountPage />} />
-            <Route path="/account/edit" element={<EditAccountPage />} />
-            <Route path="/guide" element={<GuidePage />} />
-            <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
-          </Routes>
-        </div>
       )}
 
+      {/* MAIN ROUTER CONTENT */}
       <div className="main-content">
         <Routes>
+          {/* PUBLIC ROUTES */}
           <Route path="/" element={<Homepage />} />
           <Route path="/venues/*" element={<Dashboard />} />
           <Route path="/bookings/*" element={<Bookings />} />
@@ -97,6 +84,10 @@ function AppContent() {
           <Route path="/account/edit" element={<EditAccountPage />} />
           <Route path="/guide" element={<GuidePage />} />
 
+          {/* CUSTODIAN */}
+          <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
+
+          {/* ADMIN ROUTES */}
           {isAdmin && (
             <>
               <Route path="/admin/dashboard" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
@@ -109,8 +100,10 @@ function AppContent() {
         </Routes>
       </div>
 
+      {/* FOOTER */}
       <Footer />
 
+      {/* SIGN IN MODAL */}
       {showSignIn && (
         <SignInModal
           onClose={() => setShowSignIn(false)}
@@ -121,6 +114,7 @@ function AppContent() {
         />
       )}
 
+      {/* SIGN UP MODAL */}
       {showSignUp && (
         <SignUpModal
           onClose={() => setShowSignUp(false)}
@@ -130,12 +124,11 @@ function AppContent() {
           }}
         />
       )}
-      
+
     </div>
   );
 }
 
-// Router wrapper MUST be outside AppContent
 function App() {
   return (
     <UserProvider>
