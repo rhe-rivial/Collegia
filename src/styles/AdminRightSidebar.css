@@ -2,8 +2,8 @@
 .admin-sidebar {
   position: fixed;
   top: 73px;
-  right: -300px;
-  width: 300px;
+  right: -280px;
+  width: 280px;
   height: 100vh;
   background: #7B282A;
   color: white;
@@ -67,9 +67,9 @@
 .admin-sidebar-toggle {
   position: absolute;
   top: 120px;
-  left: -55px; /* pulls the button outside */
+  left: -45px; /* pulls the button outside */
 
-  width: 55px;
+  width: 45px;
   height: 120px;  /* Portrait rectangle */
   background: #7B282A;
   border: none;

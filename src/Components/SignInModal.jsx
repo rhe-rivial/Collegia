@@ -81,10 +81,8 @@ export default function SignInModal({ onClose, openSignUp }) {
         <div className="modal-card" onClick={(e) => e.stopPropagation()}>
           <button className="close-btn" onClick={onClose}>✕</button>
 
-          <div className="modal-header">
-            <h3 className="modal-title">Sign in</h3>
-          </div>
-
+          <h2 className="signin-title ">Sign In</h2>
+         
           {error && <p className="error-text">{error}</p>}
 
           <form className="modal-form" onSubmit={handleSubmit}>

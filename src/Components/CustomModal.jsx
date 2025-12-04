@@ -18,21 +18,28 @@ const CustomModal = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="cm-modal-overlay"
+      onClick={(e) => {
+        // close ONLY when clicking outside modal
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="cm-modal-content" onClick={(e) => e.stopPropagation()}>
         <p>{message}</p>
+        <div className="cm-modal-separator" />
 
         {onConfirm ? (
-          <div className="modal-actions">
+          <div className="cm-modal-actions">
             <button className="btn-primary" onClick={onConfirm}>
               {confirmText}
             </button>
-                 <button className="btn-secondary" onClick={handleCancel}>
+            <button className="btn-secondary" onClick={handleCancel}>
               {cancelText}
             </button>
           </div>
         ) : (
-          <div className="modal-actions">
+          <div className="cm-modal-actions">
             <button className="btn-primary" onClick={onClose}>
               OK
             </button>

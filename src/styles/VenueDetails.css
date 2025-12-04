@@ -352,3 +352,92 @@
   }
 }
 }
+
+.loading-venue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  color: var(--red);
+  font-size: 1.2rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--gray);
+  border-top: 4px solid var(--red);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  margin: 100px auto;
+  text-align: center;
+  padding: 40px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.error-message h2 {
+  color: var(--red);
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.error-message p {
+  color: #666;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.error-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.error-actions .back-btn,
+.error-actions .retry-btn {
+  text-wrap: nowrap;
+  width: auto;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.error-actions .back-btn {
+  background: var(--red);
+  color: white;
+  border: 2px solid var(--red);
+}
+
+.error-actions .back-btn:hover {
+  background: #601f21;
+}
+
+.error-actions .retry-btn {
+  background: white;
+  color: var(--red);
+  border: 2px solid var(--red);
+}
+
+.error-actions .retry-btn:hover {
+  background: var(--red);
+  color: white;
+}

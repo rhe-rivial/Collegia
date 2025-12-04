@@ -48,7 +48,7 @@ export default function ExtendProfile({ isEditing }) {
           <h2>Hello, {user.name}</h2>
           <p className="joined">Joined in {user.joined || "2025"}</p>
 
-          <button className="edit-btn" onClick={() => navigate("/account/edit")}>
+          <button className="ep-edit-btn" onClick={() => navigate("/account/edit")}>
             Edit Profile
           </button>
 
@@ -112,11 +112,11 @@ function EditForm({ user, onSave, onCancel }) {
 
       <p className="note">All the required user information can be added here...</p>
 
-      <div className="edit-actions">
-        <button className="cancel-btn" onClick={onCancel}>
+      <div className="ep-edit-actions">
+        <button className="ep-cancel-btn" onClick={onCancel}>
           Cancel
         </button>
-        <button className="save-btn" onClick={handleSubmit}>
+        <button className="ep-save-btn" onClick={handleSubmit}>
           Save
         </button>
       </div>

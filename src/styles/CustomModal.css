@@ -8,8 +8,7 @@
   --color-border: #E6E6E6;    /* Subtle border gray */
 }
 
-/* Overlay */
-.modal-overlay {
+.cm-modal-overlay {
   position: fixed;
   height: 100%;
   inset: 0;
@@ -17,25 +16,37 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 99999 !important;
 }
 
-/* Modal Content */
-.modal-content {
+.cm-modal-content {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
-  z-index: 1000;
-  text-align: center; /* center text and inline elements */
+  padding: 30px 40px;
+  border-radius: 10px;
+  z-index: 100000 !important;
+  text-align: center;
+  width: 350px;              /* wider modal */
+  max-width: 90%;            /* still responsive */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
+
+
 
 /* Actions Wrapper */
-.modal-actions {
+.cm-modal-actions {
   display: flex;
   justify-content: center; /* spreads buttons evenly */
   gap: 10%;
   margin-top: 15px;
 }
+
+.cm-modal-separator {
+  width: 100%;
+  height: 1px;
+  background: #ddd;
+  margin: 12px 0 20px 0;
+}
+
 
 /* Primary Button (OK / Confirm) */
 .btn-primary,

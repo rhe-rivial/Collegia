@@ -17,6 +17,7 @@
   padding:1.25rem; z-index:60;
 }
 
+
 .modal-card{
   width:100%; max-width:520px;
   background:var(--white);
@@ -29,7 +30,7 @@
 .close-btn{
   position:absolute; right:1rem; top:1rem;
   background:transparent; border:none; font-size:1.1rem; cursor:pointer;
-  color:var(--red);
+  color:var(--red) !important;
 }
 
 .modal-title{
@@ -110,3 +111,15 @@
   margin-bottom: 0.8rem;
   border-left: 4px solid #b30000;
 }
+
+
+.signin-title {
+  font-size: 28px !important;
+  color: var(--red) !important;
+  padding-bottom: 20px;
+  font-weight: 700;
+  margin: 0;
+  background-color: transparent;
+}
+
+

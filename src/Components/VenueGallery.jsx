@@ -2,13 +2,10 @@ import React from "react";
 import "../styles/VenueGallery.css";
 
 export default function VenueGallery({ images }) {
-  // Ensure we have at least 4 images for the layout
-  const galleryImages = images.length >= 4 ? images : [
-    "images/Dining-room.jpg",
-    "images/Dining-room.jpg", 
-    "images/Dining-room.jpg",
-    "images/Dining-room.jpg"
-  ];
+  // Use the first image or fallback
+  const mainImage = images && images.length > 0 
+    ? images[0] 
+    : "images/Dining-room.jpg";
 
   return (
     <div className="venue-gallery-fullwidth">
@@ -16,28 +13,9 @@ export default function VenueGallery({ images }) {
         <div className="gallery-main">
           <img 
             className="main-image" 
-            src={galleryImages[0]} 
+            src={mainImage} 
             alt="Main venue view" 
           />
-        </div>
-        
-        <div className="gallery-thumbnails">
-          {galleryImages.slice(1, 4).map((image, index) => (
-            <div key={index} className="thumbnail-container">
-              <img 
-                className={`thumbnail ${index === 2 ? 'more-photos' : ''}`} 
-                src={image} 
-                alt={`Venue view ${index + 2}`} 
-              />
-              {index === 2 && (
-                <div className="more-photos-overlay">
-                  <div className="more-count">+2</div>
-                  <div className="more-text">More</div>
-                  <div className="more-photos-text">Photos</div>
-                </div>
-              )}
-            </div>
-          ))}
         </div>
       </div>
     </div>
