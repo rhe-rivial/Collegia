@@ -309,3 +309,122 @@ background-color: transparent;
 @media (max-width: 480px) {
   .venue-image { height: 150px; }
 }
+
+.manage-venues-header .add-venue-btn, .add-first-venue-btn {
+  display: inline-block;
+  vertical-align: bottom;
+  margin-left: 15px;
+  height: 45px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  background-color: var(--red);
+  color: white;
+}
+
+.add-venue-btn {
+  background: linear-gradient(135deg, #7B282A 0%, #8d3436 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.8rem 1.8rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.add-venue-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8d3436 0%, #7B282A 100%);
+  transform: translateY(-2px);
+}
+
+.add-venue-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.add-venue-btn .btn-icon {
+  font-size: 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-venue-btn:hover, .add-first-venue-btn:hover {
+  background-color: #561d1e;
+  transform: translateY(-2px);
+}
+
+.manage-venues-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 25px;
+  border-bottom: 2px solid var(--gray);
+}
+
+.manage-venues-header h2 {
+  font-size: 2rem;
+  color: var(--red);
+  margin: 0;
+  font-weight: 700;
+}
+
+.add-venue-form-container {
+  position: relative;
+  background: white;
+  border-radius: var(--radius-card);
+  padding: 30px;
+  margin-bottom: 40px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray);
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--gray);
+}
+
+.form-header h3 {
+  margin: 0;
+  color: var(--red);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.close-form-btn {
+  position: absolute;
+  top: 10px;
+  right: 34px;
+
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--red);
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.close-form-btn:hover {
+  background: var(--light-gray);
+  color: var(--dark-gray);
+}

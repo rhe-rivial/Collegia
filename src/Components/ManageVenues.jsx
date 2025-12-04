@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import EditVenueModal from "./EditVenueModal";
+import AddVenueForm from "./AddVenueForm";
 import CustomModal from "./CustomModal";
 import "../styles/CustodianVenues.css";
+import "../styles/AddVenueForm.css";
+import { UserContext } from "./UserContext";
 
 export default function ManageVenues({ venues, loading, onVenueUpdated }) {
   const [editingVenue, setEditingVenue] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
   const [deleteVenueId, setDeleteVenueId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  
+  const { user } = useContext(UserContext); 
+  const currentUserId = user?.userId;       
 
   const handleEdit = (venue) => {
     setEditingVenue(venue);
@@ -16,8 +23,25 @@ export default function ManageVenues({ venues, loading, onVenueUpdated }) {
     setEditingVenue(null);
   };
 
+  const hasCustodiedVenues = venues.some(venue => venue.custodianId === currentUserId);
+
   const handleUpdate = (updatedVenue) => {
     setEditingVenue(null);
+    if (onVenueUpdated) {
+      onVenueUpdated();
+    }
+  };
+
+  const handleAddVenue = () => {
+    setShowAddForm(true);
+  };
+
+  const handleCancelAdd = () => {
+    setShowAddForm(false);
+  };
+
+  const handleVenueAdded = () => {
+    setShowAddForm(false);
     if (onVenueUpdated) {
       onVenueUpdated();
     }
@@ -70,13 +94,51 @@ export default function ManageVenues({ venues, loading, onVenueUpdated }) {
 
   return (
     <div className="manage-venues">
-          {venues.length === 0 ? (
+      {/* Add Venue Button, remove if no venues*/}
+
+        {hasCustodiedVenues && venues.length === 0 && (
+          <button 
+            className="add-venue-btn"
+            onClick={() => setShowAddForm(true)}
+            disabled={showAddForm}
+          >
+            <span className="btn-icon">+</span>
+            Add New Venue
+          </button>
+        )}
+    
+
+      {/* Add Venue Form (shown when toggled) */}
+      {showAddForm && (
+        <div className="add-venue-form-container">
+          <div className="form-header">
+            <button 
+              className="close-form-btn"
+              onClick={handleCancelAdd}
+            >
+              x
+            </button>
+          </div>
+          <AddVenueForm 
+            onVenueAdded={handleVenueAdded}
+            onCancel={handleCancelAdd}
+          />
+        </div>
+      )}
+
+      {/* Venues Grid */}
+      {venues.length === 0 && !showAddForm ? (
         <div className="no-venues">
           <h3>No Venues Yet</h3>
           <p>You haven't added any venues yet.</p>
-          <p>Start by adding your first venue using the "Add New Venue" tab.</p>
+          <button 
+            className="add-first-venue-btn"
+            onClick={handleAddVenue}
+          >
+            + Add Your First Venue
+          </button>
         </div>
-      ) : (
+      ) : !showAddForm && (
         <>
           <div className="venues-grid">
             {venues.map((venue) => (
@@ -85,6 +147,9 @@ export default function ManageVenues({ venues, loading, onVenueUpdated }) {
                   <img 
                     src={venue.image || "/images/Dining-room.jpg"} 
                     alt={venue.venueName}
+                    onError={(e) => {
+                      e.target.src = "/images/Dining-room.jpg";
+                    }}
                   />
                   <div className="venue-badge">
                     {venue.venueCapacity} persons
@@ -94,6 +159,7 @@ export default function ManageVenues({ venues, loading, onVenueUpdated }) {
                 <div className="venue-info">
                   <h3>{venue.venueName}</h3>
                   <div className="venue-location">
+                    <span className="location-icon">📍</span>
                     {venue.venueLocation}
                   </div>
                   
@@ -129,12 +195,14 @@ export default function ManageVenues({ venues, loading, onVenueUpdated }) {
                     className="edit-btn"
                     onClick={() => handleEdit(venue)}
                   >
+                    <span className="btn-icon">✏️</span>
                     Edit
                   </button>
                   <button 
                     className="delete-btn"
                     onClick={() => handleDeleteClick(venue.venueId)}
                   >
+                    <span className="btn-icon">🗑️</span>
                     Delete
                   </button>
                 </div>
