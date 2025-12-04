@@ -1,3 +1,10 @@
+:root {
+  --red: #7B282A;
+  --yellow: #E7C51D;
+  --white: #F7F7F7;
+  --gray: #E6E6E6;
+}
+
 .history-card {
   background: white;
   border-radius: 12px;
@@ -33,7 +40,7 @@
   gap: 12px;
   padding: 8px 6px;
   border-radius: 8px;
-  background: #fafafa;
+  background: var(--gray);
 }
 
 .history-thumb {

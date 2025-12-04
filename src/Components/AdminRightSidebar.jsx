@@ -25,35 +25,35 @@ export default function AdminRightSidebar({ isOpen, toggleSidebar }) {
           className={isActive("/admin/dashboard")}
           onClick={() => navigate("/admin/dashboard")}
         >
-          📊 Dashboard
+           Dashboard
         </li>
 
         <li 
           className={isActive("/admin/users")}
           onClick={() => navigate("/admin/users")}
         >
-          👥 User Management
+           User Management
         </li>
 
         <li 
           className={isActive("/admin/venues")}
           onClick={() => navigate("/admin/venues")}
         >
-          🏛️ Venue Management
+           Venue Management
         </li>
 
         <li 
           className={isActive("/admin/bookings")}
           onClick={() => navigate("/admin/bookings")}
         >
-          📝 Booking Requests
+           Booking Requests
         </li>
 
         <li 
           className={isActive("/admin/analytics")}
           onClick={() => navigate("/admin/analytics")}
         >
-          📈 Analytics
+           Analytics
         </li>
 
       </ul>

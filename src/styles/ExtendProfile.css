@@ -59,14 +59,14 @@
   font-family: var(--font-primary);
 }
 
-.edit-actions {
+.ep-edit-actions {
   display: flex;
   justify-content: flex-end;
   gap: 20px;
   margin-top: 25px;
 }
 
-.save-btn {
+.ep-save-btn {
   background: white;
   color: #742B2C;
   padding: 10px 24px;
@@ -74,15 +74,21 @@
   font-weight: 600;
   border: none;
   font-family: var(--font-primary);
+  cursor: pointer;
 }
 
-.cancel-btn {
+.ep-save-btn:hover {
+  background: #f0f0f0;
+}
+
+.ep-cancel-btn {
   background: transparent;
   border: none;
   color: #E7C51D;
   font-weight: 600;
   cursor: pointer;
   font-family: var(--font-primary);
+  cursor: pointer;
 }
 
 .note {

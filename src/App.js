@@ -1,5 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { UserProvider, UserContext } from "./Components/UserContext";
+import './App.css';
 
 import Homepage from "./Components/Homepage.jsx";
 import Dashboard from "./Components/Dashboard.jsx";
@@ -14,11 +16,12 @@ import AccountPage from "./Components/AccountPage.jsx";
 import EditAccountPage from "./Components/EditAccountPage.jsx";
 import GuidePage from "./Components/GuidePage.jsx";
 
-import { UserProvider, UserContext } from "./Components/UserContext";
-import "./App.css";
-import CustodianDashboard from "./Components/CustodianDashboard.jsx";
-import FAQ from "./Components/FAQ.jsx";
+// custodian components
+import CustodianDashboard from './Components/CustodianDashboard.jsx';
+import CustodianVenues from './Components/CustodianVenues.jsx'; 
+import AddVenuePage from './Components/AddVenuePage.jsx'; 
 
+import FAQ from "./Components/FAQ.jsx";
 import AdminRightSidebar from "./Components/AdminRightSidebar.jsx";
 import AdminDashboard from "./Components/AdminDashboard.jsx";
 import UserManagement from "./Components/UserManagement.jsx";
@@ -26,6 +29,8 @@ import VenueManagement from "./Components/VenueManagement.jsx";
 import BookingRequests from "./Components/BookingRequests.jsx";
 import Analytics from "./Components/Analytics.jsx";
 import ProtectedAdminRoute from "./Components/ProtectedAdminRoute.jsx";
+import CustodianRightSidebar from "./Components/CustodianRightSidebar.jsx";
+import CustodianBookings from "./Components/CustodianBookings.jsx";
 
 function AppContent() {
   const navigate = useNavigate();
@@ -34,23 +39,40 @@ function AppContent() {
   const [showSignIn, setShowSignIn] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
   const [showAdminSidebar, setShowAdminSidebar] = useState(true);
+  const [showCustodianSidebar, setShowCustodianSidebar] = useState(true);
 
   const isLoggedIn = !!user;
   const isAdmin = user?.userType?.toLowerCase() === "admin";
+  const isCustodian = user?.userType?.toLowerCase() === "custodian";
 
   // Redirect user if they are not admin while inside admin routes
   useEffect(() => {
-    if (!isAdmin) {
-      setShowAdminSidebar(false);
-      navigate("/", { replace: true });
-    }
-  }, [isAdmin]);
+  // Admin sidebar logic
+  if (!isAdmin) {
+    setShowAdminSidebar(false);
+  } else {
+    setShowAdminSidebar(true);
+  }
+
+  // Custodian sidebar logic
+  if (isCustodian) {
+    setShowCustodianSidebar(true);
+  } else {
+    setShowCustodianSidebar(false);
+  }
+}, [isAdmin, isCustodian, navigate]);
 
   const handleLogout = () => {
     setUser(null);
     localStorage.clear();
     setShowAdminSidebar(false);
+    setShowCustodianSidebar(false);
     navigate("/", { replace: true });
+  };
+
+  // Add this missing function
+  const handleOpenLoginModal = () => {
+    setShowSignIn(true);
   };
 
   return (
@@ -72,17 +94,34 @@ function AppContent() {
         />
       )}
 
+      {isCustodian && (
+        <CustodianRightSidebar
+          isOpen={showCustodianSidebar}
+          toggleSidebar={() => setShowCustodianSidebar(!showCustodianSidebar)}
+        />
+      )}
+
       {/* MAIN ROUTER CONTENT */}
       <div className="main-content">
         <Routes>
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<Homepage />} />
-          <Route path="/venues/*" element={<Dashboard />} />
+          
+          <Route path="/venues/*" element={
+            <Dashboard onOpenLoginModal={handleOpenLoginModal} />
+          } />
+          
           <Route path="/bookings/*" element={<Bookings />} />
-          <Route path="/faq" element={<FAQ />} />
+          <Route path="custodian/bookings/*" element={<CustodianBookings />} />
+         <Route path="/faq" element={<FAQ />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/account/edit" element={<EditAccountPage />} />
           <Route path="/guide" element={<GuidePage />} />
+          
+          {/* Custodian Routes */}
+          <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
+          <Route path="/custodian/my-venues" element={<CustodianVenues />} />
+          <Route path="/custodian/add-venue" element={<AddVenuePage />} />
 
           {/* CUSTODIAN */}
           <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
@@ -97,6 +136,32 @@ function AppContent() {
               <Route path="/admin/analytics" element={<ProtectedAdminRoute><Analytics /></ProtectedAdminRoute>} />
             </>
           )}
+          {/* Admin Routes */}
+          <Route path="/admin/dashboard" element={
+            <ProtectedAdminRoute>
+              <AdminDashboard />
+            </ProtectedAdminRoute>
+          } />
+          <Route path="/admin/users" element={
+            <ProtectedAdminRoute>
+              <UserManagement />
+            </ProtectedAdminRoute>
+          } />
+          <Route path="/admin/venues" element={
+            <ProtectedAdminRoute>
+              <VenueManagement />
+            </ProtectedAdminRoute>
+          } />
+          <Route path="/admin/bookings" element={
+            <ProtectedAdminRoute>
+              <BookingRequests />
+            </ProtectedAdminRoute>
+          } />
+          <Route path="/admin/analytics" element={
+            <ProtectedAdminRoute>
+              <Analytics />
+            </ProtectedAdminRoute>
+          } />
         </Routes>
       </div>
 
@@ -124,7 +189,6 @@ function AppContent() {
           }}
         />
       )}
-
     </div>
   );
 }
