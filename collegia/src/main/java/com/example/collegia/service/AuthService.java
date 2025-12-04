@@ -2,9 +2,11 @@ package com.example.collegia.service;
 
 import com.example.collegia.controller.AuthController;
 import com.example.collegia.entity.CoordinatorEntity;
+import com.example.collegia.entity.CustodianEntity;
 import com.example.collegia.entity.FacultyEntity;
 import com.example.collegia.entity.StudentEntity;
 import com.example.collegia.entity.UserEntity;
+import com.example.collegia.repository.CustodianRepository;
 import com.example.collegia.repository.CoordinatorRepository;
 import com.example.collegia.repository.FacultyRepository;
 import com.example.collegia.repository.StudentRepository;
@@ -15,6 +17,8 @@ import java.util.Optional;
 
 @Service
 public class AuthService {
+    @Autowired
+    private CustodianRepository custodianRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -44,6 +48,13 @@ public class AuthService {
         UserEntity savedUser = userRepository.save(user);
 
         switch (request.getUserType()) {
+            // In your AuthService.java, add this to the switch statement in registerUser method
+            case "Custodian":
+                CustodianEntity custodian = new CustodianEntity();
+                custodian.setDepartment(request.getDepartment());
+                custodianRepository.save(custodian);
+                break;
+                
             case "Student":
                 StudentEntity student = new StudentEntity();
                 student.setCourse(request.getCourse());
@@ -62,6 +73,7 @@ public class AuthService {
                 coordinator.setAffiliation(request.getAffiliation());
                 coordinatorRepository.save(coordinator);
                 break;
+            
         }
 
         return savedUser;

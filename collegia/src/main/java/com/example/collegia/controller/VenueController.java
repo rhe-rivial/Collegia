@@ -3,6 +3,7 @@ package com.example.collegia.controller;
 import com.example.collegia.entity.VenueEntity;
 import com.example.collegia.service.VenueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.example.collegia.repository.VenueRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -15,12 +16,24 @@ public class VenueController {
     
     @Autowired
     private VenueService venueService;
-    
+    @Autowired
+    private VenueRepository venueRepository;
+
     @GetMapping
     public List<VenueEntity> getAllVenues() {
         return venueService.getAllVenues();
     }
-    
+
+    @GetMapping("/custodian/{custodianId}")
+    public List<VenueEntity> getVenuesByCustodian(@PathVariable Long custodianId) {
+        return venueRepository.findByCustodianUserId(custodianId);
+    }
+
+    @GetMapping("/custodian/{custodianId}/venues")
+    public List<VenueEntity> getCustodianVenues(@PathVariable Long custodianId) {
+        return venueRepository.findByCustodianUserId(custodianId);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<VenueEntity> getVenueById(@PathVariable Long id) {
         Optional<VenueEntity> venue = venueService.getVenueById(id);
@@ -67,4 +80,5 @@ public class VenueController {
             return ResponseEntity.notFound().build();
         }
     }
+
 }

@@ -29,18 +29,35 @@ export function UserProvider({ children }) {
         try {
           const userData = JSON.parse(savedUser);
           console.log('🟡 UserContext - Parsed user data:', userData);
-          setUser(userData);
           
-          // Fetch user data from backend using the user ID
+          // Fetch fresh user data from backend
           if (userData.userId) {
             try {
               const freshUserData = await userAPI.getUserById(userData.userId);
-              console.log('🟢 UserContext - Fresh user data:', freshUserData);
-              setUser(freshUserData);
-              localStorage.setItem("currentUser", JSON.stringify(freshUserData));
+              console.log('🟢 UserContext - Fresh user data from API:', freshUserData);
+              
+              // Create complete user object with all properties
+              const completeUser = {
+                userId: freshUserData.userId,
+                firstName: freshUserData.firstName,
+                lastName: freshUserData.lastName,
+                email: freshUserData.email,
+                userType: freshUserData.userType, // Use the type from backend
+                about: freshUserData.about,
+                location: freshUserData.location,
+                work: freshUserData.work,
+                name: freshUserData.name || `${freshUserData.firstName} ${freshUserData.lastName}`
+              };
+              
+              console.log('🟢 UserContext - Complete user object:', completeUser);
+              setUser(completeUser);
+              localStorage.setItem("currentUser", JSON.stringify(completeUser));
             } catch (error) {
               console.warn("Could not fetch fresh user data, using cached:", error);
+              setUser(userData);
             }
+          } else {
+            setUser(userData);
           }
         } catch (error) {
           console.error("Error loading user:", error);
@@ -69,13 +86,20 @@ export function UserProvider({ children }) {
         firstName: user.firstName, 
         lastName: user.lastName,  
         email: user.email,         
-        userType: user.userType   
+        userType: user.userType
       };
       
       const updatedUser = await userAPI.updateUser(user.userId, updatePayload);
-      setUser(updatedUser);
-      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
-      return updatedUser;
+      
+      // Create complete updated user object
+      const completeUpdatedUser = {
+        ...updatedUser,
+        name: `${updatedUser.firstName} ${updatedUser.lastName}`
+      };
+      
+      setUser(completeUpdatedUser);
+      localStorage.setItem("currentUser", JSON.stringify(completeUpdatedUser));
+      return completeUpdatedUser;
     } catch (error) {
       console.error("Error updating user:", error);
       throw error;
@@ -88,10 +112,32 @@ export function UserProvider({ children }) {
       return;
     }
     
-    setUser(userData);
-    localStorage.setItem("currentUser", JSON.stringify(userData));
+    // Create complete user object with all required properties
+    const completeUser = {
+      userId: userData.userId,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      userType: userData.userType, // Use the actual type from API
+      about: userData.about,
+      location: userData.location,
+      work: userData.work,
+      name: userData.name || `${userData.firstName} ${userData.lastName}`
+    };
+    
+    console.log('🟢 UserContext - Complete login user:', completeUser);
+    
+    setUser(completeUser);
+    localStorage.setItem("currentUser", JSON.stringify(completeUser));
     localStorage.setItem("userId", userData.userId.toString());
     localStorage.setItem("authToken", "user-authenticated");
+    
+    console.log('🟢 UserContext - User logged in:', {
+      userId: completeUser.userId,
+      userType: completeUser.userType,
+      name: completeUser.name,
+      isCustodian: completeUser.userType === 'Custodian'
+    });
   };
 
   const logout = () => {
@@ -104,6 +150,9 @@ export function UserProvider({ children }) {
     console.log('🔴 UserContext - User logged out');
   };
 
+  // Helper function to check if user is custodian
+  const isCustodian = user && (user.userType === 'CUSTODIAN' || user.userType === 'Custodian');
+  
   return (
     <UserContext.Provider value={{ 
       user, 
@@ -111,7 +160,8 @@ export function UserProvider({ children }) {
       isLoading, 
       updateUser,
       login,
-      logout 
+      logout,
+      isCustodian
     }}>
       {children}
     </UserContext.Provider>

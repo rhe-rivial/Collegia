@@ -25,6 +25,7 @@ public class VenueEntity {
     @JoinColumn(name = "custodian_id")
     private CustodianEntity custodian;
 
+
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookingEntity> bookings;
 

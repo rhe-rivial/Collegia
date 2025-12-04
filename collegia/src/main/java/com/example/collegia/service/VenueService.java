@@ -53,4 +53,8 @@ public class VenueService {
     public List<VenueEntity> searchVenuesByName(String name) {
         return venueRepository.findByVenueNameContaining(name);
     }
+
+    public List<VenueEntity> getVenuesByCustodian(Long custodianId) {
+        return venueRepository.findByCustodianUserId(custodianId);
+    }
 }

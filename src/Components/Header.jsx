@@ -6,16 +6,21 @@ import "../styles/Header.css";
 
 export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpClick }) {
   const navigate = useNavigate();
-  const { logout, user } = useContext(UserContext); // Get user from context
+  const { logout, user } = useContext(UserContext);
 
   // Modal state
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
+  // Check if user is a custodian - handle both cases
+  const isCustodian = user && (user.userType === 'CUSTODIAN' || user.userType === 'Custodian');
+
   // Debug logging
   console.log('🔵 Header - Props isLoggedIn:', isLoggedIn);
   console.log('🔵 Header - Context user:', user);
   console.log('🔵 Header - Context user ID:', user?.userId);
+  console.log('🔵 Header - User type:', user?.userType);
+  console.log('🔵 Header - Is custodian:', isCustodian);
 
   const handleLogout = () => {
     console.log('🟡 Header - Logout initiated');
@@ -34,6 +39,14 @@ export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpCl
     setShowLogoutModal(false);
   };
 
+  const handleVenuesNavigation = () => {
+    if (isCustodian) {
+      navigate("/custodian/dashboard");
+    } else {
+      navigate("/venues");
+    }
+  };
+
   return (
     <header className="header">
       <div className="header-left" onClick={() => navigate("/")}>
@@ -43,7 +56,12 @@ export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpCl
 
       <nav className="nav-links">
         <button className="nav-item" onClick={() => navigate("/")}>Home</button>
-        <button className="nav-item" onClick={() => navigate("/venues")}>Venues</button>
+        
+        {/* Show either "Venues" or "Manage Venues" based on user role */}
+        <button className="nav-item" onClick={handleVenuesNavigation}>
+          {isCustodian ? "Manage Venues" : "Venues"}
+        </button>
+        
         <button className="nav-item" onClick={() => navigate("/faq")}>FAQ</button>
       </nav>
 

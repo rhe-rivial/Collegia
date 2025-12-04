@@ -14,7 +14,9 @@ import AccountPage from "./Components/AccountPage.jsx";
 import EditAccountPage from "./Components/EditAccountPage.jsx";
 import GuidePage from "./Components/GuidePage.jsx";
 
-import { UserProvider, UserContext } from "./Components/UserContext";
+import { UserProvider, UserContext } from './Components/UserContext'; // Added UserContext import
+import './App.css';
+import CustodianDashboard from './Components/CustodianDashboard.jsx';
 import FAQ from "./Components/FAQ.jsx";
 
 import AdminRightSidebar from "./Components/AdminRightSidebar.jsx";
@@ -67,6 +69,22 @@ function AppContent() {
           isOpen={showAdminSidebar}
           toggleSidebar={() => setShowAdminSidebar(!showAdminSidebar)}
         />
+
+        {/* MAIN CONTENT */}
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<Homepage />} />         
+            <Route path="/venues/*" element={
+              <Dashboard onOpenLoginModal={handleOpenLoginModal} />
+            } />  
+            <Route path="/bookings/*" element={<Bookings />} />  
+            <Route path="/faq" element={<div>FAQ Coming Soon...</div>} />
+            <Route path="/account" element={<AccountPage />} />
+            <Route path="/account/edit" element={<EditAccountPage />} />
+            <Route path="/guide" element={<GuidePage />} />
+            <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
+          </Routes>
+        </div>
       )}
 
       <div className="main-content">

@@ -7,6 +7,7 @@ import java.util.List;
 
 @Repository
 public interface VenueRepository extends JpaRepository<VenueEntity, Long> {
+    List<VenueEntity> findByCustodianUserId(Long userId);
     List<VenueEntity> findByVenueLocationContaining(String location);
     List<VenueEntity> findByVenueCapacityGreaterThanEqual(int capacity);
     List<VenueEntity> findByVenueNameContaining(String name);
