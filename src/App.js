@@ -31,6 +31,7 @@ import BookingRequests from "./Components/BookingRequests.jsx";
 import Analytics from "./Components/Analytics.jsx";
 import ProtectedAdminRoute from "./Components/ProtectedAdminRoute.jsx";
 import CustodianRightSidebar from "./Components/CustodianRightSidebar.jsx";
+import CustodianBookings from "./Components/CustodianBookings.jsx";
 
 function AppContent() {
   const navigate = useNavigate();
@@ -102,7 +103,8 @@ function AppContent() {
           } />
           
           <Route path="/bookings/*" element={<Bookings />} />
-          <Route path="/faq" element={<FAQ />} />
+          <Route path="custodian/bookings/*" element={<CustodianBookings />} />
+         <Route path="/faq" element={<FAQ />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/account/edit" element={<EditAccountPage />} />
           <Route path="/guide" element={<GuidePage />} />

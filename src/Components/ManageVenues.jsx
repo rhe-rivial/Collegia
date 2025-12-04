@@ -195,14 +195,14 @@ export default function ManageVenues({ venues, loading, onVenueUpdated }) {
                     className="edit-btn"
                     onClick={() => handleEdit(venue)}
                   >
-                    <span className="btn-icon">✏️</span>
+                    <span className="btn-icon"></span>
                     Edit
                   </button>
                   <button 
                     className="delete-btn"
                     onClick={() => handleDeleteClick(venue.venueId)}
                   >
-                    <span className="btn-icon">🗑️</span>
+                    <span className="btn-icon"></span>
                     Delete
                   </button>
                 </div>

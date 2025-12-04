@@ -346,54 +346,6 @@ export default function AddVenueForm({ onVenueAdded }) {
           </div>
         </div>
 
-        {/* Gallery Images */}
-        <div className="form-section">
-          <h3>Gallery Images (Optional)</h3>
-          <p className="section-description">Add up to 5 additional images to showcase your venue</p>
-          
-          <div className="form-group">
-            <div className="gallery-upload">
-              <label htmlFor="gallery-upload" className="gallery-upload-label">
-                  <span
-                    className="upload-icon"
-                    style={{ backgroundImage: 'url(/icons/folder.png)' }}
-                  ></span>
-
-                Upload Gallery Images
-              </label>
-              <input
-                type="file"
-                id="gallery-upload"
-                accept="image/*"
-                multiple
-                onChange={handleGalleryUpload}
-                className="file-input"
-              />
-              <small>Select multiple images (Max 5 total)</small>
-            </div>
-            
-            {formData.galleryImages.length > 0 && (
-              <div className="gallery-preview">
-                <h4>Gallery Preview ({formData.galleryImages.length}/5)</h4>
-                <div className="gallery-images">
-                  {formData.galleryImages.map((image, index) => (
-                    <div key={index} className="gallery-image-item">
-                      <img src={image} alt={`Gallery ${index + 1}`} />
-                      <button 
-                        type="button"
-                        className="remove-gallery-image"
-                        onClick={() => handleRemoveGalleryImage(index)}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Submit Section */}
         {message && (
           <div className={`message ${message.includes("Error") ? "error" : "success"}`}>

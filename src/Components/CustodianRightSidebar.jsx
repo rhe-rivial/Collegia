@@ -43,8 +43,8 @@ export default function CustodianRightSidebar({ isOpen, toggleSidebar }) {
         </li>
 
         <li 
-          className={isActive("/bookings")}
-          onClick={() => navigate("/bookings")}
+          className={isActive("custodian/bookings")}
+          onClick={() => navigate("custodian/bookings")}
         >
            My Bookings
         </li>
