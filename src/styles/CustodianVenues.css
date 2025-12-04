@@ -1,0 +1,311 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --red: #7B282A;
+  --yellow: #E7C51D;
+  --green: #113c13;;
+  --white: #F7F7F7;
+  --gray: #E6E6E6;
+  --light-gray: #f5f5f5;
+  --dark-gray: #333;
+
+  --radius-card: 14px;
+  --radius-image: 10px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 3px 12px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card , .venues-stats{
+background-color: transparent;
+
+}
+
+/* PAGE CONTAINER */
+.custodian-venues {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--dark-gray);
+  min-height: 100vh;
+  background-color: var(--white);
+  padding: 59px;
+}
+
+.custodian-venues-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* HEADER */
+.venues-header {
+  margin-bottom: 40px;
+  padding-bottom: 25px;
+  border-bottom: 2px solid var(--gray);
+}
+
+.venues-header h1 {
+  font-size: 2.5rem;
+  color: var(--red);
+  margin: 0 0 10px;
+  font-weight: 800;
+}
+
+.venues-header p {
+  color: #666;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+/* GRID */
+.venues-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 60px;
+  padding-top: 40px;
+  margin-bottom: 100px;
+  width: 100%;
+}
+
+/* VENUE CARD */
+.venue-card {
+  background: white;
+  border-radius: var(--radius-card);
+  padding: 25px;
+  border: 1px solid var(--gray);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.venue-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* IMAGE */
+.venue-image {
+  width: 100%;
+  height: 210px;
+  border-radius: var(--radius-image);
+  overflow: hidden;
+}
+
+.venue-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.venue-card:hover .venue-image img {
+  transform: scale(1.05);
+}
+
+/* INFO */
+.venue-info h3 {
+  font-size: 1.4rem;
+  color: var(--dark-gray);
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.venue-info p {
+  font-size: 1rem;
+  color: #666;
+  margin: 6px 0;
+  font-weight: 500;
+}
+
+.venue-actions,
+.edit-actions {
+  align-self: center;
+  display: block;             
+  text-align: center;   
+  margin: auto;
+  justify-content: space-evenly;        
+}
+
+/* Buttons */
+.edit-btn,
+.delete-btn,
+.save-btn,
+.cancel-btn {
+  display: inline-block;      
+  vertical-align: bottom;    
+  margin-left: 15px;          
+  height: 45px;               
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+
+/* BUTTON COLORS */
+.edit-btn {
+  background-color: var(--yellow);
+  color: var(--dark-gray);
+}
+.edit-btn:hover {
+  background-color: #d1ae1a;
+  transform: translateY(-2px);
+}
+
+.delete-btn {
+  background-color:var(--red);
+  color: white;
+}
+.delete-btn:hover {
+  background-color: #561d1e;
+  transform: translateY(-2px);
+}
+
+.save-btn {
+  background-color: var(--green);
+  color: white;
+}
+.save-btn:hover {
+  background-color: #08200d;
+  transform: translateY(-2px);
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+  color: white;
+}
+.cancel-btn:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+}
+
+/* EDIT FORM */
+.edit-form {
+  height: inherit;
+  justify-content: center;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--dark-gray);
+  display: block;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid var(--gray);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--red);
+}
+
+/* NO VENUES */
+.no-venues {
+  text-align: center;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 16px;
+  margin-bottom: 40px;
+}
+
+.no-venues p {
+  color: #666;
+  font-size: 1.2rem;
+}
+
+/* ERROR */
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.retry-btn {
+  background-color: var(--red);
+  color: white;
+  padding: 10px 22px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.retry-btn:hover {
+  background-color: #601f21;
+  transform: translateY(-2px);
+}
+
+/* ACCESS DENIED */
+.access-denied {
+  text-align: center;
+  padding: 80px 40px;
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.access-denied h2 {
+  color: var(--red);
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 25px;
+}
+
+.access-denied p {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .custodian-venues { padding: 20px; }
+
+  .venues-header h1 { font-size: 2rem; }
+  .venues-header p { font-size: 1.1rem; }
+
+  .venues-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .venue-image { height: 180px; }
+
+  .venue-actions,
+  .edit-actions { flex-direction: column; }
+
+  .edit-btn,
+  .delete-btn,
+  .save-btn,
+  .cancel-btn { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .venue-image { height: 150px; }
+}

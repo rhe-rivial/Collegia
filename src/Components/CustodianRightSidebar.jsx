@@ -7,7 +7,7 @@ export default function CustodianRightSidebar({ isOpen, toggleSidebar }) {
   const location = useLocation();
 
   function isActive(path) {
-    return location.pathname === path ? "active" : "";
+    return location.pathname.startsWith(path) ? "active" : "";
   }
 
   return (
@@ -25,35 +25,28 @@ export default function CustodianRightSidebar({ isOpen, toggleSidebar }) {
           className={isActive("/custodian/dashboard")}
           onClick={() => navigate("/custodian/dashboard")}
         >
-           My Dashboard
+           Dashboard
         </li>
 
         <li 
-          className={isActive("/custodian/venues")}
-          onClick={() => navigate("/custodian/dashboard")}
+          className={isActive("/custodian/my-venues")}
+          onClick={() => navigate("/custodian/my-venues")}
         >
            My Venues
         </li>
 
         <li 
           className={isActive("/custodian/add-venue")}
-          onClick={() => navigate("/custodian/dashboard")}
+          onClick={() => navigate("/custodian/add-venue")}
         >
            Add Venue
         </li>
 
         <li 
-          className={isActive("/custodian/bookings")}
+          className={isActive("/bookings")}
           onClick={() => navigate("/bookings")}
         >
            My Bookings
-        </li>
-
-        <li 
-          className={isActive("/custodian/schedule")}
-          onClick={() => navigate("/custodian/dashboard")}
-        >
-           Schedule
         </li>
 
       </ul>

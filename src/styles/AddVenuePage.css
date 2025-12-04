@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --red: #7B282A;
+  --yellow: #E7C51D;
+  --white: #F7F7F7;
+  --gray: #E6E6E6;
+  --light-gray: #f5f5f5;
+  --dark-gray: #333;
+}
+
+.add-venue-page {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--dark-gray);
+  min-height: 100vh;
+  background-color: var(--light-gray);
+  padding: 59px;
+}
+
+.add-venue-page .page-header {
+  max-width: 800px;
+  margin: 0 auto 30px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--gray);
+}
+
+.add-venue-page h1 {
+  font-size: 2rem;
+  color: var(--red);
+  margin: 0;
+  font-weight: 700;
+}
+
+.add-venue-page .back-btn {
+  text-wrap: nowrap;
+  width: fit-content;
+  background-color: transparent;
+  border: 2px solid var(--red);
+  color: var(--red);
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-venue-page .back-btn:hover {
+  background-color: var(--red);
+  color: white;
+}
+
+.add-venue-page .form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.add-venue-page .access-denied {
+  max-width: 600px;
+  margin: 100px auto;
+  text-align: center;
+  padding: 40px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.add-venue-page .access-denied h2 {
+  color: var(--red);
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.add-venue-page .access-denied p {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .add-venue-page .page-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .add-venue-page h1 {
+    font-size: 1.6rem;
+  }
+  
+  .add-venue-page .form-container {
+    padding: 20px;
+  }
+  
+  .add-venue-page {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-venue-page .back-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

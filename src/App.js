@@ -16,7 +16,11 @@ import GuidePage from "./Components/GuidePage.jsx";
 
 import { UserProvider, UserContext } from './Components/UserContext';
 import './App.css';
+
+// custodian components
 import CustodianDashboard from './Components/CustodianDashboard.jsx';
+import CustodianVenues from './Components/CustodianVenues.jsx'; 
+import AddVenuePage from './Components/AddVenuePage.jsx'; 
 
 import FAQ from "./Components/FAQ.jsx";
 import AdminRightSidebar from "./Components/AdminRightSidebar.jsx";
@@ -102,7 +106,11 @@ function AppContent() {
           <Route path="/account" element={<AccountPage />} />
           <Route path="/account/edit" element={<EditAccountPage />} />
           <Route path="/guide" element={<GuidePage />} />
+          
+          {/* Custodian Routes */}
           <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
+          <Route path="/custodian/my-venues" element={<CustodianVenues />} />
+          <Route path="/custodian/add-venue" element={<AddVenuePage />} />
 
           {/* Admin Routes */}
           <Route path="/admin/dashboard" element={

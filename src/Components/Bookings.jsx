@@ -100,6 +100,10 @@ export default function Bookings() {
     navigate("/venues");
   };
 
+  const handleManageVenues = () => {
+    navigate("/custodian/my-venues");
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case "approved": return "#28A745";
@@ -114,6 +118,11 @@ export default function Bookings() {
     return status ? status.charAt(0).toUpperCase() + status.slice(1) : "Pending";
   };
 
+  // Check user type
+  const isAdmin = user?.userType?.toLowerCase() === "admin";
+  const isCustodian = user?.userType?.toLowerCase() === "custodian";
+  const isRegularUser = user && !isAdmin && !isCustodian;
+
   // Filter bookings based on active tab
   const filteredBookings = bookingsData.filter(booking => {
     if (activeTab === "upcoming") {
@@ -123,6 +132,28 @@ export default function Bookings() {
       return booking.status === activeTab;
     }
   });
+
+  // Determine which button to show
+  const renderActionButton = () => {
+    if (isAdmin) {
+      return null; // No button for admin
+    }
+    
+    if (isCustodian) {
+      return (
+        <button className="book-venue-button" onClick={handleManageVenues}>
+          Manage Venues
+        </button>
+      );
+    }
+    
+    // Regular user
+    return (
+      <button className="book-venue-button" onClick={handleBookVenue}>
+        Book A Venue
+      </button>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -172,9 +203,7 @@ export default function Bookings() {
       <div className="bookings-card">
         <div className="bookings-header">
           <h1 className="bookings-title">Bookings</h1>
-          <button className="book-venue-button" onClick={handleBookVenue}>
-            Book A Venue
-          </button>
+          {renderActionButton()}
         </div>
 
         <div className="tabs-container">
@@ -265,13 +294,15 @@ export default function Bookings() {
                   : `You don't have any ${activeTab} bookings.`
                 }
               </p>
-              <button 
-                className="book-venue-button" 
-                onClick={handleBookVenue}
-                style={{ marginTop: '1rem' }}
-              >
-                Book Your First Venue
-              </button>
+              {isRegularUser && (
+                <button 
+                  className="book-venue-button" 
+                  onClick={handleBookVenue}
+                  style={{ marginTop: '1rem' }}
+                >
+                  Book Your First Venue
+                </button>
+              )}
             </div>
           )}
         </div>

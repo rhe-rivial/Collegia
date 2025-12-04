@@ -127,9 +127,8 @@ export default function SignUpModal({ onClose, openSignIn }) {
         <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <button className="close-btn" onClick={onClose}>✕</button>
 
-        <div className="modal-header">
-          <h3 className="modal-title">Sign Up</h3>
-        </div>
+        <h2 className="signup-title ">Sign Up</h2>
+       
 
         {error && <p className="error-text">{error}</p>}
 

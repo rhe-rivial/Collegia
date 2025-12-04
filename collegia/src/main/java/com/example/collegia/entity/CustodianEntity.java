@@ -14,4 +14,8 @@ public class CustodianEntity extends UserEntity {
     public void setDepartment(String department) {
         this.department = department;
     }
+
+    public String getName() {
+        return getFirstName() + " " + getLastName();
+    }
 }

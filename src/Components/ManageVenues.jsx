@@ -1,60 +1,38 @@
 import React, { useState } from "react";
-import "../styles/ManageVenues.css";
+import EditVenueModal from "./EditVenueModal";
+import CustomModal from "./CustomModal";
+import "../styles/CustodianVenues.css";
 
 export default function ManageVenues({ venues, loading, onVenueUpdated }) {
   const [editingVenue, setEditingVenue] = useState(null);
-  const [editForm, setEditForm] = useState({});
+  const [deleteVenueId, setDeleteVenueId] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleEdit = (venue) => {
-    setEditingVenue(venue.venueId);
-    setEditForm({
-      venueName: venue.venueName,
-      venueLocation: venue.venueLocation,
-      venueCapacity: venue.venueCapacity,
-      image: venue.image || ""
-    });
+    setEditingVenue(venue);
   };
 
   const handleCancelEdit = () => {
     setEditingVenue(null);
-    setEditForm({});
   };
 
-  const handleUpdate = async (venueId) => {
-    try {
-      const response = await fetch(`http://localhost:8080/api/venues/${venueId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...editForm,
-          venueCapacity: parseInt(editForm.venueCapacity)
-        }),
-      });
-
-      if (response.ok) {
-        setEditingVenue(null);
-        setEditForm({});
-        if (onVenueUpdated) {
-          onVenueUpdated();
-        }
-      } else {
-        alert("Error updating venue");
-      }
-    } catch (error) {
-      console.error("Error updating venue:", error);
-      alert("Error updating venue");
+  const handleUpdate = (updatedVenue) => {
+    setEditingVenue(null);
+    if (onVenueUpdated) {
+      onVenueUpdated();
     }
   };
 
-  const handleDelete = async (venueId) => {
-    if (!window.confirm("Are you sure you want to delete this venue?")) {
-      return;
-    }
+  const handleDeleteClick = (venueId) => {
+    setDeleteVenueId(venueId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteVenueId) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/venues/${venueId}`, {
+      const response = await fetch(`http://localhost:8080/api/venues/${deleteVenueId}`, {
         method: "DELETE",
       });
 
@@ -68,120 +46,122 @@ export default function ManageVenues({ venues, loading, onVenueUpdated }) {
     } catch (error) {
       console.error("Error deleting venue:", error);
       alert("Error deleting venue");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setDeleteVenueId(null);
     }
   };
 
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setDeleteVenueId(null);
+  };
+
   if (loading) {
-    return <div className="manage-venues">Loading venues...</div>;
+    return (
+      <div className="manage-venues">
+        <div className="loading-venues">
+          <div className="loading-spinner"></div>
+          <p>Loading venues...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="manage-venues">
-      <h2>My Venues</h2>
-      
-      {venues.length === 0 ? (
+          {venues.length === 0 ? (
         <div className="no-venues">
+          <h3>No Venues Yet</h3>
           <p>You haven't added any venues yet.</p>
           <p>Start by adding your first venue using the "Add New Venue" tab.</p>
         </div>
       ) : (
-        <div className="venues-list">
-          {venues.map((venue) => (
-            <div key={venue.venueId} className="venue-card">
-              {editingVenue === venue.venueId ? (
-                <div className="edit-form">
-                  <div className="form-group">
-                    <label>Name</label>
-                    <input
-                      type="text"
-                      value={editForm.venueName}
-                      onChange={(e) => setEditForm(prev => ({
-                        ...prev,
-                        venueName: e.target.value
-                      }))}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Location</label>
-                    <input
-                      type="text"
-                      value={editForm.venueLocation}
-                      onChange={(e) => setEditForm(prev => ({
-                        ...prev,
-                        venueLocation: e.target.value
-                      }))}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Capacity</label>
-                    <input
-                      type="number"
-                      value={editForm.venueCapacity}
-                      onChange={(e) => setEditForm(prev => ({
-                        ...prev,
-                        venueCapacity: e.target.value
-                      }))}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Image URL</label>
-                    <input
-                      type="url"
-                      value={editForm.image}
-                      onChange={(e) => setEditForm(prev => ({
-                        ...prev,
-                        image: e.target.value
-                      }))}
-                    />
-                  </div>
-                  <div className="edit-actions">
-                    <button 
-                      className="save-btn"
-                      onClick={() => handleUpdate(venue.venueId)}
-                    >
-                      Save
-                    </button>
-                    <button 
-                      className="cancel-btn"
-                      onClick={handleCancelEdit}
-                    >
-                      Cancel
-                    </button>
+        <>
+          <div className="venues-grid">
+            {venues.map((venue) => (
+              <div key={venue.venueId} className="venue-card">
+                <div className="venue-image">
+                  <img 
+                    src={venue.image || "/images/Dining-room.jpg"} 
+                    alt={venue.venueName}
+                  />
+                  <div className="venue-badge">
+                    {venue.venueCapacity} persons
                   </div>
                 </div>
-              ) : (
-                <>
-                  <div className="venue-image">
-                    <img 
-                      src={venue.image || "/images/Dining-room.jpg"} 
-                      alt={venue.venueName}
-                    />
+                
+                <div className="venue-info">
+                  <h3>{venue.venueName}</h3>
+                  <div className="venue-location">
+                    {venue.venueLocation}
                   </div>
-                  <div className="venue-info">
-                    <h3>{venue.venueName}</h3>
-                    <p><strong>Location:</strong> {venue.venueLocation}</p>
-                    <p><strong>Capacity:</strong> {venue.venueCapacity} persons</p>
-                  </div>
-                  <div className="venue-actions">
-                    <button 
-                      className="edit-btn"
-                      onClick={() => handleEdit(venue)}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      className="delete-btn"
-                      onClick={() => handleDelete(venue.venueId)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
+                  
+                  {venue.description && (
+                    <p className="venue-description">
+                      {venue.description.length > 100 
+                        ? `${venue.description.substring(0, 100)}...` 
+                        : venue.description}
+                    </p>
+                  )}
+                  
+                  {venue.amenities && venue.amenities.length > 0 && (
+                    <div className="venue-amenities">
+                      <div className="amenities-label">Amenities:</div>
+                      <div className="amenities-list">
+                        {venue.amenities.slice(0, 3).map((amenity, index) => (
+                          <span key={index} className="amenity-tag">
+                            {amenity}
+                          </span>
+                        ))}
+                        {venue.amenities.length > 3 && (
+                          <span className="amenity-tag more">
+                            +{venue.amenities.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="venue-actions">
+                  <button 
+                    className="edit-btn"
+                    onClick={() => handleEdit(venue)}
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    className="delete-btn"
+                    onClick={() => handleDeleteClick(venue.venueId)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
+
+      {/* Edit Venue Modal */}
+      {editingVenue && (
+        <EditVenueModal
+          venue={editingVenue}
+          onClose={handleCancelEdit}
+          onUpdate={handleUpdate}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <CustomModal
+        isOpen={isDeleteModalOpen}
+        message="Are you sure you want to delete this venue? This action cannot be undone."
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 }

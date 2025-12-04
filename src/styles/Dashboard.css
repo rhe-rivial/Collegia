@@ -13,7 +13,7 @@ body {
   background-color: var(--color-background);
   font-family: var(--font-primary);
   margin: 0;
-  padding: 0;
+  padding: 0 ;
 }
 
 .dashboard-container {
@@ -21,6 +21,7 @@ body {
   display: flex;
   flex-direction: column;
   background-color: #f9f9f9;
+
 }
 
 /* Main Navbar */
@@ -143,7 +144,7 @@ body {
   background-color: #fff;
   border-radius: 1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  padding:  59px;;
 }
 
 /* Sub Navigation Styles */
