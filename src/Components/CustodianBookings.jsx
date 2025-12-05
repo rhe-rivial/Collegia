@@ -50,75 +50,88 @@ export default function CustodianBookings() {
   }, [activeTab]);
 
   useEffect(() => {
-    const fetchCustodianBookings = async () => {
-      if (!user || !user.userId) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        console.log('🔵 Custodian Bookings - Fetching bookings for custodian:', user.userId);
-        
-        // First, fetch venues managed by this custodian
-        const venuesResponse = await fetch(`http://localhost:8080/api/venues/custodian/${user.userId}`);
-        const venues = await venuesResponse.json();
-        
-        if (!venues || venues.length === 0) {
-          setBookingsData([]);
+      const fetchCustodianBookings = async () => {
+        if (!user || !user.userId) {
           setIsLoading(false);
           return;
         }
 
-        // Fetch all bookings, then filter those belonging to custodian's venues
-        const allBookingsResponse = await fetch('http://localhost:8080/api/bookings');
-        const allBookings = await allBookingsResponse.json();
-        
-        // Filter bookings for custodian's venues
-        const custodianVenueIds = venues.map(venue => venue.venueId);
-        const custodianBookings = allBookings.filter(booking => 
-          booking.venue && custodianVenueIds.includes(booking.venue.venueId)
-        );
-
-        console.log('🟢 Custodian Bookings - Bookings from DB:', custodianBookings);
-        
-        // Transform the data
-        const transformedBookings = custodianBookings.map(booking => {
-          // Determine status text
-          let statusText = "pending";
-          if (booking.status === true) statusText = "approved";
-          if (booking.status === false) statusText = "pending";
-          if (booking.status === "rejected") statusText = "rejected";
-          if (booking.status === "canceled") statusText = "canceled";
+        try {
+          console.log('🔵 Custodian Bookings - Fetching bookings for custodian:', user.userId);
           
-          return {
-            id: booking.bookingId,
-            venueName: booking.venue?.venueName || "Unknown Venue",
-            eventDate: formatEventDate(booking.date),
-            duration: formatTimeSlot(booking.timeSlot),
-            guests: `${booking.capacity} pax`,
-            bookedBy: booking.user?.firstName || "User",
-            bookedByFull: `${booking.user?.firstName || ""} ${booking.user?.lastName || ""}`.trim(),
-            bookedByEmail: booking.user?.email || "",
-            status: statusText,
-            image: booking.venue?.image || "/images/Dining-room.jpg",
-            eventName: booking.eventName,
-            eventType: booking.eventType,
-            description: booking.description,
-            rawDate: booking.date,
-            rawBooking: booking // Keep raw data for details
-          };
-        });
-        
-        setBookingsData(transformedBookings);
-        setError(null);
-      } catch (err) {
-        console.error('🔴 Custodian Bookings - Error fetching bookings:', err);
-        setError("Failed to load bookings");
-        setBookingsData([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+          // First, fetch venues managed by this custodian
+          const venuesResponse = await fetch(`http://localhost:8080/api/venues/custodian/${user.userId}`);
+          const venues = await venuesResponse.json();
+          
+          if (!venues || venues.length === 0) {
+            setBookingsData([]);
+            setIsLoading(false);
+            return;
+          }
+
+          // Fetch all bookings, then filter those belonging to custodian's venues
+          const allBookingsResponse = await fetch('http://localhost:8080/api/bookings');
+          const allBookings = await allBookingsResponse.json();
+          
+          // Filter bookings for custodian's venues
+          const custodianVenueIds = venues.map(venue => venue.venueId);
+          const custodianBookings = allBookings.filter(booking => 
+            booking.venue && custodianVenueIds.includes(booking.venue.venueId)
+          );
+
+          console.log('🟢 Custodian Bookings - Bookings from DB:', custodianBookings);
+          
+          // Transform the data - FIXED STATUS HANDLING
+          const transformedBookings = custodianBookings.map(booking => {
+            // Log the raw status to debug
+            console.log(`Booking ${booking.bookingId} status:`, booking.status, 'Type:', typeof booking.status);
+            
+            // Handle different status types
+            let statusText = "pending";
+            
+            if (typeof booking.status === 'boolean') {
+              // Handle legacy boolean status (if any)
+              statusText = booking.status ? "approved" : "pending";
+            } else if (typeof booking.status === 'string') {
+              // Handle string status - use lowercase for consistency
+              statusText = booking.status.toLowerCase();
+            }
+            
+            // Ensure status is one of the expected values
+            const validStatuses = ["pending", "approved", "rejected", "canceled"];
+            if (!validStatuses.includes(statusText)) {
+              statusText = "pending"; // Default to pending if invalid
+            }
+            
+            return {
+              id: booking.bookingId,
+              venueName: booking.venue?.venueName || "Unknown Venue",
+              eventDate: formatEventDate(booking.date),
+              duration: formatTimeSlot(booking.timeSlot),
+              guests: `${booking.capacity} pax`,
+              bookedBy: booking.user?.firstName || "User",
+              bookedByFull: `${booking.user?.firstName || ""} ${booking.user?.lastName || ""}`.trim(),
+              bookedByEmail: booking.user?.email || "",
+              status: statusText, // Now always a lowercase string
+              image: booking.venue?.image || "/images/Dining-room.jpg",
+              eventName: booking.eventName,
+              eventType: booking.eventType,
+              description: booking.description,
+              rawDate: booking.date,
+              rawBooking: booking // Keep raw data for details
+            };
+          });
+          
+          setBookingsData(transformedBookings);
+          setError(null);
+        } catch (err) {
+          console.error('🔴 Custodian Bookings - Error fetching bookings:', err);
+          setError("Failed to load bookings");
+          setBookingsData([]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
     fetchCustodianBookings();
   }, [user]);

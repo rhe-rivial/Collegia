@@ -113,7 +113,7 @@
 .todays-schedule {
   margin-bottom: 50px;
   padding: 35px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: white;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
@@ -141,7 +141,7 @@
 }
 
 .schedule-item.complete {
-  border-left-color: #28a745;
+  border-left-color: #155724;
 }
 
 .schedule-item.in-progress {
@@ -572,4 +572,191 @@
   .action-text {
     font-size: 1.1rem;
   }
+}
+
+.stat-card {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-link {
+  font-size: 12px;
+  color: #fffbe6;
+  margin-top: 5px;
+}
+
+.booking-guests {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.event-notice {
+  background: #f8f9fa;
+  padding: 8px;
+  border-radius: 4px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.notice-icon {
+  margin-right: 5px;
+}
+
+.dashboard-stats {
+  margin: 30px 0;
+}
+
+.stats-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.stat-section {
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.stat-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.view-section-btn {
+  background: #7B282A;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.view-section-btn:hover {
+  background: #591d1e;
+}
+
+.bookings-list-small {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.booking-item-small {
+  background: var(--light-gray);
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.booking-item-header {
+  color: #591d1e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.booking-venue-small {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.status-badge-small {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.status-badge-small.pending {
+  background: #ffc107;
+  color: #212529;
+}
+
+.status-badge-small.approved {
+  background: #155724;
+  padding: 5px 6px;
+  color: white;
+}
+
+.status-badge-small.rejected {
+  background: #591d1e;
+  color: white;
+}
+
+.booking-event-small {
+  font-size: 13px;
+  color: #495057;
+  margin-bottom: 4px;
+}
+
+.booking-details-small {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #6c757d;
+}
+
+.no-bookings-small {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.statistics {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.stat-card {
+  flex: 1;
+  background: var(--red);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: bold;
+  color:white;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--yellow);
+  margin-bottom: 5px;
+}
+
+.stat-link {
+  font-size: 12px;
+  color: white;
+  margin-top: 5px;
 }
