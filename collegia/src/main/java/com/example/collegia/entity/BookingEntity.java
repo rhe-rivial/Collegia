@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import java.sql.Time;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "booking_entity")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class BookingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -82,16 +85,6 @@ public class BookingEntity {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    // Helper method for backward compatibility
-    public boolean isStatus() {
-        return "approved".equals(status);
-    }
-
-    // Helper method to set status from boolean (for backward compatibility)
-    public void setStatus(boolean status) {
-        this.status = status ? "approved" : "pending";
     }
 
     public int getCapacity() {

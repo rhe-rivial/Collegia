@@ -3,8 +3,11 @@ package com.example.collegia.entity;
 import jakarta.persistence.*;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @PrimaryKeyJoinColumn(name = "userId")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class CustodianEntity extends UserEntity {
 
     private String department;

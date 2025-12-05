@@ -14,12 +14,13 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:3000")
 public class BookingController {
     
-    @Autowired
+     @Autowired
     private BookingService bookingService;
     
     @PostMapping
-    public ResponseEntity<BookingEntity> createBooking(@RequestBody BookingEntity booking, 
-                                                     @RequestParam Long userId) {
+    public ResponseEntity<BookingEntity> createBooking(
+            @RequestBody BookingEntity booking,
+            @RequestParam Long userId) {
         BookingEntity createdBooking = bookingService.createBooking(booking, userId);
         return ResponseEntity.ok(createdBooking);
     }

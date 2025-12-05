@@ -9,7 +9,7 @@
   --color-text-muted: #9A9A9A;
   --color-success: #28A745;
   --color-warning: #ffd24b;
-  --color-danger: #DC3545;
+  --color-danger: #7B282A;
   --color-secondary: #6C757D;
 }
 
@@ -420,10 +420,11 @@
   display: flex;
   gap: 10px;
   margin-top: 15px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .accept-btn, .reject-btn, .cancel-btn, .details-btn {
+  white-space: nowrap;
   padding: 8px 16px;
   border-radius: 6px;
   font-weight: 600;

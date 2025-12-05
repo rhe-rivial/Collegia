@@ -25,7 +25,7 @@ export default function BookingForm({ venueId, venueData, onClose }) {
     console.log('🔵 Extracted venueImage:', venueImage);
   }, [user, venueId, venueName, venueImage]);
 
-  const saveBookingToBackend = async (payload) => {
+const saveBookingToBackend = async (payload) => {
   console.log('🔵 saveBookingToBackend - currentUser:', currentUser);
   
   if (!currentUser || !currentUser.userId) {
@@ -36,28 +36,47 @@ export default function BookingForm({ venueId, venueData, onClose }) {
   }
 
   try {
-    const bookingDate = payload.date; 
+    console.log('🔵 Received payload date:', payload.date);
+    console.log('🔵 Payload date type:', typeof payload.date);
+    
+    // The date should already be formatted as YYYY-MM-DD from handleSubmit
+    // But let's double-check and fix if needed
+    let bookingDate = payload.date;
+    
+    // If it's not already in YYYY-MM-DD format, parse it
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(bookingDate)) {
+      console.log('🟡 Date not in expected format, parsing...');
+      const parsedDate = new Date(bookingDate);
+      if (isNaN(parsedDate.getTime())) {
+        throw new Error(`Invalid date: ${bookingDate}`);
+      }
+      const year = parsedDate.getFullYear();
+      const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(parsedDate.getDate()).padStart(2, '0');
+      bookingDate = `${year}-${month}-${day}`;
+      console.log('🟡 Reparsed date:', bookingDate);
+    }
+    
+    console.log('🟢 Final date for backend:', bookingDate);
     
     // "HH:mm:ss" format for java.sql.Time
     const formattedTimeSlot = `${payload.startTime}:00`;
     
     const bookingData = {
       eventName: payload.eventName,
-      date: bookingDate, 
+      date: bookingDate,
       timeSlot: formattedTimeSlot,
       capacity: parseInt(payload.attendees),
       description: payload.description,
       eventType: payload.eventType,
-      status: false,
-      venue: payload.venue, 
-      user: { 
-        userId: parseInt(currentUser.userId) 
-      }
+      status: "pending", 
+      venue: payload.venue,
     };
+
 
     console.log('🔵 Sending booking data:', JSON.stringify(bookingData, null, 2));
 
-    const response = await fetch(`http://localhost:8080/api/bookings/user/${currentUser.userId}`, {
+    const response = await fetch(`http://localhost:8080/api/bookings?userId=${currentUser.userId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -68,13 +87,21 @@ export default function BookingForm({ venueId, venueData, onClose }) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('🔴 Backend error response:', errorText);
-      throw new Error(`Failed to create booking: ${errorText}`);
+      
+      let errorMessage = errorText;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.message || errorText;
+      } catch {
+        // Keep as text if not JSON
+      }
+      
+      throw new Error(`Failed to create booking: ${errorMessage}`);
     }
 
     const savedBooking = await response.json();
     console.log('🟢 Booking saved successfully:', savedBooking);
     
-    // Update local storage for immediate UI update
     updateLocalBookings(savedBooking, payload);
     
     return savedBooking;
@@ -83,7 +110,6 @@ export default function BookingForm({ venueId, venueData, onClose }) {
     throw error;
   }
 };
-
 
   const updateLocalBookings = (savedBooking, payload) => {
     try {
