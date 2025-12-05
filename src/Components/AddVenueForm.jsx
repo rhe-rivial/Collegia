@@ -164,6 +164,7 @@ export default function AddVenueForm({ onVenueAdded }) {
       };
 
       console.log("Submitting venue data:", venueData);
+      console.log("Submitting venue data:", venueData);
 
       // 4. Save venue to database
       await apiCall('/venues', {
@@ -214,11 +215,34 @@ export default function AddVenueForm({ onVenueAdded }) {
     "Power Outlets", "Microphones", "Stage", "Video Conferencing"
   ];
 
+  const commonAmenities = [
+    "Air Conditioner", "WiFi", "Projector", "Sound System", 
+    "Whiteboard", "Television", "Lighting", "Furniture",
+    "Power Outlets", "Microphones", "Stage", "Video Conferencing"
+  ];
+
   return (
     <div className="add-venue-form">
       <h2>Add New Venue</h2>
 
+
       <form onSubmit={handleSubmit}>
+        {/* Basic Information */}
+        <div className="form-section">
+          <h3>Basic Information</h3>
+          
+          <div className="form-group">
+            <label htmlFor="venueName">Venue Name *</label>
+            <input
+              type="text"
+              id="venueName"
+              name="venueName"
+              value={formData.venueName}
+              onChange={handleChange}
+              required
+              placeholder="e.g., Conference Room A, Auditorium Hall"
+            />
+          </div>
         {/* Basic Information */}
         <div className="form-section">
           <h3>Basic Information</h3>

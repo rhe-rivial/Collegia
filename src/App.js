@@ -1,5 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { UserProvider, UserContext } from "./Components/UserContext";
+import './App.css';
 
 import Homepage from "./Components/Homepage.jsx";
 import Dashboard from "./Components/Dashboard.jsx";
@@ -22,6 +24,9 @@ import CustodianDashboard from './Components/CustodianDashboard.jsx';
 import CustodianVenues from './Components/CustodianVenues.jsx'; 
 import AddVenuePage from './Components/AddVenuePage.jsx'; 
 
+import CustodianVenues from './Components/CustodianVenues.jsx'; 
+import AddVenuePage from './Components/AddVenuePage.jsx'; 
+
 import FAQ from "./Components/FAQ.jsx";
 import AdminRightSidebar from "./Components/AdminRightSidebar.jsx";
 import AdminDashboard from "./Components/AdminDashboard.jsx";
@@ -32,6 +37,8 @@ import Analytics from "./Components/Analytics.jsx";
 import ProtectedAdminRoute from "./Components/ProtectedAdminRoute.jsx";
 import CustodianRightSidebar from "./Components/CustodianRightSidebar.jsx";
 import CustodianBookings from "./Components/CustodianBookings.jsx";
+import CustodianRightSidebar from "./Components/CustodianRightSidebar.jsx";
+import CustodianBookings from "./Components/CustodianBookings.jsx";
 
 function AppContent() {
   const navigate = useNavigate();
@@ -39,13 +46,14 @@ function AppContent() {
   const [showSignUp, setShowSignUp] = useState(false);
   const [showAdminSidebar, setShowAdminSidebar] = useState(true);
   const [showCustodianSidebar, setShowCustodianSidebar] = useState(true);
+  const [showCustodianSidebar, setShowCustodianSidebar] = useState(true);
 
-  const { user, setUser } = useContext(UserContext);
   const isLoggedIn = !!user;
   const isAdmin = user?.userType?.toLowerCase() === "admin";
   const isCustodian = user?.userType?.toLowerCase() === "custodian";
+  const isCustodian = user?.userType?.toLowerCase() === "custodian";
 
-  // redirect if not admin anymore
+  // Redirect user if they are not admin while inside admin routes
   useEffect(() => {
     if (!isAdmin) {
       setShowAdminSidebar(false);
@@ -63,7 +71,13 @@ function AppContent() {
     localStorage.clear();
     setShowAdminSidebar(false);
     setShowCustodianSidebar(false);
+    setShowCustodianSidebar(false);
     navigate("/", { replace: true });
+  };
+
+  // Add this missing function
+  const handleOpenLoginModal = () => {
+    setShowSignIn(true);
   };
 
   // Add this missing function
@@ -80,6 +94,7 @@ function AppContent() {
         onSignUpClick={() => setShowSignUp(true)}
       />
 
+      {/* ADMIN SIDEBAR (only visible for admin) */}
       {isAdmin && (
         <AdminRightSidebar
           isOpen={showAdminSidebar}
@@ -96,13 +111,21 @@ function AppContent() {
 
       <div className="main-content">
         <Routes>
+          {/* PUBLIC ROUTES */}
           <Route path="/" element={<Homepage />} />
           
           <Route path="/venues/*" element={
             <Dashboard onOpenLoginModal={handleOpenLoginModal} />
           } />
           
+          
+          <Route path="/venues/*" element={
+            <Dashboard onOpenLoginModal={handleOpenLoginModal} />
+          } />
+          
           <Route path="/bookings/*" element={<Bookings />} />
+          <Route path="custodian/bookings/*" element={<CustodianBookings />} />
+         <Route path="/faq" element={<FAQ />} />
           <Route path="custodian/bookings/*" element={<CustodianBookings />} />
          <Route path="/faq" element={<FAQ />} />
           <Route path="/account" element={<AccountPage />} />
@@ -143,8 +166,10 @@ function AppContent() {
         </Routes>
       </div>
 
+      {/* FOOTER */}
       <Footer />
 
+      {/* SIGN IN MODAL */}
       {showSignIn && (
         <SignInModal
           onClose={() => setShowSignIn(false)}
@@ -155,6 +180,7 @@ function AppContent() {
         />
       )}
 
+      {/* SIGN UP MODAL */}
       {showSignUp && (
         <SignUpModal
           onClose={() => setShowSignUp(false)}

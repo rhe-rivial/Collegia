@@ -321,20 +321,8 @@ export default function CustodianBookings() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="bookings-container">
-        <div className="bookings-card">
-          <div className="no-bookings">
-            <h3>Please Log In</h3>
-            <p>You need to be logged in to view bookings.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
+    <>
     <div className="bookings-container">
       <div className="bookings-card">
         <div className="bookings-header">
@@ -503,6 +491,7 @@ export default function CustodianBookings() {
                   
                   {selectedBooking.status === "pending" && (
                     <div className="modal-actions">
+
                       <button 
                         className="modal-accept-btn"
                         onClick={() => {
@@ -546,5 +535,6 @@ export default function CustodianBookings() {
         </div>
       )}
     </div>
+    </>
   );
 }
