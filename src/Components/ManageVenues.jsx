@@ -159,7 +159,6 @@ export default function ManageVenues({ venues, loading, onVenueUpdated }) {
                 <div className="venue-info">
                   <h3>{venue.venueName}</h3>
                   <div className="venue-location">
-                    <span className="location-icon">📍</span>
                     {venue.venueLocation}
                   </div>
                   

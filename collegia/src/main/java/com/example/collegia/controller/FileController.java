@@ -5,9 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.util.Map;
+
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -59,6 +63,36 @@ public class FileController {
             System.err.println("❌ Error serving file: " + fileName);
             e.printStackTrace();
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
+            }
+            
+            // Store the file
+            String fileName = fileStorageService.storeFile(file);
+            
+            // Construct the full URL
+            String fileUrl = "http://localhost:8080/api/files/uploads/" + fileName;
+            
+            System.out.println("✅ File uploaded successfully: " + fileName);
+            System.out.println("📁 File URL: " + fileUrl);
+            
+            return ResponseEntity.ok(Map.of(
+                "fileUrl", fileUrl,
+                "fileName", fileName,
+                "message", "File uploaded successfully"
+            ));
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error uploading file: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to upload file: " + e.getMessage()));
         }
     }
 }
