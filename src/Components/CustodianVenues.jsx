@@ -1,14 +1,17 @@
 import React, { useState, useContext, useEffect } from "react";
 import { UserContext } from "./UserContext";
 import ManageVenues from "./ManageVenues";
-import  apiCall  from "../api"; 
+import AddVenueForm from "./AddVenueForm"; // Import the AddVenueForm component
+import apiCall from "../api.js";
 import "../styles/CustodianVenues.css";
+import "../styles/AddVenueForm.css";
 
 export default function CustodianVenues() {
   const { user } = useContext(UserContext);
   const [myVenues, setMyVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false); // State to control form visibility
 
   useEffect(() => {
     if (user?.userId) {
@@ -31,6 +34,17 @@ export default function CustodianVenues() {
     }
   };
 
+  const handleVenueAdded = () => {
+    // Refresh the venues list
+    fetchMyVenues();
+    // Hide the form
+    setShowAddForm(false);
+  };
+
+  const handleCancelAdd = () => {
+    setShowAddForm(false);
+  };
+
   const isCustodian = user && (user.userType === "Custodian" || user.userType === "custodian" || user.userType === "CUSTODIAN");
 
   if (!isCustodian) {
@@ -45,25 +59,30 @@ export default function CustodianVenues() {
   }
 
   return (
-    <div className="custodian-venues">
-      <div className="venues-header">
-        <h1>My Venues ({myVenues.length})</h1>
-        <p>Manage all venues under your responsibility</p>
-        {error && (
-          <div className="error-message">
-            {error}
-            <button onClick={fetchMyVenues} className="retry-btn">
-              Retry
-            </button>
-          </div>
-        )}
-      </div>
-      
-      <ManageVenues 
-        venues={myVenues} 
-        loading={loading}
-        onVenueUpdated={fetchMyVenues}
-      />
-    </div>
+<div className="custodian-venues">
+  <div className="venues-header">
+    <h1>My Venues ({myVenues.length})</h1>
+    
+    {/* Toggle Button only if there are venues */}
+    {myVenues.length > 0 && (
+      <button 
+        className={`toggle-btn ${showAddForm ? 'cancel' : 'add'}`}
+        onClick={() => setShowAddForm(!showAddForm)}
+      >
+        {showAddForm ? 'Cancel' : '+ Add New Venue'}
+      </button>
+    )}
+  </div>
+  
+  {showAddForm ? (
+    <AddVenueForm onVenueAdded={handleVenueAdded} />
+  ) : (
+    <ManageVenues 
+      venues={myVenues} 
+      loading={loading}
+      onVenueUpdated={fetchMyVenues}
+    />
+  )}
+</div>
   );
 }

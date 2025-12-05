@@ -42,7 +42,6 @@ background-color: transparent;
 
 /* HEADER */
 .venues-header {
-  margin-bottom: 40px;
   padding-bottom: 25px;
   border-bottom: 2px solid var(--gray);
 }
@@ -62,11 +61,13 @@ background-color: transparent;
 
 /* GRID */
 .venues-grid {
+  margin: auto;
+  justify-self: center;
+  align-self: center;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 60px;
+  grid-template-columns: repeat(auto-fiLL, minmax(300px, 1fr));
+  gap: 20px;
   padding-top: 40px;
-  margin-bottom: 100px;
   width: 100%;
 }
 
@@ -137,10 +138,10 @@ background-color: transparent;
 .save-btn,
 .cancel-btn {
   display: inline-block;      
-  vertical-align: bottom;    
+  vertical-align: middle;    
+  width: 80px;
   margin-left: 15px;          
   height: 45px;               
-  padding: 12px 20px;
   border-radius: 8px;
   font-weight: 600;
   font-size: 1rem;
@@ -310,52 +311,21 @@ background-color: transparent;
   .venue-image { height: 150px; }
 }
 
-.manage-venues-header .add-venue-btn, .add-first-venue-btn {
-  display: inline-block;
-  vertical-align: bottom;
-  margin-left: 15px;
-  height: 45px;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s ease;
-  background-color: var(--red);
-  color: white;
-}
-
-.add-venue-btn {
-  background: linear-gradient(135deg, #7B282A 0%, #8d3436 100%);
-  color: #fff;
-  font-weight: 700;
-  font-size: 1rem;
-  padding: 0.8rem 1.8rem;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background 0.2s, transform 0.1s;
-}
-
-.add-venue-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #8d3436 0%, #7B282A 100%);
-  transform: translateY(-2px);
-}
-
-.add-venue-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.add-venue-btn .btn-icon {
-  font-size: 1.2rem;
+.add-venue-btn, .add-first-venue-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.8rem 1.8rem;
+  border-radius: var(--radius-card);
+  background-color: var(--red);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
 }
 
 .add-venue-btn:hover, .add-first-venue-btn:hover {
@@ -363,68 +333,88 @@ background-color: transparent;
   transform: translateY(-2px);
 }
 
-.manage-venues-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40px;
-  padding-bottom: 25px;
-  border-bottom: 2px solid var(--gray);
+.close-form-btn {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--red);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
 }
 
-.manage-venues-header h2 {
-  font-size: 2rem;
-  color: var(--red);
-  margin: 0;
+.close-form-btn:hover {
+  background-color: var(--light-gray);
+  color: var(--dark-gray);
+}
+.venues-header .toggle-btn {
+  font-family: 'Montserrat', sans-serif;
   font-weight: 700;
+  font-size: 1rem;
+  padding: 0.6rem 1.5rem;
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+/* Add mode */
+.venues-header .toggle-btn.add {
+  background-color: var(--red);
+  color: white;
+}
+
+.venues-header .toggle-btn.add:hover {
+  background-color: #561d1e;
+  transform: translateY(-2px);
+}
+
+/* Cancel mode */
+.venues-header .toggle-btn.cancel {
+  background-color: #6c757d;
+  color: white;
+}
+
+.venues-header .toggle-btn.cancel:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
 }
 
 .add-venue-form-container {
   position: relative;
   background: white;
-  border-radius: var(--radius-card);
-  padding: 30px;
-  margin-bottom: 40px;
+  border-radius: 16px;
+  padding: 30px 20px 20px 20px;
   box-shadow: var(--shadow-md);
-  border: 1px solid var(--gray);
+  max-width: 700px;
+  margin: 20px auto;
 }
 
-.form-header {
+.add-venue-form-container .form-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--gray);
+  justify-content: flex-end; /* Align content to the right */
+  margin-bottom: 20px;
 }
 
-.form-header h3 {
-  margin: 0;
-  color: var(--red);
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
-.close-form-btn {
-  position: absolute;
-  top: 10px;
-  right: 34px;
-
-  background: none;
+.add-venue-form-container .close-form-btn {
+  background-color: var(--red);
+  color: white;
   border: none;
-  font-size: 2rem;
-  color: var(--red);
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
   cursor: pointer;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
   transition: all 0.2s ease;
 }
 
-.close-form-btn:hover {
-  background: var(--light-gray);
-  color: var(--dark-gray);
+.add-venue-form-container .close-form-btn:hover {
+  background-color: #601f21;
+  transform: translateY(-2px);
 }

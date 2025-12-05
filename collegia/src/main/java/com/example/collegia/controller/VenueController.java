@@ -36,9 +36,7 @@ public class VenueController {
     
     @Autowired
     private ObjectMapper objectMapper;
-    
-    // ... [Keep all your existing GET endpoints as they are] ...
-    
+        
     @GetMapping
     public ResponseEntity<List<VenueDTO>> getAllVenues() {
         try {

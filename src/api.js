@@ -53,22 +53,24 @@ async function apiCall(endpoint, options = {}) {
 
 //Booking API
 export const bookingAPI = {
-  createBooking: async (bookingData, userId) => {
-    const response = await fetch(`http://localhost:8080/api/bookings/user/${userId}`, {
+    createBooking: async (bookingData, userId) => {
+    const response = await fetch(`${API_BASE_URL}/bookings?userId=${userId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(bookingData)
+      body: JSON.stringify(bookingData),
     });
-    
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Booking creation failed:', errorText);
       throw new Error('Failed to create booking');
     }
-    
+
     return await response.json();
   },
-  
+
   getUserBookings: async (userId) => {
     const response = await fetch(`http://localhost:8080/api/bookings/user/${userId}`);
     if (!response.ok) {
@@ -109,5 +111,7 @@ export const authAPI = {
   }
   
 };
+
+
 
 export default apiCall;

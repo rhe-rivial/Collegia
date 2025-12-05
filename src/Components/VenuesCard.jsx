@@ -2,11 +2,18 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/VenuesCard.css";
 
-export default function VenuesCard({ id, title, image, isFavorite, onFavoriteToggle }) {
+export default function VenuesCard({ id, title, image, isFavorite, onFavoriteToggle, isLoading = false }) {
   const navigate = useNavigate();
 
   const handleImageClick = () => {
-    navigate(`/venues/venue/${id}`); // Go to details page
+    navigate(`/venues/venue/${id}`);
+  };
+
+  const handleFavoriteClick = (e) => {
+    e.stopPropagation();
+    if (onFavoriteToggle && !isLoading) {
+      onFavoriteToggle(id);
+    }
   };
 
   return (
@@ -16,17 +23,19 @@ export default function VenuesCard({ id, title, image, isFavorite, onFavoriteTog
 
         <button
           className="favorite-button"
-          aria-label="Favorite"
-          onClick={(e) => {
-            e.stopPropagation(); // prevent navigation when clicking favorite
-            onFavoriteToggle();
-          }}
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          onClick={handleFavoriteClick}
+          disabled={isLoading}
         >
-          <img
-            alt="favorite-button"
-            src={isFavorite ? "icons/favorite-filled.png" : "icons/favorite.png"}
-            className="heart-icon"
-          />
+          {isLoading ? (
+            <span className="favorite-loading"></span>
+          ) : (
+            <img
+              alt="favorite-button"
+              src={isFavorite ? "/icons/favorite-filled.png" : "/icons/favorite.png"}
+              className="heart-icon"
+            />
+          )}
         </button>
       </div>
 

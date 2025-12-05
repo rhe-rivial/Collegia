@@ -73,7 +73,7 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-.ed-modal-content {
+.modal-content {
   margin: auto;
   width: 100%;
   padding: 30px;
@@ -439,7 +439,7 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .ed-modal-content {
+  .modal-content {
     padding: 20px;
   }
   

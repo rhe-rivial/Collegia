@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "./UserContext";
-import { bookingAPI } from "../api";
+import CustomModal from "./CustomModal.jsx";
+import { bookingAPI } from "../api.js";
 import "../styles/Bookings.css";
 
 export default function CustodianBookings() {
@@ -14,6 +15,27 @@ export default function CustodianBookings() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const navigate = useNavigate();
   const { user } = useUser();
+  
+  // modal popups
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+  
+  const showInfoModal = (message) => {
+    setModalMessage(message);
+    setModalConfirmCallback(null);
+    setModalOpen(true);
+  };
+
+  const showConfirmModal = (message, onConfirm) => {
+    setModalMessage(message);
+    setModalConfirmCallback(() => () => {
+      onConfirm();
+      setModalOpen(false);
+    });
+    setModalOpen(true);
+  };
+
 
   const tabItems = [
     { id: "pending", label: "Pending", left: "0px", width: "107px" },
@@ -150,21 +172,17 @@ export default function CustodianBookings() {
 
   const handleStatusUpdate = async (bookingId, newStatus) => {
     try {
-      // Find the original booking to get full details
-      const originalBooking = bookingsData.find(b => b.id === bookingId)?.rawBooking;
+      const cancelledBy = newStatus === "canceled" ? "custodian" : null;
       
-      const updateData = {
-        ...originalBooking,
-        status: newStatus === "approved" ? true : false,
-        statusText: newStatus
-      };
-
-      const response = await fetch(`http://localhost:8080/api/bookings/${bookingId}`, {
+      const response = await fetch(`http://localhost:8080/api/bookings/${bookingId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updateData)
+        body: JSON.stringify({
+          status: newStatus,
+          cancelledBy: cancelledBy
+        })
       });
 
       if (response.ok) {
@@ -175,7 +193,7 @@ export default function CustodianBookings() {
               ? { 
                   ...booking, 
                   status: newStatus,
-                  rawBooking: { ...booking.rawBooking, status: newStatus === "approved" ? true : false }
+                  cancelledBy: cancelledBy
                 }
               : booking
           )
@@ -187,13 +205,13 @@ export default function CustodianBookings() {
           setSelectedBooking(null);
         }
         
-        alert(`Booking ${newStatus} successfully!`);
+        showInfoModal(`Booking ${newStatus} successfully!`);
       } else {
         throw new Error("Failed to update booking");
       }
     } catch (error) {
       console.error("Error updating booking status:", error);
-      alert(`Failed to ${newStatus} booking. Please try again.`);
+      showInfoModal(`Failed to ${newStatus} booking. Please try again.`);
     }
   };
 
@@ -257,9 +275,9 @@ export default function CustodianBookings() {
           <button 
             className="cancel-btn"
             onClick={() => {
-              if (window.confirm("Are you sure you want to cancel this approved booking?")) {
-                handleStatusUpdate(booking.id, "canceled");
-              }
+            showConfirmModal("Are you sure you want to cancel this approved booking?", () => {
+              handleStatusUpdate(booking.id, "canceled");
+            });
             }}
           >
             Cancel
@@ -321,20 +339,8 @@ export default function CustodianBookings() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="bookings-container">
-        <div className="bookings-card">
-          <div className="no-bookings">
-            <h3>Please Log In</h3>
-            <p>You need to be logged in to view bookings.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
+    <>
     <div className="bookings-container">
       <div className="bookings-card">
         <div className="bookings-header">
@@ -502,7 +508,8 @@ export default function CustodianBookings() {
                   </div>
                   
                   {selectedBooking.status === "pending" && (
-                    <div className="b-modal-actions">
+                    <div className="modal-actions">
+
                       <button 
                         className="modal-accept-btn"
                         onClick={() => {
@@ -525,7 +532,7 @@ export default function CustodianBookings() {
                   )}
                   
                   {selectedBooking.status === "approved" && (
-                    <div className="b-modal-actions">
+                    <div className="modal-actions">
                       <button 
                         className="modal-cancel-btn"
                         onClick={() => {
@@ -546,5 +553,15 @@ export default function CustodianBookings() {
         </div>
       )}
     </div>
+
+      <CustomModal
+    isOpen={modalOpen}
+    message={modalMessage}
+    onClose={() => setModalOpen(false)}
+    onConfirm={modalConfirmCallback}
+  />
+
+    </>
   );
 }
+

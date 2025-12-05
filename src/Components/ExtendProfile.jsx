@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import "../styles/ExtendProfile.css";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
-import { bookingAPI } from "../api";
+import { bookingAPI } from "../api.js";
 
 export default function ExtendProfile({ isEditing }) {
   const navigate = useNavigate();

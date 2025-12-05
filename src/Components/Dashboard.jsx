@@ -36,17 +36,19 @@ export default function Dashboard({ onOpenLoginModal }) {
         <Route index element={
           <VenuesGrid 
             searchQuery={searchQuery}
-            filters={filters}
             showFilters={showFilters}
+            filters={filters}
+            onOpenLoginModal={onOpenLoginModal} 
           />
         } />
 
         {/* Filter categories: /venues/nge, /venues/sal, etc */}
         <Route path=":tag" element={
-          <VenuesGrid 
+        <VenuesGrid 
             searchQuery={searchQuery}
-            filters={filters}
             showFilters={showFilters}
+            filters={filters}
+            onOpenLoginModal={onOpenLoginModal} 
           />
         } />
 

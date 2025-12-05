@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { authAPI } from "../api";
+import { authAPI } from "../api.js";
 import "../styles/SignUpModal.css";
 import CustomModal from "./CustomModal";
 
@@ -13,14 +13,14 @@ export default function SignUpModal({ onClose, openSignIn }) {
     userType: "",
     course: "",
     organization: "",
-    affiliation: "",
-    department: "",
+    affiliation: "", // For Coordinator ONLY
+    department: "", // For Faculty ONLY
   });
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // CustomModal control
+  // For Success/Error message popups (use CustomModal instead of alert)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [closeAfterModal, setCloseAfterModal] = useState(false);
@@ -34,7 +34,6 @@ export default function SignUpModal({ onClose, openSignIn }) {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setModalMessage("");
-
     if (closeAfterModal) {
       setCloseAfterModal(false);
       onClose();
@@ -59,6 +58,7 @@ export default function SignUpModal({ onClose, openSignIn }) {
     if (form.password.length < 6)
       return "Password must be at least 6 characters long.";
 
+    // Dynamic fields validation
     if (form.userType === "Student") {
       if (!form.course || !form.organization)
         return "Course and Organization are required for Students.";
@@ -93,18 +93,28 @@ export default function SignUpModal({ onClose, openSignIn }) {
         email: form.email,
         password: form.password,
         userType: form.userType,
-        ...(form.userType === "Student" && { course: form.course, organization: form.organization }),
-        ...(form.userType === "Coordinator" && { affiliation: form.affiliation }),
-        ...(form.userType === "Faculty" && { department: form.department }),
+        ...(form.userType === "Student" && { 
+          course: form.course, 
+          organization: form.organization 
+        }),
+        ...(form.userType === "Coordinator" && { 
+          affiliation: form.affiliation 
+        }),
+        ...(form.userType === "Faculty" && { 
+          department: form.department 
+        }),
       };
 
+      // Added api call 
       await authAPI.signUp(userData);
 
+      // Show success modal (will close the sign-up modal and open sign-in when dismissed)
       handleAction("Account created successfully!", true);
-
+      
     } catch (err) {
       const message = err?.message || "Sign up failed. Please try again.";
       setError(message);
+      // show error using CustomModal instead of alert
       handleAction(message, false);
     } finally {
       setIsLoading(false);
@@ -115,166 +125,167 @@ export default function SignUpModal({ onClose, openSignIn }) {
     <>
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-          <button className="close-btn" onClick={onClose}>✕</button>
+        <button className="close-btn" onClick={onClose}>✕</button>
 
-          <h2 className="signup-title">Sign Up</h2>
+        <h2 className="signup-title ">Sign Up</h2>
+       
 
-          {error && <p className="error-text">{error}</p>}
+        {error && <p className="error-text">{error}</p>}
 
-          <form className="modal-form" onSubmit={handleSubmit}>
-
-            <label className="label">First Name *</label>
-                <input
-                  className="input-pill"
-                  name="firstName"
-                  value={form.firstName}
-                  onChange={handleChange}
-                  placeholder="Enter your first name"
-                  required
-                />
-            
-            <label className="label">Last Name *</label>
-                <input
-                  className="input-pill"
-                  name="lastName"
-                  value={form.lastName}
-                  onChange={handleChange}
-                  placeholder="Enter your last name"
-                  required
-                />
-
-            <label className="label">Email *</label>
-            <input
-              className="input-pill"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Enter your email address"
-              required
-            />
-
-            <label className="label">Password *</label>
-            <input
-              className="input-pill"
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder="Create a password (min. 6 characters)"
-              required
-            />
-
-            <label className="label">Confirm Password *</label>
-            <input
-              className="input-pill"
-              name="confirmPassword"
-              type="password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              placeholder="Confirm your password"
-              required
-            />
-
-            <label className="label">Role *</label>
-            <select
-              className="input-pill"
-              name="userType"
-              value={form.userType}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Role</option>
-              <option value="Student">Student</option>
-              <option value="Coordinator">Coordinator</option>
-              <option value="Faculty">Faculty</option>
-            </select>
-
-            {form.userType === "Student" && (
-              <>
-                <label className="label">Course *</label>
-                <input
-                  className="input-pill"
-                  name="course"
-                  value={form.course}
-                  onChange={handleChange}
-                  placeholder="e.g., BSIT, BMMA"
-                  required
-                />
-
-                <label className="label">Organization *</label>
-                <input
-                  className="input-pill"
-                  name="organization"
-                  value={form.organization}
-                  onChange={handleChange}
-                  placeholder="e.g., CCS, CNAHS"
-                  required
-                />
-              </>
-            )}
-
-            {form.userType === "Coordinator" && (
-              <>
-                <label className="label">Affiliation *</label>
-                <input
-                  className="input-pill"
-                  name="affiliation"
-                  value={form.affiliation}
-                  onChange={handleChange}
-                  placeholder="Enter company or organization name"
-                  required
-                />
-              </>
-            )}
-
-            {form.userType === "Faculty" && (
-              <>
-                <label className="label">Department *</label>
-                <input
-                  className="input-pill"
-                  name="department"
-                  value={form.department}
-                  onChange={handleChange}
-                  placeholder="Enter department"
-                  required
-                />
-              </>
-            )}
-
-            <button 
-              type="submit" 
-              className="btn-continue"
-              disabled={isLoading}
-            >
-              {isLoading ? "Creating Account..." : "Create Account"}
-            </button>
-          </form>
-
-          <hr className="divider" />
-
-          <div className="switch-row">
-            <p>
-              Already have an account?{" "}
-              <button
-                className="link-button"
-                onClick={() => {
-                  onClose();
-                  openSignIn();
-                }}
-              >
-                Sign in here
-              </button>
-            </p>
+        <form className="modal-form" onSubmit={handleSubmit}>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="label">First Name *</label>
+              <input
+                className="input-pill"
+                name="firstName"
+                value={form.firstName}
+                onChange={handleChange}
+                placeholder="Enter your first name"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="label">Last Name *</label>
+              <input
+                className="input-pill"
+                name="lastName"
+                value={form.lastName}
+                onChange={handleChange}
+                placeholder="Enter your last name"
+                required
+              />
+            </div>
           </div>
+
+          <label className="label">Email *</label>
+          <input
+            className="input-pill"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="Enter your email address"
+            required
+          />
+
+          <label className="label">Password *</label>
+          <input
+            className="input-pill"
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            placeholder="Create a password (min. 6 characters)"
+            required
+          />
+
+          <label className="label">Confirm Password *</label>
+          <input
+            className="input-pill"
+            name="confirmPassword"
+            type="password"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            placeholder="Confirm your password"
+            required
+          />
+
+          <label className="label">Role *</label>
+          <select
+            className="input-pill"
+            name="userType"
+            value={form.userType}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Role</option>
+            <option value="Student">Student</option>
+            <option value="Coordinator">Coordinator</option>
+            <option value="Faculty">Faculty</option>
+          </select>
+
+          {form.userType === "Student" && (
+            <>
+              <label className="label">Course *</label>
+              <input
+                className="input-pill"
+                name="course"
+                value={form.course}
+                onChange={handleChange}
+                placeholder="e.g., BSIT, BMMA"
+                required
+              />
+
+              <label className="label">Organization *</label>
+              <input
+                className="input-pill"
+                name="organization"
+                value={form.organization}
+                onChange={handleChange}
+                placeholder="e.g., CCS, CNAHS"
+                required
+              />
+            </>
+          )}
+
+          {form.userType === "Coordinator" && (
+            <>
+              <label className="label">Affiliation *</label>
+              <input
+                className="input-pill"
+                name="affiliation"
+                value={form.affiliation}
+                onChange={handleChange}
+                placeholder="Enter company or organization name"
+                required
+              />
+            </>
+          )}
+
+          {form.userType === "Faculty" && (
+            <>
+              <label className="label">Department *</label>
+              <input
+                className="input-pill"
+                name="department"
+                value={form.department}
+                onChange={handleChange}
+                placeholder="Enter department"
+                required
+              />
+            </>
+          )}
+
+          <button 
+            type="submit" 
+            className="btn-continue"
+            disabled={isLoading}
+          >
+            {isLoading ? "Creating Account..." : "Create Account"}
+          </button>
+        </form>
+
+        <hr className="divider" />
+
+        <div className="switch-row">
+          <p>
+            Already have an account?{" "}
+            <button
+              className="link-button"
+              onClick={() => {
+                onClose();
+                openSignIn();
+              }}
+            >
+              Sign in here
+            </button>
+          </p>
         </div>
       </div>
+      </div>
 
-      <CustomModal 
-        isOpen={isModalOpen} 
-        message={modalMessage} 
-        onClose={handleCloseModal} 
-      />
+      <CustomModal isOpen={isModalOpen} message={modalMessage} onClose={handleCloseModal} />
     </>
   );
 }
