@@ -16,14 +16,7 @@ import AccountPage from "./Components/AccountPage.jsx";
 import EditAccountPage from "./Components/EditAccountPage.jsx";
 import GuidePage from "./Components/GuidePage.jsx";
 
-import { UserProvider, UserContext } from './Components/UserContext';
-import './App.css';
-
 // custodian components
-import CustodianDashboard from './Components/CustodianDashboard.jsx';
-import CustodianVenues from './Components/CustodianVenues.jsx'; 
-import AddVenuePage from './Components/AddVenuePage.jsx'; 
-
 import CustodianVenues from './Components/CustodianVenues.jsx'; 
 import AddVenuePage from './Components/AddVenuePage.jsx'; 
 
@@ -37,20 +30,18 @@ import Analytics from "./Components/Analytics.jsx";
 import ProtectedAdminRoute from "./Components/ProtectedAdminRoute.jsx";
 import CustodianRightSidebar from "./Components/CustodianRightSidebar.jsx";
 import CustodianBookings from "./Components/CustodianBookings.jsx";
-import CustodianRightSidebar from "./Components/CustodianRightSidebar.jsx";
-import CustodianBookings from "./Components/CustodianBookings.jsx";
+import CustodianDashboard from "./Components/CustodianDashboard.jsx";
 
 function AppContent() {
   const navigate = useNavigate();
   const [showSignIn, setShowSignIn] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
+  const { user, setUser } = useContext(UserContext); 
   const [showAdminSidebar, setShowAdminSidebar] = useState(true);
-  const [showCustodianSidebar, setShowCustodianSidebar] = useState(true);
   const [showCustodianSidebar, setShowCustodianSidebar] = useState(true);
 
   const isLoggedIn = !!user;
   const isAdmin = user?.userType?.toLowerCase() === "admin";
-  const isCustodian = user?.userType?.toLowerCase() === "custodian";
   const isCustodian = user?.userType?.toLowerCase() === "custodian";
 
   // Redirect user if they are not admin while inside admin routes
@@ -75,12 +66,6 @@ function AppContent() {
     navigate("/", { replace: true });
   };
 
-  // Add this missing function
-  const handleOpenLoginModal = () => {
-    setShowSignIn(true);
-  };
-
-  // Add this missing function
   const handleOpenLoginModal = () => {
     setShowSignIn(true);
   };

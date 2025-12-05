@@ -76,33 +76,50 @@ export default function AddVenueForm({ onVenueAdded }) {
       handleAddAmenity();
     }
   };
-
-  // Upload a single file to the server
-  const uploadFileToServer = async (file) => {
-    if (!file) return null;
+// Upload a single file to the server
+const uploadFileToServer = async (file) => {
+  if (!file) return null;
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  try {
+    console.log("📤 Uploading file:", file.name);
     
-    const formData = new FormData();
-    formData.append('file', file); // Changed from 'image' to 'file'
+    // Use the correct endpoint: /api/files/upload
+    const uploadResponse = await fetch('http://localhost:8080/api/files/upload', {
+      method: 'POST',
+      // Don't set Content-Type header - let the browser set it for FormData
+      body: formData,
+    });
     
-    try {
-      const response = await fetch('http://localhost:8080/api/files/upload', {
-        method: 'POST',
-        body: formData,
-        // Don't set Content-Type header, let browser set it automatically for FormData
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Upload failed: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      return data.fileUrl || data.imageUrl || data.url; // Adapt based on your backend response
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      throw error;
+    console.log("📡 Upload response status:", uploadResponse.status);
+    
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error("❌ Upload failed with response:", errorText);
+      throw new Error(`Upload failed: ${uploadResponse.status} ${errorText}`);
     }
-  };
+    
+    const uploadData = await uploadResponse.json();
+    console.log("✅ Upload successful:", uploadData);
+    
+    // Use fileUrl from the response
+    const fileUrl = uploadData.fileUrl;
+    
+    if (!fileUrl) {
+      console.error("❌ No fileUrl in response:", uploadData);
+      throw new Error("Server did not return a file URL");
+    }
+    
+    console.log("🔗 Generated file URL:", fileUrl);
+    return fileUrl;
+    
+  } catch (error) {
+    console.error('❌ Error uploading file:', error);
+    throw error;
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -139,6 +156,7 @@ export default function AddVenueForm({ onVenueAdded }) {
           setLoading(false);
           return;
         }
+        console.log("Main image uploaded:", finalImageUrl);
       }
       
       // 2. Upload gallery images
@@ -147,7 +165,10 @@ export default function AddVenueForm({ onVenueAdded }) {
         setMessage("Uploading gallery images...");
         for (const file of galleryFiles) {
           const url = await uploadFileToServer(file);
-          if (url) galleryUrls.push(url);
+          if (url) {
+            galleryUrls.push(url);
+            console.log("Gallery image uploaded:", url);
+          }
         }
       }
 
@@ -163,7 +184,6 @@ export default function AddVenueForm({ onVenueAdded }) {
         custodian: { userId: user.userId }
       };
 
-      console.log("Submitting venue data:", venueData);
       console.log("Submitting venue data:", venueData);
 
       // 4. Save venue to database
@@ -215,35 +235,12 @@ export default function AddVenueForm({ onVenueAdded }) {
     "Power Outlets", "Microphones", "Stage", "Video Conferencing"
   ];
 
-  const commonAmenities = [
-    "Air Conditioner", "WiFi", "Projector", "Sound System", 
-    "Whiteboard", "Television", "Lighting", "Furniture",
-    "Power Outlets", "Microphones", "Stage", "Video Conferencing"
-  ];
-
   return (
     <div className="add-venue-form">
       <h2>Add New Venue</h2>
 
-
       <form onSubmit={handleSubmit}>
-        {/* Basic Information */}
-        <div className="form-section">
-          <h3>Basic Information</h3>
-          
-          <div className="form-group">
-            <label htmlFor="venueName">Venue Name *</label>
-            <input
-              type="text"
-              id="venueName"
-              name="venueName"
-              value={formData.venueName}
-              onChange={handleChange}
-              required
-              placeholder="e.g., Conference Room A, Auditorium Hall"
-            />
-          </div>
-        {/* Basic Information */}
+        {/* Basic Information - FIXED: Removed duplicate */}
         <div className="form-section">
           <h3>Basic Information</h3>
           
@@ -320,7 +317,7 @@ export default function AddVenueForm({ onVenueAdded }) {
                 value={formData.image}
                 onChange={handleChange}
                 placeholder="https://example.com/venue-image.jpg"
-                disabled={!!imageFile} // Disable URL input if file is uploaded
+                disabled={!!imageFile}
               />
               <span className="or-text">OR</span>
               <div className="file-upload">
@@ -444,8 +441,9 @@ export default function AddVenueForm({ onVenueAdded }) {
             </div>
           </div>
         </div>
-        
-        {/* 
+
+        {/* Gallery Images (Optional) - Uncomment if needed */}
+        {/*
         <div className="form-section">
           <h3>Gallery Images (Optional)</h3>
           <p className="section-description">Add up to 5 additional images to showcase the venue.</p>
@@ -494,7 +492,7 @@ export default function AddVenueForm({ onVenueAdded }) {
               </div>
             )}
           </div>
-        </div> 
+        </div>
         */}
 
         {/* Submit Section */}
