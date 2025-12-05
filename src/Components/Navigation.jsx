@@ -2,6 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import "../styles/DashboardRoutes.css"; 
 
+
 // Navigation tabs
 const navItems = [
   { path: '/venues/nge', label: 'NGE', left: '0px', top: '15px', width: '116px', dotLeft: '124px' },

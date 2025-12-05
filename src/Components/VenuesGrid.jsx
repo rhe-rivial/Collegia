@@ -49,24 +49,44 @@ export default function VenuesGrid({ searchQuery, showFilters, filters }) {
     setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const filteredVenues = venues.filter((venue) => {
-    // Only apply category filter when NOT searching and NOT showing filters
-    const categoryMatch = !searchQuery && !showFilters && currentTag !== "VENUES" 
-      ? venue.venueLocation.toLowerCase() === currentTag.toLowerCase()
-      : true; 
+const knownAreas = ["NGE", "SAL", "GLE", "Court", "ACAD"];
 
-    // Search filter
-    const searchMatch = !searchQuery || 
-      venue.venueName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      venue.venueLocation.toLowerCase().includes(searchQuery.toLowerCase());
+const filteredVenues = venues.filter((venue) => {
+  // Only apply category filter when NOT searching and NOT showing filters
+  console.log("VENUE:", venue.venueName, "| LOCATION:", `"${venue.venueLocation}"`);
 
-    // Capacity filter
-    const capacityMatch = !filters.capacity || 
-      venue.venueCapacity >= parseInt(filters.capacity);
+  const loc = venue.venueLocation.trim().toUpperCase();
+  const knownAreas = ["NGE", "SAL", "GLE", "COURT", "ACAD"];
 
-    // Location filter
-    const locationFilterMatch = !filters.location || 
-      venue.venueLocation === filters.location;
+  let categoryMatch = true;
+
+  if (!searchQuery && !showFilters && currentTag !== "VENUES") {
+    if (currentTag === "MORE") {
+      categoryMatch = !knownAreas.includes(loc);
+    } else {
+      categoryMatch = loc === currentTag;
+    }
+  }
+
+  // Search filter
+  const searchMatch =
+    !searchQuery ||
+    venue.venueName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    venue.venueLocation.toLowerCase().includes(searchQuery.toLowerCase());
+
+  // Capacity filter
+  const capacityMatch =
+    !filters.capacity || venue.venueCapacity >= parseInt(filters.capacity);
+
+  let locationFilterMatch = true;
+
+  if (filters.location && filters.location !== "More") {
+    locationFilterMatch = loc === filters.location.toUpperCase();
+  }
+
+  if (filters.location === "More") {
+    locationFilterMatch = !knownAreas.map(a => a.toUpperCase()).includes(loc);
+  }
 
     return categoryMatch && searchMatch && capacityMatch && locationFilterMatch;
   });
