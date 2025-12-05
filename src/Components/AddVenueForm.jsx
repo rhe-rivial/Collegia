@@ -19,7 +19,7 @@ export default function AddVenueForm({ onVenueAdded }) {
   const [message, setMessage] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [galleryFiles, setGalleryFiles] = useState([]);
-  const [tempImageUrl, setTempImageUrl] = useState(""); // For preview only
+  const [tempImageUrl, setTempImageUrl] = useState(""); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -131,7 +131,7 @@ export default function AddVenueForm({ onVenueAdded }) {
       
       // 1. Upload main image if a file was selected
       if (imageFile) {
-        setMessage("Uploading main image...");
+        setMessage(" ✅ Uploading main image...");
         finalImageUrl = await uploadFileToServer(imageFile);
         
         if (!finalImageUrl) {
@@ -144,7 +144,7 @@ export default function AddVenueForm({ onVenueAdded }) {
       // 2. Upload gallery images
       const galleryUrls = [];
       if (galleryFiles.length > 0) {
-        setMessage("Uploading gallery images...");
+        setMessage(" ✅ Uploading gallery images...");
         for (const file of galleryFiles) {
           const url = await uploadFileToServer(file);
           if (url) galleryUrls.push(url);
@@ -341,7 +341,7 @@ export default function AddVenueForm({ onVenueAdded }) {
                 alt="Venue preview" 
                 onLoad={() => {
                   if (tempImageUrl) {
-                    console.log("Preview image loaded successfully");
+                    console.log("✅ Preview image loaded successfully");
                   }
                 }}
                 onError={(e) => {

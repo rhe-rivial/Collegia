@@ -8,7 +8,7 @@ import "../styles/Bookings.css";
 export default function Bookings() {
   const [activeTab, setActiveTab] = useState("upcoming");
   const [activeIndicatorLeft, setActiveIndicatorLeft] = useState("0px");
-  const [bookingsData, setBookingsData] = useState([]);
+  const [allBookingsData, setAllBookingsData] = useState([]); // Store ALL bookings here
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
@@ -49,7 +49,7 @@ export default function Bookings() {
   }, [activeTab]);
 
   useEffect(() => {
-      const fetchBookingsFromDB = async () => {
+    const fetchBookingsFromDB = async () => {
       if (!user || !user.userId) {
         setIsLoading(false);
         return;
@@ -58,7 +58,6 @@ export default function Bookings() {
       try {
         console.log('🔵 Bookings - Fetching bookings for user:', user.userId);
         
-        // Use the basic endpoint that definitely works
         const response = await fetch(`http://localhost:8080/api/bookings/user/${user.userId}`);
         
         console.log('🔵 Response status:', response.status);
@@ -69,7 +68,6 @@ export default function Bookings() {
           throw new Error(`Failed to fetch bookings: ${response.status}`);
         }
         
-        // Check content type first
         const contentType = response.headers.get('content-type');
         console.log('🔵 Content-Type:', contentType);
         
@@ -102,19 +100,40 @@ export default function Bookings() {
         }));
         
         console.log('🟢 Transformed bookings:', transformedBookings);
-        setBookingsData(transformedBookings);
+        setAllBookingsData(transformedBookings); // Store all bookings
         setError(null);
       } catch (err) {
         console.error('🔴 Bookings - Error fetching bookings:', err);
         setError(err.message);
-        setBookingsData([]);
+        setAllBookingsData([]);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchBookingsFromDB();
-  }, [user, activeTab]);
+  }, [user]);
+
+  // Filter bookings based on active tab
+  const getFilteredBookings = () => {
+    switch (activeTab) {
+      case "upcoming":
+        // "Upcoming" typically includes pending and approved bookings
+        return allBookingsData.filter(booking => 
+          booking.status === "pending" || booking.status === "approved"
+        );
+      case "approved":
+        return allBookingsData.filter(booking => booking.status === "approved");
+      case "rejected":
+        return allBookingsData.filter(booking => booking.status === "rejected");
+      case "canceled":
+        return allBookingsData.filter(booking => booking.status === "canceled");
+      default:
+        return allBookingsData;
+    }
+  };
+
+  const filteredBookings = getFilteredBookings();
 
   const formatEventDate = (dateString) => {
     try {
@@ -147,7 +166,6 @@ export default function Bookings() {
 
   const handleCancelBooking = async (bookingId) => {
     try {
-      // Update booking status to canceled
       const response = await fetch(`http://localhost:8080/api/bookings/${bookingId}/status`, {
         method: "PUT",
         headers: {
@@ -160,8 +178,8 @@ export default function Bookings() {
       });
 
       if (response.ok) {
-        // Update local state
-        setBookingsData(prev => 
+        // Update the ALL bookings data
+        setAllBookingsData(prev => 
           prev.map(booking => 
             booking.id === bookingId 
               ? { 
@@ -242,8 +260,8 @@ export default function Bookings() {
   };
 
   const renderBookingActions = (booking) => {
-    // Only show cancel button for upcoming bookings (pending or approved)
-    if ((booking.status === "pending" || booking.status === "approved") && activeTab === "upcoming") {
+    // Only show cancel button for pending or approved bookings
+    if (booking.status === "pending" || booking.status === "approved") {
       return (
         <div className="booking-actions">
           <button 
@@ -267,7 +285,7 @@ export default function Bookings() {
       );
     }
     
-    // For other tabs, just show details button
+    // For other statuses, just show details button
     return (
       <div className="booking-actions">
         <button 
@@ -373,8 +391,8 @@ export default function Bookings() {
           <div className="divider"></div>
 
           <div className="bookings-list">
-            {bookingsData.length > 0 ? (
-              bookingsData.map((booking) => (
+            {filteredBookings.length > 0 ? (
+              filteredBookings.map((booking) => (
                 <div key={booking.id} className="booking-item">
                   <img 
                     className="booking-image" 
