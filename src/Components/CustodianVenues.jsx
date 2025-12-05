@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { UserContext } from "./UserContext";
 import ManageVenues from "./ManageVenues";
-import  apiCall  from "../api"; 
+import  apiCall  from "../api.js";
 import "../styles/CustodianVenues.css";
 
 export default function CustodianVenues() {

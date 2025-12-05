@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { authAPI } from "../api";
+import { authAPI } from "../api.js";
 import "../styles/SignUpModal.css";
 import CustomModal from "./CustomModal";
 
