@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "./UserContext";
 import { bookingAPI } from "../api.js";
-
 import "../styles/BookingHistory.css";
-
 
 export default function BookingHistory() {
   const [bookings, setBookings] = useState([]);
@@ -30,7 +28,8 @@ export default function BookingHistory() {
           duration: formatTimeSlot(booking.timeSlot),
           guests: `${booking.capacity} pax`,
           bookedBy: user.firstName || "You",
-          status: booking.status ? "approved" : "pending",
+          // FIXED: Use string status directly, not boolean conversion
+          status: booking.status || "pending",
           image: booking.venue?.image || "/images/Dining-room.jpg",
           eventName: booking.eventName,
           eventType: booking.eventType
