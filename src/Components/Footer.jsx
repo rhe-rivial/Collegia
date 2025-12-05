@@ -1,6 +1,7 @@
 import React from 'react';
 import '../styles/Footer.css';
 
+
 const Footer = () => {
   return (
     <footer className="footer">
@@ -22,7 +23,9 @@ const Footer = () => {
         <div className="footer-section">
           <h3 className="section-title">COMPANY</h3>
           <ul className="footer-links">
-            <li><a href="/about">About Us</a></li>
+            <li><a href="/AboutUs">About Us</a></li>
+            {/*<li><a href="/legal">Legal Information</a></li> idk about this*/}
+            {/*<li><a href="/contact">Contact Us</a></li> Might be irrelevant as we have contacts to the side already*/}
             <li><a href="https://cit.edu/blogs/">Blogs</a></li>
           </ul>
         </div>

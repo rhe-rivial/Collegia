@@ -1,13 +1,16 @@
-import React, { useState, useContext, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
-import { UserProvider, UserContext } from "./Components/UserContext";
+import React, { useState, useContext, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+
+import { UserProvider, UserContext } from './Components/UserContext'; // Added UserContext import
 import './App.css';
+
 
 import Homepage from "./Components/Homepage.jsx";
 import Dashboard from "./Components/Dashboard.jsx";
 import Footer from "./Components/Footer.jsx";
 import Header from "./Components/Header.jsx";
 import Bookings from "./Components/Bookings.jsx";
+import AboutUs from "./Components/AboutUs.jsx";
 
 import SignInModal from "./Components/SignInModal.jsx";
 import SignUpModal from "./Components/SignUpModal.jsx";
@@ -150,6 +153,22 @@ function AppContent() {
           } />
         </Routes>
       </div>
+
+        {/* MAIN CONTENT */}
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<Homepage />} />         
+            <Route path="/venues/*" element={
+              <Dashboard onOpenLoginModal={handleOpenLoginModal} />
+            } />  
+            <Route path="/bookings/*" element={<Bookings />} />  
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/aboutus" element={<AboutUs />} />
+            <Route path="/account" element={<AccountPage />} />
+            <Route path="/account/edit" element={<EditAccountPage />} />
+            <Route path="/guide" element={<GuidePage />} />
+          </Routes>
+        </div>
 
       {/* FOOTER */}
       <Footer />
