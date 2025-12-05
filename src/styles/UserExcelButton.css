@@ -1,0 +1,18 @@
+:root {
+  --yellow: #E7C51D;
+  --red: #7B282A;
+}
+
+.excel-btn {
+  background: var(--yellow);
+  color: var(--red);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.excel-btn:hover {
+  background: #d1b017;
+}

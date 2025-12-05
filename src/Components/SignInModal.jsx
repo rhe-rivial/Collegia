@@ -3,6 +3,7 @@ import { UserContext } from "./UserContext";
 import { authAPI } from "../api";
 import "../styles/SignInModal.css";
 import CustomModal from "./CustomModal";
+import ChangePasswordModal from "./ChangePasswordModal"; // new
 
 export default function SignInModal({ onClose, openSignUp }) {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -13,6 +14,10 @@ export default function SignInModal({ onClose, openSignUp }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [closeAfterModal, setCloseAfterModal] = useState(false);
+
+  // Force-change-password modal state
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [pendingUser, setPendingUser] = useState(null); // user object coming from backend
 
   const handleAction = (message, shouldCloseParent = false) => {
     setModalMessage(message);
@@ -46,17 +51,32 @@ export default function SignInModal({ onClose, openSignUp }) {
     setIsLoading(true);
 
     try {
+      // call your auth API
       const response = await authAPI.signIn({
         email: form.email,
         password: form.password,
       });
 
+      // store token & user (so we can call change-password endpoint)
       localStorage.setItem("authToken", response.token);
       localStorage.setItem("currentUser", JSON.stringify(response.user));
 
       const loginEvent = new Event("loginStatusChange");
       window.dispatchEvent(loginEvent);
 
+      // if firstLogin flag set -> force change password
+      const user = response.user;
+      if (user && user.firstLogin) {
+        // keep sign-in modal open until password changed
+        setPendingUser(user);
+        setShowChangePassword(true);
+        // show a temporary message
+        handleAction("You must change your password before continuing.", false);
+        // DO NOT call login(user) yet — we'll call after password is successfully changed
+        return;
+      }
+
+      // normal flow
       handleAction("Login successful", true);
       login(response.user);
 
@@ -73,6 +93,42 @@ export default function SignInModal({ onClose, openSignUp }) {
   const smoothlySwitchToSignup = () => {
     onClose();
     openSignUp();
+  };
+
+  // Called by ChangePasswordModal when user submits a new password
+  const handleChangePasswordSave = async (newPassword) => {
+    if (!pendingUser) {
+      throw new Error("No pending user");
+    }
+
+    try {
+      // call backend endpoint to change password
+      const userId = pendingUser.userId || pendingUser.id; // depending on backend field name
+      const res = await fetch(`http://localhost:8080/api/users/${userId}/change-password`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: newPassword }),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || "Failed to change password");
+      }
+
+      // update local copy of user and mark firstLogin false
+      const updatedUser = { ...pendingUser, firstLogin: false };
+      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+
+      // close change password modal, then close sign-in modal and proceed to login
+      setShowChangePassword(false);
+      setPendingUser(null);
+      handleAction("Password updated. Login successful.", true);
+      login(updatedUser);
+
+    } catch (err) {
+      // bubble error back to ChangePasswordModal via thrown error
+      throw err;
+    }
   };
 
   return (
@@ -131,6 +187,17 @@ export default function SignInModal({ onClose, openSignUp }) {
         message={modalMessage}
         onClose={handleCloseModal}
       />
+
+      {showChangePassword && pendingUser && (
+        <ChangePasswordModal
+          userId={pendingUser.userId || pendingUser.id}
+          onClose={() => {
+            setShowChangePassword(false);
+            // keep sign-in modal open — user must change password
+          }}
+          onSave={handleChangePasswordSave}
+        />
+      )}
     </>
   );
 }
