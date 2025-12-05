@@ -72,11 +72,12 @@ export default function VenueDescription({
             onClick={handleFavoriteClick}
             aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
           >
-              <img
-                src={isFavorite ? "/icons/heart-red.svg" : "/icons/heart-red-filled.png"}
-                className="heart-icon"
-                alt="favorite-button"
-              />
+             <img
+              src={isFavorite ? "/icons/heart-red-filled.png" : "/icons/heart-red.svg"}
+              className="heart-icon"
+              alt="favorite-button"
+            />
+
           </button>
           
           <button 

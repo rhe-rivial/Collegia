@@ -1,7 +1,10 @@
 package com.example.collegia.service;
 
+import com.example.collegia.entity.CustodianEntity;
+import com.example.collegia.entity.UserEntity;
 import com.example.collegia.entity.VenueEntity;
 import com.example.collegia.dto.VenueDTO;
+import com.example.collegia.repository.UserRepository;
 import com.example.collegia.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,30 @@ public class VenueService {
     
     @Autowired
     private VenueRepository venueRepository;
+
+     
+    @Autowired
+    private UserRepository userRepository; 
+
+    public VenueEntity createVenue(VenueEntity venue) {
+        // If venue has a custodian with userId but not full entity
+        if (venue.getCustodian() != null && venue.getCustodian().getUserId() != null) {
+            // Fetch the full custodian entity from database
+            UserEntity custodian = userRepository.findById(venue.getCustodian().getUserId())
+                .orElseThrow(() -> new RuntimeException("Custodian not found with id: " + venue.getCustodian().getUserId()));
+            
+            // Check if it's actually a custodian
+            if (custodian instanceof CustodianEntity) {
+                venue.setCustodian((CustodianEntity) custodian);
+            } else {
+                throw new RuntimeException("User with id " + custodian.getUserId() + " is not a custodian");
+            }
+        }
+        
+        return venueRepository.save(venue);
+    }
+    
+
     
     public List<VenueEntity> getAllVenues() {
         return venueRepository.findAll();
@@ -53,26 +80,58 @@ public class VenueService {
         
         return dto;
     }
-    
-    public VenueEntity createVenue(VenueEntity venue) {
-        return venueRepository.save(venue);
-    }
-    
-    public VenueEntity updateVenue(Long id, VenueEntity venueDetails) {
-        VenueEntity venue = venueRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Venue not found with id: " + id));
-        
-        venue.setVenueName(venueDetails.getVenueName());
-        venue.setVenueLocation(venueDetails.getVenueLocation());
-        venue.setVenueCapacity(venueDetails.getVenueCapacity());
-        
-        return venueRepository.save(venue);
-    }
-    
+
     public void deleteVenue(Long id) {
         VenueEntity venue = venueRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Venue not found with id: " + id));
         venueRepository.delete(venue);
+    }
+
+    public VenueEntity updateVenue(Long id, VenueEntity venueDetails) {
+        VenueEntity venue = venueRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Venue not found with id: " + id));
+        
+        // Update basic fields
+        if (venueDetails.getVenueName() != null) {
+            venue.setVenueName(venueDetails.getVenueName());
+        }
+        
+        if (venueDetails.getVenueLocation() != null) {
+            venue.setVenueLocation(venueDetails.getVenueLocation());
+        }
+        
+        if (venueDetails.getVenueCapacity() > 0) {
+            venue.setVenueCapacity(venueDetails.getVenueCapacity());
+        }
+        
+        if (venueDetails.getImage() != null) {
+            venue.setImage(venueDetails.getImage());
+        }
+        
+        if (venueDetails.getDescription() != null) {
+            venue.setDescription(venueDetails.getDescription());
+        }
+        
+        if (venueDetails.getAmenities() != null) {
+            venue.setAmenities(venueDetails.getAmenities());
+        }
+        
+        if (venueDetails.getGalleryImages() != null) {
+            venue.setGalleryImages(venueDetails.getGalleryImages());
+        }
+
+         if (venueDetails.getCustodian() != null && venueDetails.getCustodian().getUserId() != null) {
+            UserEntity custodian = userRepository.findById(venueDetails.getCustodian().getUserId())
+                .orElseThrow(() -> new RuntimeException("Custodian not found with id: " + venueDetails.getCustodian().getUserId()));
+            
+            if (custodian instanceof CustodianEntity) {
+                venue.setCustodian((CustodianEntity) custodian);
+            } else {
+                throw new RuntimeException("User with id " + custodian.getUserId() + " is not a custodian");
+            }
+        }
+        
+        return venueRepository.save(venue);
     }
     
     public List<VenueEntity> getVenuesByLocation(String location) {

@@ -1,19 +1,23 @@
 package com.example.collegia.entity;
 
 import jakarta.persistence.*;
-
 import java.sql.Time;
 import java.util.Date;
 
 @Entity
+@Table(name = "booking_entity")
 public class BookingEntity {
-   @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookingId;
+    
     private String eventName;
     private Date date;
     private Time timeSlot;
-    private boolean status;
+    
+    // Change from boolean to String for more statuses
+    private String status; // "pending", "approved", "rejected", "canceled"
+    
     private int capacity;
     private String description;
     private String eventType;
@@ -30,8 +34,22 @@ public class BookingEntity {
     @JoinColumn(name = "venue_id")
     private VenueEntity venue;
 
+    // Cancellation info
+    private String cancelledBy; // "user", "custodian", "system"
+    private Date cancelledAt;
+
+    // Constructors
+    public BookingEntity() {
+        this.status = "pending"; // default status
+    }
+
+    // Getters and Setters
     public Long getBookingId() {
         return bookingId;
+    }
+
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
     }
 
     public String getEventName() {
@@ -58,28 +76,22 @@ public class BookingEntity {
         this.timeSlot = timeSlot;
     }
 
-    public CustodianEntity getCustodian() {
-        return custodian;
-    }
-
-    public void setCustodian(CustodianEntity custodian) {
-        this.custodian = custodian;
-    }
-
-    public VenueEntity getVenue() {
-        return venue;
-    }
-
-    public void setVenue(VenueEntity venue) {
-        this.venue = venue;
-    }
-
-    public boolean isStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(String status) {
         this.status = status;
+    }
+
+    // Helper method for backward compatibility
+    public boolean isStatus() {
+        return "approved".equals(status);
+    }
+
+    // Helper method to set status from boolean (for backward compatibility)
+    public void setStatus(boolean status) {
+        this.status = status ? "approved" : "pending";
     }
 
     public int getCapacity() {
@@ -90,7 +102,6 @@ public class BookingEntity {
         this.capacity = capacity;
     }
 
-        // Add getters and setters for new fields
     public String getDescription() {
         return description;
     }
@@ -115,8 +126,39 @@ public class BookingEntity {
         this.user = user;
     }
 
-    public Long getUserId() {
-    return user != null ? user.getUserId() : null;
+    public CustodianEntity getCustodian() {
+        return custodian;
     }
 
+    public void setCustodian(CustodianEntity custodian) {
+        this.custodian = custodian;
+    }
+
+    public VenueEntity getVenue() {
+        return venue;
+    }
+
+    public void setVenue(VenueEntity venue) {
+        this.venue = venue;
+    }
+
+    public String getCancelledBy() {
+        return cancelledBy;
+    }
+
+    public void setCancelledBy(String cancelledBy) {
+        this.cancelledBy = cancelledBy;
+    }
+
+    public Date getCancelledAt() {
+        return cancelledAt;
+    }
+
+    public void setCancelledAt(Date cancelledAt) {
+        this.cancelledAt = cancelledAt;
+    }
+
+    public Long getUserId() {
+        return user != null ? user.getUserId() : null;
+    }
 }

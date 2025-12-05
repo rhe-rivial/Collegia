@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "./UserContext";
 import { bookingAPI } from "../api.js";
+import CustomModal from "./CustomModal.jsx";
 import "../styles/Bookings.css";
 
 export default function Bookings() {
@@ -10,8 +11,30 @@ export default function Bookings() {
   const [bookingsData, setBookingsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const navigate = useNavigate();
   const { user } = useUser();
+
+  // modal popups
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+
+  const showInfoModal = (message) => {
+    setModalMessage(message);
+    setModalConfirmCallback(null);
+    setModalOpen(true);
+  };
+
+  const showConfirmModal = (message, onConfirm) => {
+    setModalMessage(message);
+    setModalConfirmCallback(() => () => {
+      onConfirm();
+      setModalOpen(false);
+    });
+    setModalOpen(true);
+  };
 
   const tabItems = [
     { id: "upcoming", label: "Upcoming", left: "0px", width: "107px" },
@@ -26,7 +49,7 @@ export default function Bookings() {
   }, [activeTab]);
 
   useEffect(() => {
-    const fetchBookingsFromDB = async () => {
+      const fetchBookingsFromDB = async () => {
       if (!user || !user.userId) {
         setIsLoading(false);
         return;
@@ -34,30 +57,56 @@ export default function Bookings() {
 
       try {
         console.log('🔵 Bookings - Fetching bookings for user:', user.userId);
-        const userBookings = await bookingAPI.getUserBookings(user.userId);
-        console.log('🟢 Bookings - Bookings from DB:', userBookings);
         
-        // Transform the data to match your frontend format
+        // Use the basic endpoint that definitely works
+        const response = await fetch(`http://localhost:8080/api/bookings/user/${user.userId}`);
+        
+        console.log('🔵 Response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('🔴 Response error:', errorText);
+          throw new Error(`Failed to fetch bookings: ${response.status}`);
+        }
+        
+        // Check content type first
+        const contentType = response.headers.get('content-type');
+        console.log('🔵 Content-Type:', contentType);
+        
+        if (!contentType || !contentType.includes('application/json')) {
+          const text = await response.text();
+          console.error('🔴 Got HTML instead of JSON:', text.substring(0, 500));
+          throw new Error('Server returned HTML instead of JSON. Check if endpoint exists.');
+        }
+        
+        const userBookings = await response.json();
+        console.log('🟢 Bookings from DB (raw):', userBookings);
+        
+        // Transform the data
         const transformedBookings = userBookings.map(booking => ({
           id: booking.bookingId,
           venueName: booking.venue?.venueName || "Unknown Venue",
           eventDate: formatEventDate(booking.date),
-          duration: formatTimeSlot(booking.timeSlot, 1),
+          duration: formatTimeSlot(booking.timeSlot),
           guests: `${booking.capacity} pax`,
           bookedBy: user.firstName || "You",
-          status: booking.status ? "approved" : "pending",
-          image: booking.venue?.image || "/images/Dining-room.jpg",
+          status: booking.status || "pending",
+          image: booking.venue?.image || "/images/default-venue.jpg",
           eventName: booking.eventName,
           eventType: booking.eventType,
           description: booking.description,
-          rawDate: booking.date 
+          rawDate: booking.date,
+          rawBooking: booking,
+          cancelledBy: booking.cancelledBy,
+          cancelledAt: booking.cancelledAt
         }));
         
+        console.log('🟢 Transformed bookings:', transformedBookings);
         setBookingsData(transformedBookings);
         setError(null);
       } catch (err) {
         console.error('🔴 Bookings - Error fetching bookings:', err);
-        setError("Failed to load bookings");
+        setError(err.message);
         setBookingsData([]);
       } finally {
         setIsLoading(false);
@@ -65,7 +114,7 @@ export default function Bookings() {
     };
 
     fetchBookingsFromDB();
-  }, [user]);
+  }, [user, activeTab]);
 
   const formatEventDate = (dateString) => {
     try {
@@ -96,6 +145,44 @@ export default function Bookings() {
     }
   };
 
+  const handleCancelBooking = async (bookingId) => {
+    try {
+      // Update booking status to canceled
+      const response = await fetch(`http://localhost:8080/api/bookings/${bookingId}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: "canceled",
+          cancelledBy: "user"
+        })
+      });
+
+      if (response.ok) {
+        // Update local state
+        setBookingsData(prev => 
+          prev.map(booking => 
+            booking.id === bookingId 
+              ? { 
+                  ...booking, 
+                  status: "canceled",
+                  cancelledBy: "user"
+                }
+              : booking
+          )
+        );
+        
+        showInfoModal("Booking cancelled successfully!");
+      } else {
+        throw new Error("Failed to cancel booking");
+      }
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      showInfoModal("Failed to cancel booking. Please try again.");
+    }
+  };
+
   const handleBookVenue = () => {
     navigate("/venues");
   };
@@ -118,25 +205,25 @@ export default function Bookings() {
     return status ? status.charAt(0).toUpperCase() + status.slice(1) : "Pending";
   };
 
+  const handleViewDetails = (booking) => {
+    setSelectedBooking(booking);
+    setShowDetailsModal(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetailsModal(false);
+    setSelectedBooking(null);
+  };
+
   // Check user type
   const isAdmin = user?.userType?.toLowerCase() === "admin";
   const isCustodian = user?.userType?.toLowerCase() === "custodian";
   const isRegularUser = user && !isAdmin && !isCustodian;
 
-  // Filter bookings based on active tab
-  const filteredBookings = bookingsData.filter(booking => {
-    if (activeTab === "upcoming") {
-      // Show all non-canceled, non-rejected bookings for upcoming
-      return booking.status !== "canceled" && booking.status !== "rejected";
-    } else {
-      return booking.status === activeTab;
-    }
-  });
-
   // Determine which button to show
   const renderActionButton = () => {
     if (isAdmin) {
-      return null; // No button for admin
+      return null;
     }
     
     if (isCustodian) {
@@ -147,11 +234,68 @@ export default function Bookings() {
       );
     }
     
-    // Regular user
     return (
       <button className="book-venue-button" onClick={handleBookVenue}>
         Book A Venue
       </button>
+    );
+  };
+
+  const renderBookingActions = (booking) => {
+    // Only show cancel button for upcoming bookings (pending or approved)
+    if ((booking.status === "pending" || booking.status === "approved") && activeTab === "upcoming") {
+      return (
+        <div className="booking-actions">
+          <button 
+            className="cancel-btn"
+            onClick={() => {
+              showConfirmModal(
+                "Are you sure you want to cancel this booking?", 
+                () => handleCancelBooking(booking.id)
+              );
+            }}
+          >
+            Cancel Booking
+          </button>
+          <button 
+            className="details-btn"
+            onClick={() => handleViewDetails(booking)}
+          >
+            View Details
+          </button>
+        </div>
+      );
+    }
+    
+    // For other tabs, just show details button
+    return (
+      <div className="booking-actions">
+        <button 
+          className="details-btn"
+          onClick={() => handleViewDetails(booking)}
+        >
+          View Details
+        </button>
+      </div>
+    );
+  };
+
+  const getCancellationInfo = (booking) => {
+    if (booking.status !== "canceled") return null;
+    
+    let cancelledByText = "";
+    if (booking.cancelledBy === "user") {
+      cancelledByText = "Cancelled by you";
+    } else if (booking.cancelledBy === "custodian") {
+      cancelledByText = "Cancelled by venue manager";
+    } else {
+      cancelledByText = "Cancelled";
+    }
+    
+    return (
+      <div className="cancellation-info">
+        <small>{cancelledByText}</small>
+      </div>
     );
   };
 
@@ -199,114 +343,211 @@ export default function Bookings() {
   }
 
   return (
-    <div className="bookings-container">
-      <div className="bookings-card">
-        <div className="bookings-header">
-          <h1 className="bookings-title">Bookings</h1>
-          {renderActionButton()}
-        </div>
+    <>
+      <div className="bookings-container">
+        <div className="bookings-card">
+          <div className="bookings-header">
+            <h1 className="bookings-title">My Bookings</h1>
+            {renderActionButton()}
+          </div>
 
-        <div className="tabs-container">
-          <div className="tabs">
-            {tabItems.map((tab) => (
-              <button 
-                key={tab.id}
-                className={`tab ${activeTab === tab.id ? "active" : ""}`}
-                onClick={() => setActiveTab(tab.id)}
-                style={{ width: tab.width }}
-              >
-                {tab.label}
-              </button>
-            ))}
-            <div 
-              className="tab-indicator" 
-              style={{ left: activeIndicatorLeft }}
-            ></div>
+          <div className="tabs-container">
+            <div className="tabs">
+              {tabItems.map((tab) => (
+                <button 
+                  key={tab.id}
+                  className={`tab ${activeTab === tab.id ? "active" : ""}`}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{ width: tab.width }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+              <div 
+                className="tab-indicator" 
+                style={{ left: activeIndicatorLeft }}
+              ></div>
+            </div>
+          </div>
+
+          <div className="divider"></div>
+
+          <div className="bookings-list">
+            {bookingsData.length > 0 ? (
+              bookingsData.map((booking) => (
+                <div key={booking.id} className="booking-item">
+                  <img 
+                    className="booking-image" 
+                    src={booking.image} 
+                    alt={booking.venueName} 
+                  />
+                  
+                  <div className="booking-details">
+                    <h3 className="venue-name">{booking.venueName}</h3>
+                    <div className="event-type">{booking.eventName} - {booking.eventType}</div>
+                    
+                    <div className="booking-info">
+                      <div className="info-group">
+                        <span className="info-label">Event Date: </span>
+                        <span className="info-value">{booking.eventDate}</span>
+                      </div>
+                      
+                      <div className="info-group">
+                        <span className="info-label">Start time: </span>
+                        <span className="info-value">{booking.duration}</span>
+                      </div>
+                      
+                      <div className="info-group">
+                        <span className="info-label">Guests</span>
+                        <span className="info-value">: {booking.guests}</span>
+                      </div>
+                    </div>
+                    
+                    {booking.description && (
+                      <div className="event-description">
+                        {booking.description}
+                      </div>
+                    )}
+                    
+                    {getCancellationInfo(booking)}
+                    
+                    {renderBookingActions(booking)}
+                  </div>
+                  
+                  <div className="booking-status">
+                    <div 
+                      className="status-indicator" 
+                      style={{ backgroundColor: getStatusColor(booking.status) }}
+                    ></div>
+                    <span 
+                      className="status-text" 
+                      style={{ color: getStatusColor(booking.status) }}
+                    >
+                      {getStatusText(booking.status)}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="no-bookings">
+                <h3>No bookings found</h3>
+                <p>
+                  {activeTab === "upcoming" 
+                    ? "You don't have any upcoming bookings." 
+                    : `You don't have any ${activeTab} bookings.`
+                  }
+                </p>
+                {isRegularUser && (
+                  <button 
+                    className="book-venue-button" 
+                    onClick={handleBookVenue}
+                    style={{ marginTop: '1rem' }}
+                  >
+                    Book Your First Venue
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="divider"></div>
-
-        <div className="bookings-list">
-          {filteredBookings.length > 0 ? (
-            filteredBookings.map((booking) => (
-              <div key={booking.id} className="booking-item">
-                <img 
-                  className="booking-image" 
-                  src={booking.image} 
-                  alt={booking.venueName} 
-                />
-                
-                <div className="booking-details">
-                  <h3 className="venue-name">{booking.venueName}</h3>
-                  <div className="event-type">{booking.eventName} - {booking.eventType}</div>
-                  
-                  <div className="booking-info">
-                    <div className="info-group">
-                      <span className="info-label">Event Date: </span>
-                      <span className="info-value">{booking.eventDate}</span>
-                    </div>
-                    
-                    <div className="info-group">
-                      <span className="info-label">Start time: </span>
-                      <span className="info-value">{booking.duration}</span>
-                    </div>
-
-                    
-                    
-                    <div className="info-group">
-                      <span className="info-label">Guests</span>
-                      <span className="info-value">: {booking.guests}</span>
-                    </div>
+        {/* Booking Details Modal */}
+        {showDetailsModal && selectedBooking && (
+          <div className="booking-details-modal-overlay">
+            <div className="booking-details-modal">
+              <div className="modal-header">
+                <h2>Booking Details</h2>
+                <button className="close-btn" onClick={handleCloseDetails}>×</button>
+              </div>
+              
+              <div className="modal-body">
+                <div className="modal-section">
+                  <div className="modal-image-container">
+                    <img 
+                      src={selectedBooking.image} 
+                      alt={selectedBooking.venueName} 
+                      className="modal-venue-image"
+                    />
                   </div>
                   
-                  {booking.description && (
-                    <div className="event-description">
-                      {booking.description}
+                  <div className="modal-info">
+                    <h3>{selectedBooking.venueName}</h3>
+                    
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <strong>Event Name:</strong>
+                        <span>{selectedBooking.eventName}</span>
+                      </div>
+                      <div className="info-item">
+                        <strong>Event Type:</strong>
+                        <span>{selectedBooking.eventType}</span>
+                      </div>
+                      <div className="info-item">
+                        <strong>Date:</strong>
+                        <span>{selectedBooking.eventDate}</span>
+                      </div>
+                      <div className="info-item">
+                        <strong>Time:</strong>
+                        <span>{selectedBooking.duration}</span>
+                      </div>
+                      <div className="info-item">
+                        <strong>Guests:</strong>
+                        <span>{selectedBooking.guests}</span>
+                      </div>
+                      <div className="info-item full-width">
+                        <strong>Status:</strong>
+                        <span style={{ color: getStatusColor(selectedBooking.status) }}>
+                          {getStatusText(selectedBooking.status)}
+                        </span>
+                      </div>
+                      {selectedBooking.cancelledBy && (
+                        <div className="info-item full-width">
+                          <strong>Cancelled by:</strong>
+                          <span>
+                            {selectedBooking.cancelledBy === "user" ? "You" : "Venue Manager"}
+                          </span>
+                        </div>
+                      )}
+                      {selectedBooking.description && (
+                        <div className="info-item full-width">
+                          <strong>Description:</strong>
+                          <p className="description-text">{selectedBooking.description}</p>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  
-                  <div className="booked-by">
-                    By: {booking.bookedBy}
+                    
+                    {(selectedBooking.status === "pending" || selectedBooking.status === "approved") && (
+                      <div className="modal-actions">
+                        <button 
+                          className="modal-cancel-btn"
+                          onClick={() => {
+                            showConfirmModal(
+                              "Are you sure you want to cancel this booking?",
+                              () => {
+                                handleCancelBooking(selectedBooking.id);
+                                handleCloseDetails();
+                              }
+                            );
+                          }}
+                        >
+                          Cancel Booking
+                        </button>
+                      </div>
+                    )}
                   </div>
-                </div>
-                
-                <div className="booking-status">
-                  <div 
-                    className="status-indicator" 
-                    style={{ backgroundColor: getStatusColor(booking.status) }}
-                  ></div>
-                  <span 
-                    className="status-text" 
-                    style={{ color: getStatusColor(booking.status) }}
-                  >
-                    {getStatusText(booking.status)}
-                  </span>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="no-bookings">
-              <h3>No bookings found</h3>
-              <p>
-                {activeTab === "upcoming" 
-                  ? "You don't have any upcoming bookings." 
-                  : `You don't have any ${activeTab} bookings.`
-                }
-              </p>
-              {isRegularUser && (
-                <button 
-                  className="book-venue-button" 
-                  onClick={handleBookVenue}
-                  style={{ marginTop: '1rem' }}
-                >
-                  Book Your First Venue
-                </button>
-              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-    </div>
+
+      <CustomModal
+        isOpen={modalOpen}
+        message={modalMessage}
+        onClose={() => setModalOpen(false)}
+        onConfirm={modalConfirmCallback}
+      />
+    </>
   );
 }

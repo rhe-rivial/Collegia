@@ -76,50 +76,33 @@ export default function AddVenueForm({ onVenueAdded }) {
       handleAddAmenity();
     }
   };
-// Upload a single file to the server
-const uploadFileToServer = async (file) => {
-  if (!file) return null;
-  
-  const formData = new FormData();
-  formData.append('file', file);
-  
-  try {
-    console.log("📤 Uploading file:", file.name);
+
+  // Upload a single file to the server
+  const uploadFileToServer = async (file) => {
+    if (!file) return null;
     
-    // Use the correct endpoint: /api/files/upload
-    const uploadResponse = await fetch('http://localhost:8080/api/files/upload', {
-      method: 'POST',
-      // Don't set Content-Type header - let the browser set it for FormData
-      body: formData,
-    });
+    const formData = new FormData();
+    formData.append('file', file); // Changed from 'image' to 'file'
     
-    console.log("📡 Upload response status:", uploadResponse.status);
-    
-    if (!uploadResponse.ok) {
-      const errorText = await uploadResponse.text();
-      console.error("❌ Upload failed with response:", errorText);
-      throw new Error(`Upload failed: ${uploadResponse.status} ${errorText}`);
+    try {
+      const response = await fetch('http://localhost:8080/api/files/upload', {
+        method: 'POST',
+        body: formData,
+        // Don't set Content-Type header, let browser set it automatically for FormData
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Upload failed: ${errorText}`);
+      }
+      
+      const data = await response.json();
+      return data.fileUrl || data.imageUrl || data.url; // Adapt based on your backend response
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
     }
-    
-    const uploadData = await uploadResponse.json();
-    console.log("✅ Upload successful:", uploadData);
-    
-    // Use fileUrl from the response
-    const fileUrl = uploadData.fileUrl;
-    
-    if (!fileUrl) {
-      console.error("❌ No fileUrl in response:", uploadData);
-      throw new Error("Server did not return a file URL");
-    }
-    
-    console.log("🔗 Generated file URL:", fileUrl);
-    return fileUrl;
-    
-  } catch (error) {
-    console.error('❌ Error uploading file:', error);
-    throw error;
-  }
-};
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -156,7 +139,6 @@ const uploadFileToServer = async (file) => {
           setLoading(false);
           return;
         }
-        console.log("Main image uploaded:", finalImageUrl);
       }
       
       // 2. Upload gallery images
@@ -165,10 +147,7 @@ const uploadFileToServer = async (file) => {
         setMessage("Uploading gallery images...");
         for (const file of galleryFiles) {
           const url = await uploadFileToServer(file);
-          if (url) {
-            galleryUrls.push(url);
-            console.log("Gallery image uploaded:", url);
-          }
+          if (url) galleryUrls.push(url);
         }
       }
 
@@ -240,7 +219,7 @@ const uploadFileToServer = async (file) => {
       <h2>Add New Venue</h2>
 
       <form onSubmit={handleSubmit}>
-        {/* Basic Information - FIXED: Removed duplicate */}
+        {/* Basic Information */}
         <div className="form-section">
           <h3>Basic Information</h3>
           
@@ -317,7 +296,7 @@ const uploadFileToServer = async (file) => {
                 value={formData.image}
                 onChange={handleChange}
                 placeholder="https://example.com/venue-image.jpg"
-                disabled={!!imageFile}
+                disabled={!!imageFile} // Disable URL input if file is uploaded
               />
               <span className="or-text">OR</span>
               <div className="file-upload">
@@ -441,9 +420,7 @@ const uploadFileToServer = async (file) => {
             </div>
           </div>
         </div>
-
-        {/* Gallery Images (Optional) - Uncomment if needed */}
-        {/*
+        {/* 
         <div className="form-section">
           <h3>Gallery Images (Optional)</h3>
           <p className="section-description">Add up to 5 additional images to showcase the venue.</p>
@@ -492,7 +469,7 @@ const uploadFileToServer = async (file) => {
               </div>
             )}
           </div>
-        </div>
+        </div> 
         */}
 
         {/* Submit Section */}
