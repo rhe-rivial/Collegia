@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../styles/UserManagement.css";
+import * as XLSX from "xlsx";
 
 import UserSearchAndFilter from "./UserSearchAndFilter";
 import UserAddModal from "./UserAddModal";
@@ -193,25 +194,34 @@ export default function UserManagement() {
     }
   };
 
-  /* ==============================
-            EXCEL IMPORT
-  =============================== */
-  const handleExcelUpload = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
+  // Excel Import
+  const uploadExcel = async (file) => {
+    const reader = new FileReader();
 
-    try {
-      await fetch("http://localhost:8080/api/users/import-excel", {
-        method: "POST",
-        body: formData,
-      });
+    reader.onload = async (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet); // Convert to JSON rows
 
-      setShowExcelModal(false);
-      loadUsers();
+      // Send rows to backend
+      try {
+        const res = await fetch("http://localhost:8080/api/users/import-excel", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(rows)
+        });
 
-    } catch (err) {
-      console.error("Excel upload failed:", err);
-    }
+        const message = await res.text();
+        alert(message);
+        loadUsers();
+      } catch (err) {
+        console.error(err);
+        alert("Import failed.");
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
   };
 
   /* ==============================
@@ -315,7 +325,7 @@ export default function UserManagement() {
       {showExcelModal && (
         <UserExcelModal
           onClose={() => setShowExcelModal(false)}
-          onUploadExcel={handleExcelUpload}
+          onUploadExcel={uploadExcel}
         />
       )}
 

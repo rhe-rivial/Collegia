@@ -100,12 +100,62 @@ public class UserController {
 
         String newPassword = body.get("password");
 
-        if (newPassword == null || newPassword.trim().length() < 8) {
+        if (newPassword == null || newPassword.trim().length() < 6) {
             return ResponseEntity.badRequest()
-                    .body("Password must be at least 8 characters long.");
+                    .body("Password must be at least 6 characters long.");
         }
 
         userService.changePassword(id, newPassword);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/import-excel")
+    public ResponseEntity<?> importExcel(@RequestBody List<Map<String, Object>> rows) {
+
+        int importedCount = 0;
+        int skippedCount = 0;
+
+        for (Map<String, Object> row : rows) {
+
+            String firstName = (row.get("firstName") + "").trim();
+            String lastName = (row.get("lastName") + "").trim();
+            String email = (row.get("email") + "").trim();
+            String userType = (row.get("userType") + "").trim();
+
+            // Skip if required fields missing
+            if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || userType.isEmpty()) {
+                skippedCount++;
+                continue;
+            }
+
+            // Skip if email already exists
+            if (userService.emailExists(email)) {
+                skippedCount++;
+                continue;
+            }
+
+            // Create user
+            UserEntity user = new UserEntity();
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setEmail(email);
+            user.setUserType(userType);
+
+            // Default password
+            user.setPassword("12345678");
+            user.setFirstLogin(true);
+
+            // Optional fields (ignored if missing)
+            if (row.containsKey("course")) user.setAbout((String) row.get("course"));
+            if (row.containsKey("organization")) user.setLocation((String) row.get("organization"));
+
+            userService.createUser(user);
+            importedCount++;
+        }
+
+        return ResponseEntity.ok(
+                "Imported: " + importedCount + " | Skipped: " + skippedCount
+        );
+    }
+
 }

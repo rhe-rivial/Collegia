@@ -10,8 +10,8 @@ export default function ChangePasswordModal({ userId, onClose, onSave }) {
   const handleSubmit = async () => {
     setError("");
 
-    if (!password || password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    if (!password || password.length < 6) {
+      setError("Password must be at least 6 characters.");
       return;
     }
     if (password !== confirm) {
@@ -42,7 +42,7 @@ export default function ChangePasswordModal({ userId, onClose, onSave }) {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="At least 8 characters"
+          placeholder="At least 6 characters"
         />
 
         <label className="cp-label">Confirm password</label>
