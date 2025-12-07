@@ -11,6 +11,9 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const [excelMessage, setExcelMessage] = useState("");
+  const [excelError, setExcelError] = useState("");
+
 
   // Pagination
   const [page, setPage] = useState(0);
@@ -202,9 +205,12 @@ export default function UserManagement() {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet); // Convert to JSON rows
+      const rows = XLSX.utils.sheet_to_json(sheet);
 
-      // Send rows to backend
+      // Reset messages
+      setExcelMessage("");
+      setExcelError("");
+
       try {
         const res = await fetch("http://localhost:8080/api/users/import-excel", {
           method: "POST",
@@ -213,16 +219,30 @@ export default function UserManagement() {
         });
 
         const message = await res.text();
-        alert(message);
-        loadUsers();
+
+        if (res.ok) {
+          setExcelMessage(message);
+
+          setTimeout(() => {
+            setShowExcelModal(false);
+            setExcelMessage("");
+            loadUsers();
+          }, 1500);
+
+        } else {
+          setExcelError(message || "Import failed.");
+        }
+
       } catch (err) {
         console.error(err);
-        alert("Import failed.");
+        setExcelError("Import failed. Please check the file format.");
       }
     };
 
     reader.readAsArrayBuffer(file);
   };
+
+
 
   /* ==============================
             RENDER
@@ -326,6 +346,8 @@ export default function UserManagement() {
         <UserExcelModal
           onClose={() => setShowExcelModal(false)}
           onUploadExcel={uploadExcel}
+          excelMessage={excelMessage}
+          excelError={excelError}
         />
       )}
 

@@ -3,7 +3,9 @@ import "../styles/UserExcelModal.css";
 
 export default function UserExcelModal({
   onClose,
-  onUploadExcel
+  onUploadExcel,
+  excelMessage,  
+  excelError      
 }) {
   const [file, setFile] = useState(null);
 
@@ -46,11 +48,24 @@ export default function UserExcelModal({
           Upload an Excel file (.xlsx / .xls) following the required template.
         </p>
 
+        {/* Success Message */}
+        {excelMessage && (
+          <div className="uem-success-message">
+            {excelMessage}
+          </div>
+        )}
+
+        {/* Error Message */}
+        {excelError && (
+          <div className="uem-error-message">
+            {excelError}
+          </div>
+        )}
+
         <button className="uem-template-btn" onClick={downloadTemplate}>
           Download Template
         </button>
 
-        {/* Drag and Drop Zone */}
         <div
           className="uem-dropzone"
           onDrop={handleDrop}
@@ -58,7 +73,6 @@ export default function UserExcelModal({
         >
           {!file && <p>Drag & drop Excel file here, or click to browse</p>}
 
-          {/* File Picker */}
           <input
             type="file"
             accept=".xlsx,.xls,.csv"
