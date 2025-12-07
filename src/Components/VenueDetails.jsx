@@ -1,37 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { UserContext } from './UserContext';
 import VenueGallery from "./VenueGallery.jsx";
 import VenueDescription from "./VenueDescription.jsx";
 import VenueBookingCard from "./VenueBookingCard.jsx";
 import "../styles/VenueDetails.css";
+import { favoritesStorage } from "./VenuesGrid"; 
+
 
 export default function VenueDetails({ onOpenLoginModal }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   const [venueData, setVenueData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // Fetch venue data from API
   useEffect(() => {
     const fetchVenueData = async () => {
       try {
         setLoading(true);
-        console.log(`🔵 Fetching venue details for ID: ${id}`);
         const response = await fetch(`http://localhost:8080/api/venues/${id}`);
-        
-        console.log('🔵 Response status:', response.status);
         
         if (response.ok) {
           const venueFromApi = await response.json();
-          console.log('🟢 Venue data from API:', venueFromApi);
           
-          // Check if we have the actual data structure
           if (!venueFromApi || !venueFromApi.venueId) {
             throw new Error("Invalid venue data received from API");
           }
           
-          // Transform API data to match component structure
+          // Check if this venue is in favorites from localStorage
+          let favoriteStatus = false;
+          if (user?.userId) {
+            favoriteStatus = favoritesStorage.isFavorite(user.userId, venueFromApi.venueId);
+          }
+          
+          setIsFavorite(favoriteStatus);
+          
           const transformedData = {
             venueId: venueFromApi.venueId,
             venueName: venueFromApi.venueName || `Venue ${id}`,
@@ -39,21 +46,18 @@ export default function VenueDetails({ onOpenLoginModal }) {
             venueCapacity: `${venueFromApi.venueCapacity || 50} persons`,
             description: formatDescription(venueFromApi),
             amenities: formatAmenities(venueFromApi),
-            images: formatGalleryImages(venueFromApi)
+            images: formatGalleryImages(venueFromApi),
           };
           
-          console.log('🟢 Transformed venue data:', transformedData);
           setVenueData(transformedData);
           setError(null);
         } else {
-          console.error(`🔴 API returned status: ${response.status}`);
           const errorText = await response.text();
-          console.error('🔴 Error response:', errorText);
           setError(`Venue not found (Status: ${response.status})`);
           setVenueData(null);
         }
       } catch (error) {
-        console.error("🔴 Error fetching venue:", error);
+        console.error("Error fetching venue:", error);
         setError(`Failed to load venue data: ${error.message}`);
         setVenueData(null);
       } finally {
@@ -62,9 +66,54 @@ export default function VenueDetails({ onOpenLoginModal }) {
     };
 
     fetchVenueData();
-  }, [id]);
+  }, [id, user]);
 
-  // Helper functions
+  // Listen for favorites updates from VenuesGrid
+  useEffect(() => {
+    const handleFavoritesUpdated = (event) => {
+      const { userId, venueId, isFavorite: newFavoriteState } = event.detail;
+      
+      // Only update if it's the same user and same venue
+      if (user?.userId === userId && venueData?.venueId?.toString() === venueId) {
+        setIsFavorite(newFavoriteState);
+      }
+    };
+
+    window.addEventListener('favoritesUpdated', handleFavoritesUpdated);
+    
+    return () => {
+      window.removeEventListener('favoritesUpdated', handleFavoritesUpdated);
+    };
+  }, [user, venueData]);
+
+  // Handle favorite toggle - using localStorage only
+  const handleFavoriteToggle = (venueId, shouldBeFavorite) => {
+    if (!user) {
+      onOpenLoginModal();
+      return;
+    }
+    
+    // Update localStorage
+    const result = favoritesStorage.toggleFavorite(user.userId, venueId);
+    setIsFavorite(result.isFavorite);
+    
+    // Dispatch event to notify VenuesGrid about the change
+    window.dispatchEvent(new CustomEvent('favoritesUpdated', {
+      detail: {
+        userId: user.userId,
+        venueId: venueId.toString(),
+        isFavorite: result.isFavorite
+      }
+    }));
+  };
+
+  // Handle share
+  const handleShare = () => {
+
+    console.log("Sharing venue:", id);
+  };
+
+  // Helper functions (keep your existing formatDescription, formatAmenities, etc.)
   const formatDescription = (venue) => {
     if (venue.description && venue.description.trim() !== "") {
       return [venue.description];
@@ -88,7 +137,6 @@ export default function VenueDetails({ onOpenLoginModal }) {
         icon: getAmenityIcon(amenity)
       }));
     } else {
-      // Default amenities
       return [
         { name: "Air Conditioner", icon: "/icons/air-conditioner.png" },
         { name: "Basic Furniture", icon: "/icons/furniture.png" },
@@ -100,12 +148,11 @@ export default function VenueDetails({ onOpenLoginModal }) {
 
   const formatGalleryImages = (venue) => {
     if (venue.galleryImages && venue.galleryImages.length > 0) {
-      // Ensure we have at least 4 images
       const images = [...venue.galleryImages];
       while (images.length < 4) {
         images.push(venue.image || "/images/Dining-room.jpg");
       }
-      return images.slice(0, 4); // Max 4 images for gallery
+      return images.slice(0, 4);
     } else if (venue.image) {
       return [
         venue.image,
@@ -210,22 +257,26 @@ export default function VenueDetails({ onOpenLoginModal }) {
       </button>
       
       <div className="venue-details-content">
-        <VenueGallery images={venueData.images} />
+        <VenueGallery images={venueData?.images || []} />
     
         <div className="venue-details-bottom">
           <div className="venue-left-column">
             <VenueDescription
-              title={venueData.venueName}
-              building={venueData.building}
-              capacity={venueData.venueCapacity}
-              description={venueData.description}
-              amenities={venueData.amenities}
+              title={venueData?.venueName || ''}
+              building={venueData?.building || ''}
+              capacity={venueData?.venueCapacity || ''}
+              description={venueData?.description || []}
+              amenities={venueData?.amenities || []}
+              venueId={venueData?.venueId}
+              isFavorite={isFavorite}
+              onFavoriteToggle={handleFavoriteToggle}
+              onShare={handleShare}
             />
           </div>
 
           <div className="venue-right-column">
             <VenueBookingCard 
-              venueId={venueData.venueId} 
+              venueId={venueData?.venueId} 
               venueData={venueData}
               onOpenLoginModal={onOpenLoginModal}
             />

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { UserContext } from "./UserContext";
-import apiCall from "../api";
+import apiCall from "../api.js";
 import "../styles/AddVenueForm.css";
 
 export default function AddVenueForm({ onVenueAdded }) {
@@ -9,17 +9,17 @@ export default function AddVenueForm({ onVenueAdded }) {
     venueName: "",
     venueLocation: "",
     venueCapacity: "",
-    image: "",
+    image: "", // This will store the final image URL
     description: "",
-    amenities: ["Air Conditioner", "WiFi"], // Default amenities
+    amenities: ["Air Conditioner", "WiFi"],
     galleryImages: []
   });
   const [newAmenity, setNewAmenity] = useState("");
-  const [newGalleryImage, setNewGalleryImage] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [galleryFiles, setGalleryFiles] = useState([]);
+  const [tempImageUrl, setTempImageUrl] = useState(""); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,41 +33,24 @@ export default function AddVenueForm({ onVenueAdded }) {
     const file = e.target.files[0];
     if (file) {
       setImageFile(file);
-      // Create a temporary URL for preview
-      const imageUrl = URL.createObjectURL(file);
-      setFormData(prev => ({ ...prev, image: imageUrl }));
+      // Create a temporary URL for preview only
+      const tempUrl = URL.createObjectURL(file);
+      setTempImageUrl(tempUrl);
     }
   };
 
   const handleGalleryUpload = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length + formData.galleryImages.length > 5) {
+    if (files.length + galleryFiles.length > 5) {
       setMessage("Error: Maximum 5 gallery images allowed");
       return;
     }
 
-    const newGalleryFiles = [...galleryFiles, ...files];
-    setGalleryFiles(newGalleryFiles);
-
-    // Create temporary URLs for preview
-    const newImageUrls = files.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      galleryImages: [...prev.galleryImages, ...newImageUrls]
-    }));
+    setGalleryFiles(prev => [...prev, ...files]);
   };
 
-  const handleRemoveGalleryImage = (index) => {
-    const newGalleryImages = [...formData.galleryImages];
-    const newGalleryFiles = [...galleryFiles];
-    
-    newGalleryImages.splice(index, 1);
-    if (index < newGalleryFiles.length) {
-      newGalleryFiles.splice(index, 1);
-    }
-    
-    setFormData(prev => ({ ...prev, galleryImages: newGalleryImages }));
-    setGalleryFiles(newGalleryFiles);
+  const handleRemoveGalleryFile = (index) => {
+    setGalleryFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleAddAmenity = () => {
@@ -94,6 +77,33 @@ export default function AddVenueForm({ onVenueAdded }) {
     }
   };
 
+  // Upload a single file to the server
+  const uploadFileToServer = async (file) => {
+    if (!file) return null;
+    
+    const formData = new FormData();
+    formData.append('file', file); // Changed from 'image' to 'file'
+    
+    try {
+      const response = await fetch('http://localhost:8080/api/files/upload', {
+        method: 'POST',
+        body: formData,
+        // Don't set Content-Type header, let browser set it automatically for FormData
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Upload failed: ${errorText}`);
+      }
+      
+      const data = await response.json();
+      return data.fileUrl || data.imageUrl || data.url; // Adapt based on your backend response
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -102,9 +112,14 @@ export default function AddVenueForm({ onVenueAdded }) {
       return;
     }
 
-    // Validate required fields
     if (!formData.venueName.trim() || !formData.venueLocation.trim() || !formData.venueCapacity) {
       setMessage("Error: Please fill in all required fields");
+      return;
+    }
+
+    // Check if we have either a URL or a file
+    if (!formData.image && !imageFile) {
+      setMessage("Error: Please provide either an image URL or upload a file");
       return;
     }
 
@@ -112,28 +127,53 @@ export default function AddVenueForm({ onVenueAdded }) {
     setMessage("");
 
     try {
-      // Prepare venue data
+      let finalImageUrl = formData.image;
+      
+      // 1. Upload main image if a file was selected
+      if (imageFile) {
+        setMessage(" ✅ Uploading main image...");
+        finalImageUrl = await uploadFileToServer(imageFile);
+        
+        if (!finalImageUrl) {
+          setMessage("Error: Failed to upload main image");
+          setLoading(false);
+          return;
+        }
+      }
+      
+      // 2. Upload gallery images
+      const galleryUrls = [];
+      if (galleryFiles.length > 0) {
+        setMessage(" ✅ Uploading gallery images...");
+        for (const file of galleryFiles) {
+          const url = await uploadFileToServer(file);
+          if (url) galleryUrls.push(url);
+        }
+      }
+
+      // 3. Prepare venue data with actual image URLs
       const venueData = {
         venueName: formData.venueName,
         venueLocation: formData.venueLocation,
         venueCapacity: parseInt(formData.venueCapacity),
-        image: formData.image,
+        image: finalImageUrl || "/images/default-venue.jpg", // Fallback image
         description: formData.description || `${formData.venueName} - A versatile venue for various events.`,
         amenities: formData.amenities,
-        galleryImages: formData.galleryImages,
+        galleryImages: galleryUrls,
         custodian: { userId: user.userId }
       };
 
       console.log("Submitting venue data:", venueData);
 
+      // 4. Save venue to database
       await apiCall('/venues', {
         method: 'POST',
         body: venueData,
       });
 
-      setMessage("Venue added successfully!");
+      setMessage("✅ Venue added successfully!");
       
-      // Reset form
+      // 5. Reset form
       setFormData({
         venueName: "",
         venueLocation: "",
@@ -146,14 +186,23 @@ export default function AddVenueForm({ onVenueAdded }) {
       setImageFile(null);
       setGalleryFiles([]);
       setNewAmenity("");
-      setNewGalleryImage("");
+      setTempImageUrl("");
+      
+      // 6. Clean up temporary blob URLs
+      if (tempImageUrl) {
+        URL.revokeObjectURL(tempImageUrl);
+      }
       
       if (onVenueAdded) {
         onVenueAdded();
       }
+      
+      // 7. Clear message after 3 seconds
+      setTimeout(() => setMessage(""), 3000);
+      
     } catch (error) {
       console.error("Error adding venue:", error);
-      setMessage(`Error: ${error.message || "Failed to add venue"}`);
+      setMessage(`❌ Error: ${error.message || "Failed to add venue"}`);
     } finally {
       setLoading(false);
     }
@@ -196,8 +245,9 @@ export default function AddVenueForm({ onVenueAdded }) {
               value={formData.venueLocation}
               onChange={handleChange}
               required
-              placeholder="e.g., Main Campus Building, Floor 3"
+              placeholder="e.g., NGE Building, Floor 3"
             />
+            <small>Use abbreviations like: NGE, SAL, GLE, ACAD, Court</small>
           </div>
 
           <div className="form-group">
@@ -234,7 +284,7 @@ export default function AddVenueForm({ onVenueAdded }) {
 
         {/* Main Image */}
         <div className="form-section">
-          <h3>Main Image</h3>
+          <h3>Main Image *</h3>
           
           <div className="form-group">
             <label htmlFor="image">Image URL or Upload</label>
@@ -246,14 +296,15 @@ export default function AddVenueForm({ onVenueAdded }) {
                 value={formData.image}
                 onChange={handleChange}
                 placeholder="https://example.com/venue-image.jpg"
+                disabled={!!imageFile} // Disable URL input if file is uploaded
               />
               <span className="or-text">OR</span>
               <div className="file-upload">
                 <label htmlFor="image-upload" className="file-upload-label">
-                    <span
-                      className="upload-icon"
-                      style={{ backgroundImage: 'url(/icons/folder.png)' }}
-                    ></span>
+                  <span
+                    className="upload-icon"
+                    style={{ backgroundImage: 'url(/icons/folder.png)' }}
+                  ></span>
                   Choose File
                 </label>
                 <input
@@ -264,16 +315,40 @@ export default function AddVenueForm({ onVenueAdded }) {
                   className="file-input"
                 />
                 {imageFile && (
-                  <span className="file-name">{imageFile.name}</span>
+                  <div className="file-info">
+                    <span className="file-name">{imageFile.name}</span>
+                    <button 
+                      type="button"
+                      className="remove-file-btn"
+                      onClick={() => {
+                        setImageFile(null);
+                        setTempImageUrl("");
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
-            <small>Provide a URL or upload an image (Recommended: 1200x800px)</small>
+            <small>Provide a URL or upload an image (Recommended: 1200x800px, JPG/PNG)</small>
           </div>
           
-          {formData.image && (
+          {(tempImageUrl || formData.image) && (
             <div className="image-preview">
-              <img src={formData.image} alt="Venue preview" />
+              <img 
+                src={tempImageUrl || formData.image} 
+                alt="Venue preview" 
+                onLoad={() => {
+                  if (tempImageUrl) {
+                    console.log("✅ Preview image loaded successfully");
+                  }
+                }}
+                onError={(e) => {
+                  console.error("Preview image failed to load");
+                  e.target.src = "/images/default-venue.jpg";
+                }}
+              />
             </div>
           )}
         </div>
@@ -345,10 +420,61 @@ export default function AddVenueForm({ onVenueAdded }) {
             </div>
           </div>
         </div>
+        {/* 
+        <div className="form-section">
+          <h3>Gallery Images (Optional)</h3>
+          <p className="section-description">Add up to 5 additional images to showcase the venue.</p>
+          
+          <div className="form-group">
+            <label htmlFor="gallery-upload">Upload Gallery Images</label>
+            <div className="gallery-upload">
+              <label htmlFor="gallery-upload" className="gallery-upload-label">
+                <span
+                  className="upload-icon"
+                  style={{ backgroundImage: 'url(/icons/folder.png)' }}
+                ></span>
+                Choose Gallery Images
+              </label>
+              <input
+                type="file"
+                id="gallery-upload"
+                accept="image/*"
+                multiple
+                onChange={handleGalleryUpload}
+                className="file-input"
+              />
+              <small>Maximum 5 images, each up to 5MB</small>
+            </div>
+            
+            {galleryFiles.length > 0 && (
+              <div className="gallery-preview">
+                <h4>Selected Files ({galleryFiles.length}/5)</h4>
+                <div className="selected-files">
+                  {galleryFiles.map((file, index) => (
+                    <div key={index} className="file-item">
+                      <span className="file-item-name">{file.name}</span>
+                      <span className="file-item-size">
+                        ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                      </span>
+                      <button
+                        type="button"
+                        className="remove-file-btn"
+                        onClick={() => handleRemoveGalleryFile(index)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div> 
+        */}
 
         {/* Submit Section */}
         {message && (
-          <div className={`message ${message.includes("Error") ? "error" : "success"}`}>
+          <div className={`message ${message.includes("✅") ? "success" : "error"}`}>
             {message}
           </div>
         )}
@@ -362,7 +488,7 @@ export default function AddVenueForm({ onVenueAdded }) {
             {loading ? (
               <>
                 <span className="spinner"></span>
-                Adding Venue...
+                {message.includes("Uploading") ? message : "Adding Venue..."}
               </>
             ) : "Add Venue"}
           </button>
@@ -372,6 +498,10 @@ export default function AddVenueForm({ onVenueAdded }) {
             className="cancel-button"
             onClick={() => {
               if (window.confirm("Are you sure? All entered data will be lost.")) {
+                // Clean up blob URLs
+                if (tempImageUrl) {
+                  URL.revokeObjectURL(tempImageUrl);
+                }
                 window.location.reload();
               }
             }}

@@ -185,7 +185,7 @@ export default function EditVenueModal({ venue, onClose, onUpdate }) {
           <button className="closebtn" onClick={onClose}>×</button>
         </div>
 
-        <div className="ed-modal-content">
+        <div className="modal-content">
           <form onSubmit={handleSubmit}>
             {/* Basic Information */}
             <div className="form-section">

@@ -1,13 +1,16 @@
-import React, { useState, useContext, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
-import { UserProvider, UserContext } from "./Components/UserContext";
+import React, { useState, useContext, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+
+import { UserProvider, UserContext } from './Components/UserContext'; // Added UserContext import
 import './App.css';
+
 
 import Homepage from "./Components/Homepage.jsx";
 import Dashboard from "./Components/Dashboard.jsx";
 import Footer from "./Components/Footer.jsx";
 import Header from "./Components/Header.jsx";
 import Bookings from "./Components/Bookings.jsx";
+import AboutUs from "./Components/AboutUs.jsx";
 
 import SignInModal from "./Components/SignInModal.jsx";
 import SignUpModal from "./Components/SignUpModal.jsx";
@@ -17,7 +20,6 @@ import EditAccountPage from "./Components/EditAccountPage.jsx";
 import GuidePage from "./Components/GuidePage.jsx";
 
 // custodian components
-import CustodianDashboard from './Components/CustodianDashboard.jsx';
 import CustodianVenues from './Components/CustodianVenues.jsx'; 
 import AddVenuePage from './Components/AddVenuePage.jsx'; 
 
@@ -31,13 +33,13 @@ import Analytics from "./Components/Analytics.jsx";
 import ProtectedAdminRoute from "./Components/ProtectedAdminRoute.jsx";
 import CustodianRightSidebar from "./Components/CustodianRightSidebar.jsx";
 import CustodianBookings from "./Components/CustodianBookings.jsx";
+import CustodianDashboard from "./Components/CustodianDashboard.jsx";
 
 function AppContent() {
   const navigate = useNavigate();
-  const { user, setUser } = useContext(UserContext);
-
   const [showSignIn, setShowSignIn] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
+  const { user, setUser } = useContext(UserContext); 
   const [showAdminSidebar, setShowAdminSidebar] = useState(true);
   const [showCustodianSidebar, setShowCustodianSidebar] = useState(true);
 
@@ -47,38 +49,32 @@ function AppContent() {
 
   // Redirect user if they are not admin while inside admin routes
   useEffect(() => {
-  // Admin sidebar logic
-  if (!isAdmin) {
-    setShowAdminSidebar(false);
-  } else {
-    setShowAdminSidebar(true);
-  }
+    if (!isAdmin) {
+      setShowAdminSidebar(false);
+    }
+    if (isCustodian) {
+      setShowCustodianSidebar(true);
+    } else {
+      setShowCustodianSidebar(false);
+    }
+  }, [isAdmin, isCustodian, navigate]);
 
-  // Custodian sidebar logic
-  if (isCustodian) {
-    setShowCustodianSidebar(true);
-  } else {
-    setShowCustodianSidebar(false);
-  }
-}, [isAdmin, isCustodian, navigate]);
-
+  // LOGOUT FIX
   const handleLogout = () => {
     setUser(null);
     localStorage.clear();
     setShowAdminSidebar(false);
     setShowCustodianSidebar(false);
+    setShowCustodianSidebar(false);
     navigate("/", { replace: true });
   };
 
-  // Add this missing function
   const handleOpenLoginModal = () => {
     setShowSignIn(true);
   };
 
   return (
     <div className="page-wrapper">
-
-      {/* HEADER */}
       <Header
         isLoggedIn={isLoggedIn}
         onLogout={handleLogout}
@@ -101,11 +97,15 @@ function AppContent() {
         />
       )}
 
-      {/* MAIN ROUTER CONTENT */}
       <div className="main-content">
         <Routes>
-          {/* PUBLIC ROUTES */}
+          {/* PUBLIC ROUTES
           <Route path="/" element={<Homepage />} />
+          
+          <Route path="/venues/*" element={
+            <Dashboard onOpenLoginModal={handleOpenLoginModal} />
+          } />
+          
           
           <Route path="/venues/*" element={
             <Dashboard onOpenLoginModal={handleOpenLoginModal} />
@@ -114,28 +114,17 @@ function AppContent() {
           <Route path="/bookings/*" element={<Bookings />} />
           <Route path="custodian/bookings/*" element={<CustodianBookings />} />
          <Route path="/faq" element={<FAQ />} />
+          <Route path="custodian/bookings/*" element={<CustodianBookings />} />
+         <Route path="/faq" element={<FAQ />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/account/edit" element={<EditAccountPage />} />
-          <Route path="/guide" element={<GuidePage />} />
+          <Route path="/guide" element={<GuidePage />} /> */}
           
           {/* Custodian Routes */}
           <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
           <Route path="/custodian/my-venues" element={<CustodianVenues />} />
           <Route path="/custodian/add-venue" element={<AddVenuePage />} />
 
-          {/* CUSTODIAN */}
-          <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
-
-          {/* ADMIN ROUTES */}
-          {isAdmin && (
-            <>
-              <Route path="/admin/dashboard" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
-              <Route path="/admin/users" element={<ProtectedAdminRoute><UserManagement /></ProtectedAdminRoute>} />
-              <Route path="/admin/venues" element={<ProtectedAdminRoute><VenueManagement /></ProtectedAdminRoute>} />
-              <Route path="/admin/bookings" element={<ProtectedAdminRoute><BookingRequests /></ProtectedAdminRoute>} />
-              <Route path="/admin/analytics" element={<ProtectedAdminRoute><Analytics /></ProtectedAdminRoute>} />
-            </>
-          )}
           {/* Admin Routes */}
           <Route path="/admin/dashboard" element={
             <ProtectedAdminRoute>
@@ -164,6 +153,22 @@ function AppContent() {
           } />
         </Routes>
       </div>
+
+        {/* MAIN CONTENT */}
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<Homepage />} />         
+            <Route path="/venues/*" element={
+              <Dashboard onOpenLoginModal={handleOpenLoginModal} />
+            } />  
+            <Route path="/bookings/*" element={<Bookings />} />  
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/aboutus" element={<AboutUs />} />
+            <Route path="/account" element={<AccountPage />} />
+            <Route path="/account/edit" element={<EditAccountPage />} />
+            <Route path="/guide" element={<GuidePage />} />
+          </Routes>
+        </div>
 
       {/* FOOTER */}
       <Footer />

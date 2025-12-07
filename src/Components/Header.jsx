@@ -11,6 +11,28 @@ export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpCl
   // Modal state
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [isHidden, setIsHidden] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        // scrolling downward
+        setIsHidden(true);
+      } else {
+        // scrolling upward
+        setIsHidden(false);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
 
   // Check if user is a custodian - handle both cases
   const isCustodian = user && (user.userType === 'CUSTODIAN' || user.userType === 'Custodian');
@@ -48,7 +70,7 @@ export default function Header({ isLoggedIn, onLogout, onSignInClick, onSignUpCl
   };
 
   return (
-    <header className="header">
+    <header className={`header ${isHidden ? "hidden" : ""}`}>
       <div className="header-left" onClick={() => navigate("/")}>
         <img src="/images/collegia-logo.png" alt="Collegia Logo" className="logo" />
         <h1 className="brand-name">Collegia</h1>

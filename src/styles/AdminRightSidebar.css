@@ -1,13 +1,14 @@
 /* Sidebar container */
 .admin-sidebar {
   position: fixed;
-  top: 73px;
+  /* top: 73px; */
   right: -280px;
   width: 280px;
   height: 100vh;
   background: #7B282A;
   color: white;
   padding: 28px 22px;
+  padding-top: 100px;
   transition: right 0.3s ease-in-out;
   z-index: 800;
   display: flex;

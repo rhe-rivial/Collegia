@@ -389,4 +389,6 @@
   height: 350px;
   border-radius: 14px;
   object-fit: cover;
+  overflow: hidden;
 }
+

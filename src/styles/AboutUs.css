@@ -1,0 +1,72 @@
+.aboutus-page {
+  width: 80%;
+  margin: 60px auto;
+}
+
+/* Hero Section with background image */
+.aboutus-hero {
+  position: relative;
+  height: 320px;
+  border-radius: 12px;
+  /*background-image: url("/icons/images/Front-Gate.jpg");*/
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.aboutus-hero-title {
+  color: maroon;
+  font-size: 3rem;
+  font-weight: bold;
+  z-index: 1;
+  text-shadow: 1px 1px 4px rgba(255,255,255,0.8);
+}
+
+/* Team Section */
+.aboutus-team {
+  margin-top: 60px;
+  text-align: center;
+}
+
+.aboutus-description {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 40px;
+  line-height: 1.6;
+  padding: 0 20px;
+}
+
+.aboutus-image-row {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.aboutus-image-slot {
+  width: 150px;
+  height: 150px;
+  background-color: #eee;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+/* Back Button */
+.back-button {
+  margin-top: 60px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 999px;
+  background: var(--red);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.back-button:hover {
+  background: #5e1e20;
+}

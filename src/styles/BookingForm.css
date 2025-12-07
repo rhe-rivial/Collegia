@@ -4,6 +4,9 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
+.booking-form-modal{
+  padding: 0px !important;
+}
 :root {
   --font-primary: 'Montserrat', sans-serif;
   --color-primary: #7B282A;   /* Deep maroon/red */
@@ -15,13 +18,13 @@
 .booking-form-page {
   max-width: 760px;
   margin: 36px auto;
-  padding: 28px;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(15,23,42,0.06);
   color: #0b1220;
 }
 
 .booking-header h1 {
+  border-radius: 15px;
   margin: 0 0 18px 0;
   font-size: 20px;
   font-weight: 700;
@@ -291,16 +294,14 @@
   background: white;
   border-radius: 8px;
   max-width: 600px;
-  width: 90%;
+  width: 0%;
   max-height: 90vh;
   overflow-y: auto;
 }
 
-.booking-form-modal {
-  padding: 20px;
-}
 
 .modal-header {
+  border-radius: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
