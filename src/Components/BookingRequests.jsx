@@ -13,7 +13,7 @@ export default function BookingRequests() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-  // Modal (info + confirm)
+  // Modal
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
@@ -34,20 +34,29 @@ export default function BookingRequests() {
   };
 
   const tabs = [
-    { id: "pending", label: "Pending" },
-    { id: "approved", label: "Approved" },
-    { id: "rejected", label: "Rejected" },
-    { id: "canceled", label: "Canceled" },
+    { id: "pending", label: "Pending", left: "0px", width: "107px" },
+    { id: "approved", label: "Approved", left: "121px", width: "104px" },
+    { id: "rejected", label: "Rejected", left: "230px", width: "89px" },
+    { id: "canceled", label: "Canceled", left: "350px", width: "89px" },
   ];
 
-  // Fetch ALL bookings for admin
+  const [indicatorLeft, setIndicatorLeft] = useState("0px");
+
+  useEffect(() => {
+    const activeItem = tabs.find((t) => t.id === activeTab) || tabs[0];
+    setIndicatorLeft(activeItem.left);
+  }, [activeTab]);
+
+  // Fetch bookings
   useEffect(() => {
     const fetchAllBookings = async () => {
       setIsLoading(true);
       setError("");
 
       try {
+        console.log("Fetching ALL ADMIN bookings...");
         const res = await fetch("http://localhost:8080/api/bookings");
+
         if (!res.ok) {
           const text = await res.text();
           throw new Error(text || "Failed to fetch bookings");
@@ -58,22 +67,23 @@ export default function BookingRequests() {
         const transformed = data.map((b) => ({
           id: b.bookingId,
           venueName: b.venue?.venueName || "Unknown Venue",
+          image: b.venue?.image || "/images/default-venue.jpg",
+          raw: b,
           eventName: b.eventName,
           eventType: b.eventType,
           date: b.date,
           eventDate: formatEventDate(b.date),
           timeSlot: b.timeSlot,
           timeDisplay: formatTimeSlot(b.timeSlot),
-          capacity: b.capacity,
+          guests: b.capacity,
           description: b.description,
           status: b.status || "pending",
           requesterName: b.user
-            ? `${b.user.firstName || ""} ${b.user.lastName || ""}`.trim()
+            ? `${b.user.firstName} ${b.user.lastName}`
             : "Unknown User",
           requesterType: b.user?.userType || "Unknown",
           cancelledBy: b.cancelledBy,
           cancelledAt: b.cancelledAt,
-          raw: b,
         }));
 
         setBookings(transformed);
@@ -92,7 +102,6 @@ export default function BookingRequests() {
     if (!dateValue) return "N/A";
     try {
       const d = new Date(dateValue);
-      if (Number.isNaN(d.getTime())) return "Invalid date";
       return d.toLocaleDateString(undefined, {
         day: "2-digit",
         month: "short",
@@ -106,10 +115,8 @@ export default function BookingRequests() {
   const formatTimeSlot = (timeSlot) => {
     if (!timeSlot) return "N/A";
     try {
-      const timeStr = typeof timeSlot === "string" ? timeSlot : timeSlot.toString();
-      const [hours, minutes] = timeStr.split(":");
+      const [hours, minutes] = timeSlot.split(":");
       const h = parseInt(hours, 10);
-      if (Number.isNaN(h)) return timeStr;
       const ampm = h >= 12 ? "PM" : "AM";
       const hour12 = h % 12 || 12;
       return `${hour12}:${minutes} ${ampm}`;
@@ -118,45 +125,17 @@ export default function BookingRequests() {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch ((status || "").toLowerCase()) {
-      case "approved":
-        return "#28A745";
-      case "pending":
-        return "#FFC107";
-      case "rejected":
-        return "#DC3545";
-      case "canceled":
-        return "#6C757D";
-      default:
-        return "#6C757D";
-    }
-  };
-
-  const getStatusText = (status) =>
-    status ? status.charAt(0).toUpperCase() + status.slice(1) : "Pending";
-
-  const filteredBookings = bookings.filter((b) =>
-    activeTab ? (b.status || "pending").toLowerCase() === activeTab : true
+  const filteredBookings = bookings.filter(
+    (b) => b.status.toLowerCase() === activeTab
   );
 
-  const handleOpenDetails = (booking) => {
-    setSelectedBooking(booking);
-    setShowDetailsModal(true);
-  };
-
-  const handleCloseDetails = () => {
-    setSelectedBooking(null);
-    setShowDetailsModal(false);
-  };
-
-  // Option C: only send cancelledBy when status = "canceled"
+  // Admin update status
   const updateBookingStatus = async (bookingId, newStatus) => {
     try {
       const body = { status: newStatus };
-      if (newStatus === "canceled") {
-        body.cancelledBy = "admin";
-      }
+      if (newStatus === "canceled") body.cancelledBy = "admin";
+
+      console.log("Updating booking:", bookingId, "→", newStatus);
 
       const res = await fetch(
         `http://localhost:8080/api/bookings/${bookingId}/status`,
@@ -172,101 +151,68 @@ export default function BookingRequests() {
         throw new Error(text || "Failed to update status");
       }
 
-      const updated = await res.json();
-
       setBookings((prev) =>
         prev.map((b) =>
-          b.id === bookingId
-            ? {
-                ...b,
-                status: updated.status || newStatus,
-                cancelledBy: updated.cancelledBy,
-                cancelledAt: updated.cancelledAt,
-              }
-            : b
+          b.id === bookingId ? { ...b, status: newStatus } : b
         )
       );
 
       showInfoModal(`Booking ${newStatus} successfully.`);
     } catch (err) {
-      console.error("Update status error:", err);
-      showInfoModal("Failed to update booking status. Please try again.");
+      console.error("Error updating:", err);
+      showInfoModal("Failed to update booking status.");
     }
   };
 
-  const handleApprove = (bookingId) => {
+  // ✔ FIX: Modal button handlers
+  const handleApprove = (id) => {
     showConfirmModal("Approve this booking?", () =>
-      updateBookingStatus(bookingId, "approved")
+      updateBookingStatus(id, "approved")
     );
+    setShowDetailsModal(false);
   };
 
-  const handleReject = (bookingId) => {
+  const handleReject = (id) => {
     showConfirmModal("Reject this booking?", () =>
-      updateBookingStatus(bookingId, "rejected")
+      updateBookingStatus(id, "rejected")
     );
+    setShowDetailsModal(false);
   };
 
-  const handleCancel = (bookingId) => {
+  const handleCancel = (id) => {
     showConfirmModal("Cancel this booking?", () =>
-      updateBookingStatus(bookingId, "canceled")
+      updateBookingStatus(id, "canceled")
     );
+    setShowDetailsModal(false);
   };
 
-  const renderActions = (booking) => {
-    const status = (booking.status || "pending").toLowerCase();
-
-    if (status === "pending") {
-      return (
-        <div className="abr-actions">
-          <button
-            className="abr-btn abr-approve"
-            onClick={() => handleApprove(booking.id)}
-          >
-            Approve
-          </button>
-          <button
-            className="abr-btn abr-reject"
-            onClick={() => handleReject(booking.id)}
-          >
-            Reject
-          </button>
-          <button
-            className="abr-btn abr-cancel"
-            onClick={() => handleCancel(booking.id)}
-          >
-            Cancel
-          </button>
-        </div>
-      );
-    }
-
-    if (status === "approved") {
-      return (
-        <div className="abr-actions">
-          <button
-            className="abr-btn abr-cancel"
-            onClick={() => handleCancel(booking.id)}
-          >
-            Cancel
-          </button>
-        </div>
-      );
-    }
-
-    // Rejected / Canceled → no actions
-    return <span className="abr-no-actions">No actions</span>;
+  const handleOpenDetails = (booking) => {
+    setSelectedBooking(booking);
+    setShowDetailsModal(true);
   };
 
-  if (!user || user.userType?.toLowerCase() !== "admin") {
-    return (
-      <div className="abr-container">
-        <div className="abr-card">
-          <h2 className="abr-title">Booking Requests</h2>
-          <p>You must be an admin to view this page.</p>
-        </div>
-      </div>
-    );
-  }
+  const handleCloseDetails = () => {
+    setSelectedBooking(null);
+    setShowDetailsModal(false);
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "approved":
+        return "#28A745";
+      case "pending":
+        return "#FFC107";
+      case "rejected":
+        return "#DC3545";
+      case "canceled":
+        return "#6C757D";
+      default:
+        return "#6C757D";
+    }
+  };
+
+  const getStatusText = (status) =>
+    status.charAt(0).toUpperCase() + status.slice(1);
 
   if (isLoading) {
     return (
@@ -298,211 +244,266 @@ export default function BookingRequests() {
           </div>
 
           {/* Tabs */}
-          <div className="abr-tabs">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                className={`abr-tab ${
-                  activeTab === tab.id ? "active" : ""
-                }`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="abr-tabs-container">
+            <div className="abr-tabs">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  className={`abr-tab ${activeTab === tab.id ? "active" : ""}`}
+                  style={{ width: tab.width }}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+
+              <div
+                className="abr-tab-indicator"
+                style={{ left: indicatorLeft }}
+              ></div>
+            </div>
           </div>
 
-          <div className="abr-divider" />
+          <div className="abr-divider"></div>
 
-          {/* Table */}
-          <div className="abr-table-wrapper">
+          {/* Card List */}
+          <div className="abr-list">
             {filteredBookings.length === 0 ? (
               <div className="abr-empty">
                 <h3>No {activeTab} bookings</h3>
-                <p>There are no bookings with this status right now.</p>
+                <p>No bookings found for this category.</p>
               </div>
             ) : (
-              <table className="abr-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Venue</th>
-                    <th>Event</th>
-                    <th>Requester</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Guests</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                    <th>Details</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredBookings.map((b) => (
-                    <tr key={b.id}>
-                      <td>{b.id}</td>
-                      <td>{b.venueName}</td>
-                      <td>
-                        <div className="abr-event-cell">
-                          <div className="abr-event-name">{b.eventName}</div>
-                          <div className="abr-event-type">{b.eventType}</div>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="abr-requester-cell">
-                          <div className="abr-requester-name">
-                            {b.requesterName}
-                          </div>
-                          <div className="abr-requester-type">
-                            {b.requesterType}
-                          </div>
-                        </div>
-                      </td>
-                      <td>{b.eventDate}</td>
-                      <td>{b.timeDisplay}</td>
-                      <td>{b.capacity}</td>
-                      <td>
-                        <span
-                          className="abr-status-pill"
-                          style={{ borderColor: getStatusColor(b.status) }}
-                        >
-                          <span
-                            className="abr-status-dot"
-                            style={{ backgroundColor: getStatusColor(b.status) }}
-                          />
-                          <span
-                            className="abr-status-text"
-                            style={{ color: getStatusColor(b.status) }}
-                          >
-                            {getStatusText(b.status)}
-                          </span>
+              filteredBookings.map((b) => (
+                <div key={b.id} className="abr-item">
+                  <img src={b.image} alt={b.venueName} className="abr-image" />
+
+                  <div className="abr-details">
+                    <h3 className="abr-venue-name">{b.venueName}</h3>
+
+                    <div className="abr-event-type">
+                      {b.eventName} - {b.eventType}
+                    </div>
+
+                    <div className="abr-info">
+                      <div className="abr-info-group">
+                        <span className="abr-info-label">Event Date:</span>
+                        <span className="abr-info-value">{b.eventDate}</span>
+                      </div>
+
+                      <div className="abr-info-group">
+                        <span className="abr-info-label">Start time:</span>
+                        <span className="abr-info-value">{b.timeDisplay}</span>
+                      </div>
+
+                      <div className="abr-info-group">
+                        <span className="abr-info-label">Guests</span>
+                        <span className="abr-info-value">: {b.guests} pax</span>
+                      </div>
+
+                      <div className="abr-info-group">
+                        <span className="abr-info-label">Booked by</span>
+                        <span className="abr-info-value">
+                          : {b.requesterName}
                         </span>
-                      </td>
-                      <td>{renderActions(b)}</td>
-                      <td>
-                        <button
-                          className="abr-btn abr-details"
-                          onClick={() => handleOpenDetails(b)}
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    </div>
+
+                    {b.description && (
+                      <div className="abr-description">{b.description}</div>
+                    )}
+
+                    {/* ADMIN ACTIONS */}
+                    <div className="abr-actions">
+                      {b.status === "pending" && (
+                        <>
+                          <button
+                            className="abr-btn-approve"
+                            onClick={() => handleApprove(b.id)}
+                          >
+                            Approve
+                          </button>
+
+                          <button
+                            className="abr-btn-reject"
+                            onClick={() => handleReject(b.id)}
+                          >
+                            Reject
+                          </button>
+                        </>
+                      )}
+
+                      <button
+                        className="abr-btn-details"
+                        onClick={() => handleOpenDetails(b)}
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="abr-status">
+                    <div
+                      className="abr-status-indicator"
+                      style={{ backgroundColor: getStatusColor(b.status) }}
+                    ></div>
+                    <span
+                      className="abr-status-text"
+                      style={{ color: getStatusColor(b.status) }}
+                    >
+                      {getStatusText(b.status)}
+                    </span>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>
 
-        {/* Details Modal */}
+        {/* DETAILS MODAL */}
         {showDetailsModal && selectedBooking && (
           <div className="abr-details-overlay">
-            <div className="abr-details-card">
+            <div className="abr-details-modal">
+              {/* HEADER */}
               <div className="abr-details-header">
-                <h2>Booking Details</h2>
+                <h2 className="abr-details-title">Booking Details</h2>
                 <button
-                  className="abr-close-btn"
+                  className="abr-details-close"
                   onClick={handleCloseDetails}
                 >
                   ×
                 </button>
               </div>
 
-              <div className="abr-details-body">
-                <div className="abr-details-section">
-                  <h3>{selectedBooking.venueName}</h3>
+              {/* BODY */}
+              <div className="abr-details-body2">
+                <div className="abr-details-content">
+                  {/* IMAGE */}
+                  <div className="abr-details-image-wrapper">
+                    <img
+                      src={
+                        selectedBooking.image ||
+                        "/images/default-venue.jpg"
+                      }
+                      alt={selectedBooking.venueName}
+                      className="abr-details-image"
+                    />
+                  </div>
 
-                  <div className="abr-details-grid">
-                    <div className="abr-details-item">
-                      <strong>Event Name:</strong>
-                      <span>{selectedBooking.eventName}</span>
-                    </div>
-                    <div className="abr-details-item">
-                      <strong>Event Type:</strong>
-                      <span>{selectedBooking.eventType}</span>
-                    </div>
-                    <div className="abr-details-item">
-                      <strong>Date:</strong>
-                      <span>{selectedBooking.eventDate}</span>
-                    </div>
-                    <div className="abr-details-item">
-                      <strong>Time:</strong>
-                      <span>{selectedBooking.timeDisplay}</span>
-                    </div>
-                    <div className="abr-details-item">
-                      <strong>Guests:</strong>
-                      <span>{selectedBooking.capacity}</span>
-                    </div>
-                    <div className="abr-details-item">
-                      <strong>Status:</strong>
-                      <span
-                        style={{
-                          color: getStatusColor(selectedBooking.status),
-                          fontWeight: 600,
-                        }}
-                      >
-                        {getStatusText(selectedBooking.status)}
-                      </span>
-                    </div>
-                    <div className="abr-details-item">
-                      <strong>Requested By:</strong>
-                      <span>
-                        {selectedBooking.requesterName} (
-                        {selectedBooking.requesterType})
-                      </span>
-                    </div>
-                    {selectedBooking.cancelledBy && (
-                      <div className="abr-details-item">
-                        <strong>Cancelled By:</strong>
-                        <span>{selectedBooking.cancelledBy}</span>
+                  {/* RIGHT SIDE DETAILS */}
+                  <div className="abr-details-info">
+                    <h3 className="abr-details-name">
+                      {selectedBooking.venueName}
+                    </h3>
+
+                    <div className="abr-details-grid2">
+                      <div className="abr-detail-item">
+                        <strong>Event Name:</strong>
+                        <span>{selectedBooking.eventName}</span>
                       </div>
-                    )}
-                    {selectedBooking.description && (
-                      <div className="abr-details-item abr-full-width">
+
+                      <div className="abr-detail-item">
+                        <strong>Event Type:</strong>
+                        <span>{selectedBooking.eventType}</span>
+                      </div>
+
+                      <div className="abr-detail-item">
+                        <strong>Date:</strong>
+                        <span>{selectedBooking.eventDate}</span>
+                      </div>
+
+                      <div className="abr-detail-item">
+                        <strong>Time:</strong>
+                        <span>{selectedBooking.timeDisplay}</span>
+                      </div>
+
+                      <div className="abr-detail-item">
+                        <strong>Guests:</strong>
+                        <span>{selectedBooking.guests} pax</span>
+                      </div>
+
+                      <div className="abr-detail-item">
+                        <strong>Booked by:</strong>
+                        <span>{selectedBooking.requesterName}</span>
+                      </div>
+
+                      <div className="abr-detail-item">
+                        <strong>Email:</strong>
+                        <span>
+                          {selectedBooking.raw?.user?.email || "N/A"}
+                        </span>
+                      </div>
+
+                      <div className="abr-detail-item full">
+                        <strong>Status:</strong>
+                        <span
+                          style={{
+                            color: getStatusColor(selectedBooking.status),
+                            fontWeight: 700,
+                          }}
+                        >
+                          {getStatusText(selectedBooking.status)}
+                        </span>
+                      </div>
+
+                      {selectedBooking.cancelledBy && (
+                        <div className="abr-detail-item full">
+                          <strong>Cancelled By:</strong>
+                          <span>{selectedBooking.cancelledBy}</span>
+                        </div>
+                      )}
+
+                      <div className="abr-detail-item full">
                         <strong>Description:</strong>
-                        <p className="abr-description-text">
-                          {selectedBooking.description}
-                        </p>
+
+                        <textarea
+                          className="abr-details-description-box"
+                          readOnly
+                          value={
+                            selectedBooking.description ||
+                            "No description provided"
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    {/* APPROVE / REJECT / CANCEL BUTTONS */}
+                    {(selectedBooking.status === "pending" ||
+                      selectedBooking.status === "approved") && (
+                      <div className="abr-details-actions2">
+                        {selectedBooking.status === "pending" && (
+                          <>
+                            <button
+                              className="abr-details-approve"
+                              onClick={() =>
+                                handleApprove(selectedBooking.id)
+                              }
+                            >
+                              Approve
+                            </button>
+
+                            <button
+                              className="abr-details-reject"
+                              onClick={() =>
+                                handleReject(selectedBooking.id)
+                              }
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+
+                        <button
+                          className="abr-details-cancel"
+                          onClick={() =>
+                            handleCancel(selectedBooking.id)
+                          }
+                        >
+                          Cancel
+                        </button>
                       </div>
                     )}
                   </div>
-                </div>
-
-                <div className="abr-details-actions">
-                  {(selectedBooking.status === "pending" ||
-                    selectedBooking.status === "approved") && (
-                    <>
-                      {selectedBooking.status === "pending" && (
-                        <>
-                          <button
-                            className="abr-btn abr-approve"
-                            onClick={() =>
-                              handleApprove(selectedBooking.id)
-                            }
-                          >
-                            Approve
-                          </button>
-                          <button
-                            className="abr-btn abr-reject"
-                            onClick={() =>
-                              handleReject(selectedBooking.id)
-                            }
-                          >
-                            Reject
-                          </button>
-                        </>
-                      )}
-                      <button
-                        className="abr-btn abr-cancel"
-                        onClick={() =>
-                          handleCancel(selectedBooking.id)
-                        }
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  )}
                 </div>
               </div>
             </div>

@@ -88,38 +88,36 @@ function AppContent() {
             toggleSidebar={() => setShowAdminSidebar(!showAdminSidebar)}
           />
         )}
- 
         {isCustodian && (
           <CustodianRightSidebar
             isOpen={showCustodianSidebar}
             toggleSidebar={() => setShowCustodianSidebar(!showCustodianSidebar)}
           />
         )}
- 
         {/* MAIN CONTENT */}
         <main className="main-content">
           <Routes>
             {/* PUBLIC ROUTES */}
             <Route path="/" element={<Homepage />} />
-           
+            
             {/* VENUES ROUTE */}
             <Route path="/venues/*" element={
               <Dashboard onOpenLoginModal={handleOpenLoginModal} />
             } />
-           
+            
             {/* BOOKINGS ROUTES */}
             <Route path="/bookings/*" element={<Bookings />} />
             <Route path="/custodian/bookings/*" element={<CustodianBookings />} />
-           
+            
             {/* USER ROUTES */}
             <Route path="/account" element={<AccountPage />} />
             <Route path="/account/edit" element={<EditAccountPage />} />
-           
+            
             {/* INFORMATION ROUTES */}
             <Route path="/faq" element={<FAQ />} />
             <Route path="/aboutus" element={<AboutUs />} />
             <Route path="/guide" element={<GuidePage />} />
-           
+            
             {/* CUSTODIAN ROUTES */}
             <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
             <Route path="/custodian/my-venues" element={<CustodianVenues />} />

@@ -1,54 +1,57 @@
 import React, { useState } from "react";
 import "../styles/VenueDetails.css";
 
-
 export default function VenueDescription({ 
-    title, 
-    building, 
-    capacity, 
-    description, 
-    amenities, 
-    venueId,
-    isFavorite,
-    onFavoriteToggle,
-    onShare 
-  }) {
+  title, 
+  building, 
+  capacity, 
+  description, 
+  amenities, 
+  venueId,
+  isFavorite,
+  onFavoriteToggle,
+  onShare 
+}) {
   
-  const [showSharePopup, setShowSharePopup] = useState(false);
+  const [showCopiedMessage, setShowCopiedMessage] = useState(false);
 
-  // Handle favorite toggle - just pass through to parent
+  // Handle favorite toggle
   const handleFavoriteClick = () => {
     if (onFavoriteToggle) {
       onFavoriteToggle(venueId, !isFavorite);
     }
   };
 
-  // Handle share click
+  // Share function
   const handleShareClick = () => {
     if (onShare) {
       onShare();
     } else {
-      // Default share behavior
       const shareUrl = `${window.location.origin}/venues/venue/${venueId}`;
-      setShowSharePopup(true);
       
-      // Auto-hide popup after 3 seconds
-      setTimeout(() => setShowSharePopup(false), 3000);
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => {
+          setShowCopiedMessage(true);
+          setTimeout(() => setShowCopiedMessage(false), 2000);
+        })
+        .catch(err => {
+          console.error("Failed to copy: ", err);
+          // Fallback
+          const textArea = document.createElement("textarea");
+          textArea.value = shareUrl;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand('copy');
+            setShowCopiedMessage(true);
+            setTimeout(() => setShowCopiedMessage(false), 2000);
+          } catch (e) {
+            console.error("Fallback copy failed: ", e);
+            alert("Failed to copy link.");
+          }
+          document.body.removeChild(textArea);
+        });
     }
-  };
-
-  // Copy link to clipboard
-  const copyToClipboard = () => {
-    const shareUrl = `${window.location.origin}/venues/venue/${venueId}`;
-    navigator.clipboard.writeText(shareUrl)
-      .then(() => {
-        alert("Link copied to clipboard!");
-        setShowSharePopup(false);
-      })
-      .catch(err => {
-        console.error("Failed to copy: ", err);
-        alert("Failed to copy link. Please try again.");
-      });
   };
 
   return (
@@ -67,109 +70,22 @@ export default function VenueDescription({
         </div>
 
         <div className="favorite-share">
-          <button 
-            className="favorite-button-details"
-            onClick={handleFavoriteClick}
-            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-          >
-             <img
-              src={isFavorite ? "/icons/heart-red-filled.png" : "/icons/heart-red.svg"}
-              className="heart-icon"
-              alt="favorite-button"
-            />
-
-          </button>
-          
-          <button 
-            className="share-button-details"
-            onClick={handleShareClick}
-            aria-label="Share venue"
-          >
-            <img src="/icons/share.svg" alt="Share" />
-          </button>
-        </div>
-      </div>
-
-      {/* Share Popup */}
-      {showSharePopup && (
-        <div className="share-popup-overlay" onClick={() => setShowSharePopup(false)}>
-          <div className="share-popup" onClick={(e) => e.stopPropagation()}>
-            <div className="share-popup-header">
-              <h3>Share this venue</h3>
-              <button 
-                className="close-popup-btn"
-                onClick={() => setShowSharePopup(false)}
-                aria-label="Close"
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="share-options">
-              <p className="share-link-label">Link to share:</p>
-              <div className="share-link-container">
-                <input 
-                  type="text" 
-                  readOnly 
-                  value={`${window.location.origin}/venues/venue/${venueId}`}
-                  className="share-link-input"
-                />
-                <button 
-                  onClick={copyToClipboard}
-                  className="copy-link-btn"
-                >
-                  Copy
-                </button>
+          <div className="share-button-wrapper">
+            <button 
+              className="share-button-details"
+              onClick={handleShareClick}
+              aria-label="Share venue"
+            >
+              <img src="/icons/share.svg" alt="Share" />
+            </button>
+            {showCopiedMessage && (
+              <div className="copied-message-tooltip"> 
+              Link Copied!
               </div>
-              
-              <div className="share-buttons">
-                <button 
-                  className="share-option-btn"
-                  onClick={() => {
-                    const shareUrl = `${window.location.origin}/venues/venue/${venueId}`;
-                    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(`Check out ${title} on our venue booking platform!`)}`, '_blank');
-                  }}
-                >
-                  <img src="/icons/twitter.svg" alt="Twitter" />
-                  Twitter
-                </button>
-                
-                <button 
-                  className="share-option-btn"
-                  onClick={() => {
-                    const shareUrl = `${window.location.origin}/venues/venue/${venueId}`;
-                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
-                  }}
-                >
-                  <img src="/icons/facebook.svg" alt="Facebook" />
-                  Facebook
-                </button>
-                
-                <button 
-                  className="share-option-btn"
-                  onClick={() => {
-                    const shareText = `Check out ${title} - ${building} on our venue booking platform!`;
-                    const shareUrl = `${window.location.origin}/venues/venue/${venueId}`;
-                    
-                    if (navigator.share) {
-                      navigator.share({
-                        title: title,
-                        text: shareText,
-                        url: shareUrl,
-                      });
-                    } else {
-                      copyToClipboard();
-                    }
-                  }}
-                >
-                  <img src="/icons/link.svg" alt="Share" />
-                  Share
-                </button>
-              </div>
-            </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
       <div className="description-section">
         <h2 className="section-title">Venue Description</h2>
