@@ -18,6 +18,8 @@ public class UserEntity {
     private String password;
     private String about;
     private String location;
+    private boolean firstLogin = true; 
+
 
     public String getAbout() { return about; }
     public void setAbout(String about) { this.about = about; }
@@ -71,4 +73,13 @@ public class UserEntity {
     public void setUserType(String userType) {
         this.userType = userType;
     }
+
+    public boolean isFirstLogin() {
+    return firstLogin;
+    }
+
+    public void setFirstLogin(boolean firstLogin) {
+        this.firstLogin = firstLogin;
+    }
+
 }

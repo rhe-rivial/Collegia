@@ -1,0 +1,327 @@
+/* IMPORT FONT */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* ============================
+   ADMIN DASHBOARD LAYOUT
+   ============================ */
+
+.admin-dashboard {
+  padding: 30px 40px;
+  color: #333;
+  font-family: "Montserrat", sans-serif; 
+}
+
+.admin-dashboard-header {
+  margin-bottom: 25px;
+}
+
+.admin-dashboard-title {
+  font-size: 38px;
+  font-weight: 800;
+  color: #7B282A;
+  color: var(--primary);
+  margin-bottom: 25px
+}
+
+.admin-dashboard-subtitle {
+  font-size: 1.2rem;
+  font-family: "Montserrat", sans-serif;
+}
+
+.admin-name {
+  font-weight: 600;
+  color: #444;
+}
+
+/* ============================
+   USER COUNT CARDS — 1 ROW, 5 COLUMNS
+   ============================ */
+
+.admin-summary-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.summary-card {
+  background: #7B282A;             /* 🔴 Red card */
+  padding: 18px 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: 0.2s ease;
+  font-family: "Montserrat", sans-serif;
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+}
+
+.summary-label {
+  font-size: 0.9rem;
+  color: #F4C430;                  /* 🟡 Yellow label */
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.summary-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #FFFFFF;                  /* ⚪ White number */
+}
+
+/* ============================
+   GRID FOR MIDDLE SECTION
+   ============================ */
+
+.admin-main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 25px;
+}
+
+/* ============================
+   CARD LAYOUT
+   ============================ */
+
+.admin-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  font-family: "Montserrat", sans-serif;
+}
+
+.admin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.admin-card-header h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #7B282A;
+  font-family: "Montserrat", sans-serif;
+}
+
+.admin-card-link {
+  background: none;
+  border: none;
+  color: #7B282A;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  font-family: "Montserrat", sans-serif;
+}
+
+/* ============================
+   USER MANAGEMENT PREVIEW
+   ============================ */
+
+.user-search-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.user-search-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 50px;
+  outline: none;
+  font-family: "Montserrat", sans-serif;
+}
+
+.user-search-input:focus {
+  border-color: #7B282A;
+}
+
+.user-role-filter {
+  width: 150px;
+  padding: 8px 40px 8px 14px;
+  border-radius: 50px;
+  border: 1.5px solid #ddd;
+  outline: none;
+  font-family: "Montserrat", sans-serif;
+  background-color: #fff;
+
+  background-image: url("data:image/svg+xml,%3Csvg fill='gray' height='16' width='16' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center; /* moves arrow inward */
+  background-size: 16px;
+
+  appearance: none;        /* hide original arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  cursor: pointer;
+}
+
+.user-role-filter:focus {
+  border-color: #7B282A;
+}
+
+.user-list {
+  margin-top: 10px;
+  max-height: 300px;
+  overflow-y: scroll;
+  padding-right: 8px;
+}
+
+.user-list::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.user-list {
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+}
+
+.user-list-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #7B282A;
+  color: #fff;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-info .user-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.user-info .user-email {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.user-role-pill {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Role Colors */
+.role-student { background: #e3f2fd; color: #1565c0; }
+.role-faculty { background: #fff3e0; color: #ef6c00; }
+.role-coordinator { background: #fce4ec; color: #ad1457; }
+.role-custodian { background: #ede7f6; color: #4527a0; }
+.role-admin { background: #e8f5e9; color: #2e7d32; }
+
+.user-empty {
+  padding: 20px;
+  text-align: center;
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.user-view-all {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.view-all-btn {
+  padding: 8px 16px;
+  border-radius: 50px;
+  border: none;
+  background: #7B282A;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.view-all-btn:hover {
+  background: #6a1f22;
+}
+
+/* ============================
+   BOOKING STATUS SUMMARY
+   ============================ */
+
+.booking-summary-card {
+  padding-bottom: 10px;
+}
+
+.booking-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.booking-summary-item {
+  display: flex;
+  justify-content: space-between;
+  background: #fafafa;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 5px solid #ccc;
+}
+
+.booking-label {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.booking-value {
+  font-weight: 700;
+}
+
+/* Colors for booking statuses */
+.booking-label.pending { color: #f9a825; }
+.booking-summary-item:nth-child(1) { border-color: #f9a825; }
+
+.booking-label.approved { color: #2e7d32; }
+.booking-summary-item:nth-child(2) { border-color: #2e7d32; }
+
+.booking-label.rejected { color: #c62828; }
+.booking-summary-item:nth-child(3) { border-color: #c62828; }
+
+.booking-label.canceled { color: #6d4c41; }
+.booking-summary-item:nth-child(4) { border-color: #6d4c41; }
+
+/* ============================
+   RESPONSIVE
+   ============================ */
+
+@media (max-width: 1100px) {
+  .admin-summary-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .admin-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-summary-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .user-search-row {
+    flex-direction: column;
+  }
+}

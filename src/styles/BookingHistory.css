@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 :root {
   --red: #7B282A;
   --yellow: #E7C51D;
@@ -5,6 +7,7 @@
   --gray: #E6E6E6;
 }
 
+/* WRAPPER */
 .history-card {
   background: white;
   border-radius: 12px;
@@ -12,35 +15,65 @@
   box-shadow: var(--card-shadow);
   color: var(--red);
   min-height: 200px;
+  font-family: "Montserrat", sans-serif;   /* APPLY FONT HERE */
+}
+
+/* HEADER */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
 .history-title {
-  margin: 0 0 12px 0;
+  margin: 0;
   font-size: 18px;
   font-weight: 700;
 }
 
+/* VIEW ALL BUTTON */
+.history-view-btn {
+  background: var(--red);
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s ease;
+  font-family: "Montserrat", sans-serif;
+}
+
+.history-view-btn:hover {
+  background: #5E1E20;
+}
+
+/* STATES */
 .empty-history {
   color: #777;
   padding: 28px 0;
   text-align: center;
 }
 
+/* LIST */
 .history-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
   max-height: 720px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
+/* ITEM */
 .history-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 6px;
-  border-radius: 8px;
+  padding: 10px;
+  border-radius: 10px;
   background: var(--gray);
+  font-family: "Montserrat", sans-serif;
 }
 
 .history-thumb {
@@ -59,18 +92,28 @@
   color: #333;
 }
 
-.history-date {
+.history-event,
+.history-date,
+.history-time,
+.history-guests {
   font-size: 0.9rem;
   color: #666;
 }
 
+.history-status {
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* VIEW BUTTON INSIDE ITEM */
 .view-btn {
-  background: #7B282A;
-  color: #fafafa;
-  border: 1px solid var(--gray);
+  background: var(--red);
+  color: var(--white);
+  border: none;
   padding: 8px 12px;
   border-radius: 20px;
   cursor: pointer;
+  font-family: "Montserrat", sans-serif;
 }
 
 .view-btn:hover {

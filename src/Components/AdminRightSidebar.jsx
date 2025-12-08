@@ -39,7 +39,7 @@ export default function AdminRightSidebar({ isOpen, toggleSidebar }) {
           className={isActive("/admin/venues")}
           onClick={() => navigate("/admin/venues")}
         >
-           Venue Management
+           Venue Overview
         </li>
 
         <li 
@@ -48,14 +48,6 @@ export default function AdminRightSidebar({ isOpen, toggleSidebar }) {
         >
            Booking Requests
         </li>
-
-        <li 
-          className={isActive("/admin/analytics")}
-          onClick={() => navigate("/admin/analytics")}
-        >
-           Analytics
-        </li>
-
       </ul>
     </div>
   );

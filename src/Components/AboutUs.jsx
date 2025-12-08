@@ -26,9 +26,18 @@ export default function AboutUs() {
         </p>
 
         <div className="aboutus-image-row">
-          <div className="aboutus-image-slot" />
-          <div className="aboutus-image-slot" />
-          <div className="aboutus-image-slot" />
+          <div className="aboutus-image-slot">
+            <img src="/images/sy.jpg" alt="Brye Sy" />
+          </div>
+
+          <div className="aboutus-image-slot">
+            <img src="/images/tupas.jpg" alt="Niña Tupas" />
+          </div>
+
+          <div className="aboutus-image-slot">
+            <img src="/images/hisoler.jpg" alt="Rhegynne Hisoler" />
+          </div>
+          
         </div>
       </div>
 

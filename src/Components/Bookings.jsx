@@ -427,7 +427,7 @@ export default function Bookings() {
                       </div>
                     )}
                     
-                    {getCancellationInfo(booking)}
+                    {/* {getCancellationInfo(booking)} */}
                     
                     {renderBookingActions(booking)}
                   </div>

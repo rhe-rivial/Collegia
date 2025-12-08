@@ -1,10 +1,17 @@
 package com.example.collegia.controller;
 
 import com.example.collegia.entity.AdminEntity;
+import com.example.collegia.repository.UserRepository;
 import com.example.collegia.service.AdminService;
+import com.example.collegia.service.BookingService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -12,6 +19,12 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BookingService bookingService;
 
     public AdminController(AdminService adminService) {
         this.adminService = adminService;
@@ -41,5 +54,29 @@ public class AdminController {
     public String deleteAdmin(@PathVariable Long userId) {
         adminService.deleteAdmin(userId);
         return "Admin removed successfully!";
+    }
+
+    @GetMapping("/user-counts")
+    public ResponseEntity<Map<String, Long>> getUserCounts() {
+        Map<String, Long> counts = new HashMap<>();
+
+        counts.put("admins", userRepository.countByUserType("Admin"));
+        counts.put("custodians", userRepository.countByUserType("Custodian"));
+        counts.put("faculty", userRepository.countByUserType("Faculty"));
+        counts.put("students", userRepository.countByUserType("Student"));
+        counts.put("coordinators", userRepository.countByUserType("Coordinator"));
+
+        return ResponseEntity.ok(counts);
+    }
+
+    @GetMapping("/booking-status-summary")
+    public ResponseEntity<Map<String, Long>> getBookingStatusSummary() {
+        Map<String, Long> stats = new HashMap<>();
+
+        stats.put("pending", bookingService.countByStatus("pending"));
+        stats.put("approved", bookingService.countByStatus("approved"));
+        stats.put("rejected", bookingService.countByStatus("rejected"));
+
+        return ResponseEntity.ok(stats);
     }
 }

@@ -90,6 +90,14 @@ export const userAPI = {
   }),
   
   getUserByEmail: (email) => apiCall(`/users/email/${email}`),
+
+  // Create user in admin panel
+  createUserByAdmin: (data) =>
+    apiCall("/users/create-by-admin", {
+      method: "POST",
+      body: data,
+    }),
+
 };
 
 // Auth APIs 

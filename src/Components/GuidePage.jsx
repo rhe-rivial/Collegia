@@ -11,6 +11,7 @@ export default function GuidePage() {
 
   const [openStep, setOpenStep] = useState(null);
 
+  // Auto-close other steps
   const toggleStep = (step) => {
     setOpenStep(openStep === step ? null : step);
   };
@@ -19,9 +20,6 @@ export default function GuidePage() {
     <div className="guide-page">
 
       <h1 className="guide-title">Venue Booking Guide</h1>
-      {/* <p className="guide-subtitle">
-        A simple step-by-step walkthrough on how to reserve a venue.
-      </p> */}
 
       <div className="guide-steps">
 
@@ -38,7 +36,8 @@ export default function GuidePage() {
             </div>
           </div>
 
-          {openStep === 1 && (
+          {/* Smooth expanding wrapper */}
+          <div className={`step-expand-wrapper ${openStep === 1 ? "open" : ""}`}>
             <div className="step-expanded">
               <ol className="step-list">
                 <li>Go to the Venues page from the homepage.</li>
@@ -47,7 +46,7 @@ export default function GuidePage() {
                 <li>Check availability indicators for your target date.</li>
               </ol>
             </div>
-          )}
+          </div>
         </div>
 
         {/* STEP 2 */}
@@ -63,7 +62,7 @@ export default function GuidePage() {
             </div>
           </div>
 
-          {openStep === 2 && (
+          <div className={`step-expand-wrapper ${openStep === 2 ? "open" : ""}`}>
             <div className="step-expanded">
               <ol className="step-list">
                 <li>Click the “Book Now” button on any venue page.</li>
@@ -72,7 +71,7 @@ export default function GuidePage() {
                 <li>Review your details and submit your request.</li>
               </ol>
             </div>
-          )}
+          </div>
         </div>
 
         {/* STEP 3 */}
@@ -88,7 +87,7 @@ export default function GuidePage() {
             </div>
           </div>
 
-          {openStep === 3 && (
+          <div className={`step-expand-wrapper ${openStep === 3 ? "open" : ""}`}>
             <div className="step-expanded">
               <ol className="step-list">
                 <li>Go to the “My Bookings” section.</li>
@@ -97,7 +96,7 @@ export default function GuidePage() {
                 <li>View past bookings for reference.</li>
               </ol>
             </div>
-          )}
+          </div>
         </div>
 
       </div>

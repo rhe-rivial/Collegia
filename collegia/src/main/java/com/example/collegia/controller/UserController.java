@@ -1,27 +1,48 @@
 package com.example.collegia.controller;
 
+import com.example.collegia.entity.CoordinatorEntity;
+import com.example.collegia.entity.FacultyEntity;
+import com.example.collegia.entity.StudentEntity;
 import com.example.collegia.entity.UserEntity;
 import com.example.collegia.repository.UserRepository;
 import com.example.collegia.service.UserService;
+import com.example.collegia.service.CoordinatorService;
+import com.example.collegia.service.FacultyService;
+import com.example.collegia.service.StudentService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.Optional;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600, allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
     @Autowired
-    private UserRepository userRepository; 
+    private UserRepository userRepository;
+
+    @Autowired
+    private StudentService studentService;
+
+    @Autowired
+    private FacultyService facultyService;
+
+    @Autowired
+    private CoordinatorService coordinatorService;
 
     @GetMapping
     public List<UserEntity> getAllUsers() {
@@ -44,11 +65,20 @@ public class UserController {
 
     @PostMapping
     public UserEntity createUser(@RequestBody UserEntity user) {
+
+        // Default password WITHOUT hashing
+        String defaultPassword = "12345678";
+        user.setPassword(defaultPassword);
+        user.setFirstLogin(true);
+
         return userService.createUser(user);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserEntity> updateUser(@PathVariable Long id, @RequestBody UserEntity userDetails) {
+    public ResponseEntity<UserEntity> updateUser(
+            @PathVariable Long id,
+            @RequestBody UserEntity userDetails) {
+
         try {
             UserEntity updatedUser = userService.updateUser(id, userDetails);
             return ResponseEntity.ok(updatedUser);
@@ -76,4 +106,182 @@ public class UserController {
         Pageable pageable = PageRequest.of(page, size);
         return userRepository.findAll(pageable);
     }
+
+    // Change password (NO hashing)
+    @PutMapping("/{id}/change-password")
+    public ResponseEntity<?> changePassword(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        String newPassword = body.get("password");
+
+        if (newPassword == null || newPassword.trim().length() < 6) {
+            return ResponseEntity.badRequest()
+                    .body("Password must be at least 6 characters long.");
+        }
+
+        userService.changePassword(id, newPassword);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/import-excel")
+    public ResponseEntity<?> importExcel(@RequestBody List<Map<String, Object>> rows) {
+
+        int importedCount = 0;
+        int skippedCount = 0;
+
+        for (Map<String, Object> row : rows) {
+
+            String firstName = (row.get("firstName") + "").trim();
+            String lastName = (row.get("lastName") + "").trim();
+            String email = (row.get("email") + "").trim();
+            String userType = (row.get("userType") + "").trim();
+
+            if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || userType.isEmpty()) {
+                skippedCount++;
+                continue;
+            }
+
+            if (userService.emailExists(email)) {
+                skippedCount++;
+                continue;
+            }
+
+            try {
+                switch (userType) {
+
+                    case "Student": {
+                        StudentEntity s = new StudentEntity();
+                        s.setFirstName(firstName);
+                        s.setLastName(lastName);
+                        s.setEmail(email);
+                        s.setUserType("Student");
+                        s.setPassword("12345678");
+                        s.setFirstLogin(true);
+
+                        // sub fields
+                        s.setCourse((String) row.getOrDefault("course", ""));
+                        s.setOrganization((String) row.getOrDefault("organization", ""));
+
+                        studentService.createStudent(s);
+                        break;
+                    }
+
+                    case "Faculty": {
+                        FacultyEntity f = new FacultyEntity();
+                        f.setFirstName(firstName);
+                        f.setLastName(lastName);
+                        f.setEmail(email);
+                        f.setUserType("Faculty");
+                        f.setPassword("12345678");
+                        f.setFirstLogin(true);
+
+                        f.setDepartment((String) row.getOrDefault("department", ""));
+
+                        facultyService.createFaculty(f);
+                        break;
+                    }
+
+                    case "Coordinator": {
+                        CoordinatorEntity c = new CoordinatorEntity();
+                        c.setFirstName(firstName);
+                        c.setLastName(lastName);
+                        c.setEmail(email);
+                        c.setUserType("Coordinator");
+                        c.setPassword("12345678");
+                        c.setFirstLogin(true);
+
+                        c.setAffiliation((String) row.getOrDefault("affiliation", ""));
+
+                        coordinatorService.createCoordinator(c);
+                        break;
+                    }
+
+                    default: {
+                        // Admin, Custodian, etc.
+                        UserEntity user = new UserEntity();
+                        user.setFirstName(firstName);
+                        user.setLastName(lastName);
+                        user.setEmail(email);
+                        user.setUserType(userType);
+                        user.setPassword("12345678");
+                        user.setFirstLogin(true);
+
+                        userService.createUser(user);
+                    }
+                }
+
+                importedCount++;
+
+            } catch (Exception e) {
+                skippedCount++;
+            }
+        }
+
+        return ResponseEntity.ok(
+                "Imported: " + importedCount + " | Skipped: " + skippedCount
+        );
+    }
+
+
+    @PostMapping("/create-by-admin")
+    public ResponseEntity<?> createByAdmin(@RequestBody Map<String, Object> body) {
+
+        String userType = (String) body.get("userType");
+
+        switch (userType) {
+            case "Student":
+                StudentEntity student = new StudentEntity();
+                student.setFirstName((String) body.get("firstName"));
+                student.setLastName((String) body.get("lastName"));
+                student.setEmail((String) body.get("email"));
+                student.setUserType("Student");
+                student.setPassword("12345678");
+                student.setFirstLogin(true);
+
+                student.setCourse((String) body.get("course"));
+                student.setOrganization((String) body.get("organization"));
+
+                return ResponseEntity.ok(studentService.createStudent(student));
+
+            case "Faculty":
+                FacultyEntity faculty = new FacultyEntity();
+                faculty.setFirstName((String) body.get("firstName"));
+                faculty.setLastName((String) body.get("lastName"));
+                faculty.setEmail((String) body.get("email"));
+                faculty.setUserType("Faculty");
+                faculty.setPassword("12345678");
+                faculty.setFirstLogin(true);
+
+                faculty.setDepartment((String) body.get("department"));
+
+                return ResponseEntity.ok(facultyService.createFaculty(faculty));
+
+            case "Coordinator":
+                CoordinatorEntity coordinator = new CoordinatorEntity();
+                coordinator.setFirstName((String) body.get("firstName"));
+                coordinator.setLastName((String) body.get("lastName"));
+                coordinator.setEmail((String) body.get("email"));
+                coordinator.setUserType("Coordinator");
+                coordinator.setPassword("12345678");
+                coordinator.setFirstLogin(true);
+
+                coordinator.setAffiliation((String) body.get("affiliation"));
+
+                return ResponseEntity.ok(coordinatorService.createCoordinator(coordinator));
+
+            default:
+                UserEntity user = new UserEntity();
+                user.setFirstName((String) body.get("firstName"));
+                user.setLastName((String) body.get("lastName"));
+                user.setEmail((String) body.get("email"));
+                user.setUserType(userType);
+                user.setPassword("12345678");
+                user.setFirstLogin(true);
+
+                return ResponseEntity.ok(userService.createUser(user));
+        }
+    }
+
+
 }

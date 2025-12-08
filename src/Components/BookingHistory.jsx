@@ -10,7 +10,7 @@ export default function BookingHistory() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { user } = useUser();
-  
+
   useEffect(() => {
     const fetchBookingsFromDB = async () => {
       if (!user || !user.userId) {
@@ -20,25 +20,24 @@ export default function BookingHistory() {
 
       try {
         const userBookings = await bookingAPI.getUserBookings(user.userId);
-        
-        const transformedBookings = userBookings.map(booking => ({
+
+        const transformed = userBookings.map((booking) => ({
           id: booking.bookingId,
           venueName: booking.venue?.venueName || "Unknown Venue",
           eventDate: formatEventDate(booking.date),
           duration: formatTimeSlot(booking.timeSlot),
           guests: `${booking.capacity} pax`,
-          bookedBy: user.firstName || "You",
-          // FIXED: Use string status directly, not boolean conversion
           status: booking.status || "pending",
+          bookedBy: user.firstName || "You",
           image: booking.venue?.image || "/images/Dining-room.jpg",
           eventName: booking.eventName,
-          eventType: booking.eventType
+          eventType: booking.eventType,
         }));
-        
-        setBookings(transformedBookings);
+
+        setBookings(transformed);
         setError(null);
       } catch (err) {
-        console.error('Error fetching bookings:', err);
+        console.error("Error fetching bookings:", err);
         setError("Failed to load bookings");
         setBookings([]);
       } finally {
@@ -52,41 +51,23 @@ export default function BookingHistory() {
   const formatEventDate = (dateString) => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString(undefined, { 
-        day: "2-digit", 
-        month: "short", 
-        year: "numeric" 
+      return date.toLocaleDateString(undefined, {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
       });
     } catch {
       return "Invalid date";
     }
   };
 
-const calculateEndTime = (timeSlot, durationHours = 1) => {
-  try {
-    const timeStr = typeof timeSlot === "string" ? timeSlot : timeSlot.toString();
-    const [hours, minutes] = timeStr.split(":").slice(0, 2).map(Number);
-    const start = new Date();
-    start.setHours(hours, minutes || 0, 0, 0);
-    const end = new Date(start.getTime() + durationHours * 60 * 60 * 1000);
-    return end.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  } catch {
-    return "";
-  }
-};
-
-
-
   const formatTimeSlot = (timeSlot) => {
     if (!timeSlot) return "";
-    
     try {
-      const timeStr = typeof timeSlot === 'string' ? timeSlot : timeSlot.toString();
-      const [hours, minutes] = timeStr.split(':');
+      const [hours, minutes] = timeSlot.split(":");
       const hour = parseInt(hours);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const ampm = hour >= 12 ? "PM" : "AM";
       const hour12 = hour % 12 || 12;
-      
       return `${hour12}:${minutes} ${ampm}`;
     } catch {
       return timeSlot;
@@ -95,74 +76,68 @@ const calculateEndTime = (timeSlot, durationHours = 1) => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "approved": return "#28A745";
-      case "pending": return "#FFC107";
-      case "rejected": return "#DC3545";
-      case "canceled": return "#6C757D";
-      default: return "#6C757D";
+      case "approved":
+        return "#28A745";
+      case "pending":
+        return "#FFC107";
+      case "rejected":
+        return "#DC3545";
+      case "canceled":
+        return "#6C757D";
+      default:
+        return "#6C757D";
     }
   };
 
-  const handleViewClick = () => {
+  const handleViewAll = () => {
     navigate("/bookings");
   };
 
-  if (isLoading) {
-    return (
-      <div className="history-card">
-        <h3 className="history-title">Booking History</h3>
-        <div className="empty-history">Loading bookings...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="history-card">
-        <h3 className="history-title">Booking History</h3>
-        <div className="empty-history">{error}</div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="history-card">
-        <h3 className="history-title">Booking History</h3>
-        <div className="empty-history">Please log in to view your bookings</div>
-      </div>
-    );
-  }
-
   return (
     <div className="history-card">
-      <h3 className="history-title">Booking History</h3>
 
-      {bookings.length === 0 ? (
+      {/* ALWAYS visible header */}
+      <div className="history-header">
+        <h3 className="history-title">Booking History</h3>
+
+        <button className="history-view-btn" onClick={handleViewAll}>
+          View All
+        </button>
+      </div>
+
+      {/* CONTENT STATES */}
+      {isLoading ? (
+        <div className="empty-history">Loading bookings...</div>
+      ) : error ? (
+        <div className="empty-history">{error}</div>
+      ) : !user ? (
+        <div className="empty-history">Please log in to view your bookings</div>
+      ) : bookings.length === 0 ? (
         <div className="empty-history">No bookings yet.</div>
       ) : (
         <div className="history-list">
-          {bookings.map((booking) => (
-            <div className="history-item" key={booking.id}>
-              <img 
-                src={booking.image} 
-                alt="venue" 
-                className="history-thumb" 
-              />
+          {bookings.map((b) => (
+            <div className="history-item" key={b.id}>
+              <img src={b.image} className="history-thumb" alt="venue" />
+
               <div className="history-info">
-                <div className="history-venue">{booking.venueName}</div>
-                <div className="history-event">{booking.eventName} - {booking.eventType}</div>
-                <div className="history-date">{booking.eventDate}</div>
-                <div className="history-time">{booking.duration}</div>
-                <div className="history-guests">{booking.guests}</div>
-                <div 
-                  className="history-status" 
-                  style={{ color: getStatusColor(booking.status) }}
+                <div className="history-venue">{b.venueName}</div>
+                <div className="history-event">
+                  {b.eventName} – {b.eventType}
+                </div>
+                <div className="history-date">{b.eventDate}</div>
+                <div className="history-time">{b.duration}</div>
+                <div className="history-guests">{b.guests}</div>
+
+                <div
+                  className="history-status"
+                  style={{ color: getStatusColor(b.status) }}
                 >
-                  {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                  {b.status.charAt(0).toUpperCase() + b.status.slice(1)}
                 </div>
               </div>
-              <button className="view-btn" onClick={handleViewClick}>
+
+              <button className="view-btn" onClick={handleViewAll}>
                 View
               </button>
             </div>

@@ -2,14 +2,22 @@ package com.example.collegia.service;
 
 import com.example.collegia.entity.AdminEntity;
 import com.example.collegia.repository.AdminRepository;
+import com.example.collegia.repository.UserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdminService {
 
     private final AdminRepository adminRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public AdminService(AdminRepository adminRepository) {
         this.adminRepository = adminRepository;
@@ -40,5 +48,17 @@ public class AdminService {
 
     public void deleteAdmin(Long userId) {
         adminRepository.deleteById(userId);
+    }
+
+    public Map<String, Long> getUserCounts() {
+        Map<String, Long> counts = new HashMap<>();
+
+        counts.put("admins", userRepository.countAdmins());
+        counts.put("custodians", userRepository.countCustodians());
+        counts.put("faculty", userRepository.countFaculty());
+        counts.put("students", userRepository.countStudents());
+        counts.put("coordinators", userRepository.countCoordinators());
+
+        return counts;
     }
 }

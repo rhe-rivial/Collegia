@@ -1,0 +1,151 @@
+:root {
+  --red: #7B282A;
+  --yellow: #E7C51D;
+  --light-gray: #E6E6E6;
+  --white: #F7F7F7;
+  --muted: #6b7280;
+  --shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* Overlay */
+.uem-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2100;
+}
+
+/* Card */
+.uem-card {
+  background: var(--white);
+  padding: 2rem;
+  width: 100%;
+  max-width: 520px;
+  border-radius: 14px;
+  position: relative;
+  box-shadow: var(--shadow);
+}
+
+/* Close Button */
+.uem-close {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--red);
+}
+
+/* Title */
+.uem-title {
+  color: var(--red);
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.uem-sub {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+/* Template Button */
+.uem-template-btn {
+  background: var(--yellow);
+  color: var(--red);
+  border: none;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+/* Drag & Drop Zone */
+.uem-dropzone {
+  border: 2px dashed var(--muted);
+  padding: 30px 20px;
+  border-radius: 12px;
+  text-align: center;
+  color: var(--muted);
+  cursor: pointer;
+  position: relative;
+}
+
+.uem-file-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* File preview */
+.uem-file-preview {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* Actions */
+.uem-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.uem-btn-primary {
+  background: var(--red);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.uem-btn-primary:disabled {
+  background: #bfa0a2;
+  cursor: not-allowed;
+}
+
+.uem-btn-secondary {
+  background: #ccc;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.uem-error-message {
+  background: #fdecea;
+  color: #b71c1c;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border-left: 5px solid #d32f2f;
+  margin-bottom: 15px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.uem-success-message {
+  background: #d4edda;
+  color: #155724;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border-left: 5px solid #28a745;
+  margin-bottom: 15px;
+  font-weight: 600;
+  text-align: center;
+}

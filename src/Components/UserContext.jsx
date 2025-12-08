@@ -118,7 +118,7 @@ export function UserProvider({ children }) {
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
-      userType: userData.userType,
+      userType: userData.userType, // Use the actual type from API
       about: userData.about,
       location: userData.location,
       work: userData.work,
@@ -131,9 +131,6 @@ export function UserProvider({ children }) {
     localStorage.setItem("currentUser", JSON.stringify(completeUser));
     localStorage.setItem("userId", userData.userId.toString());
     localStorage.setItem("authToken", "user-authenticated");
-    
-    // Dispatch event to notify all components about login
-    window.dispatchEvent(new Event('loginStatusChange'));
     
     console.log('🟢 UserContext - User logged in:', {
       userId: completeUser.userId,
@@ -149,14 +146,16 @@ export function UserProvider({ children }) {
     localStorage.removeItem("currentUser");
     localStorage.removeItem("userId");
     
-    // Dispatch event to notify all components about logout
     window.dispatchEvent(new Event('loginStatusChange'));
     console.log('🔴 UserContext - User logged out');
   };
-  
+
   // Helper function to check if user is custodian
   const isCustodian = user && (user.userType === 'CUSTODIAN' || user.userType === 'Custodian');
-  
+
+  // ⭐ Added missing property — does NOT remove any logs
+  const isAdmin = user && (user.userType === 'ADMIN' || user.userType === 'Admin');
+
   return (
     <UserContext.Provider value={{ 
       user, 
@@ -165,7 +164,8 @@ export function UserProvider({ children }) {
       updateUser,
       login,
       logout,
-      isCustodian
+      isCustodian,
+      isAdmin
     }}>
       {children}
     </UserContext.Provider>
