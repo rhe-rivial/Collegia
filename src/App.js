@@ -65,7 +65,6 @@ function AppContent() {
     localStorage.clear();
     setShowAdminSidebar(false);
     setShowCustodianSidebar(false);
-    setShowCustodianSidebar(false);
     navigate("/", { replace: true });
   };
 
@@ -82,83 +81,80 @@ function AppContent() {
         onSignUpClick={() => setShowSignUp(true)}
       />
 
-      {/* ADMIN SIDEBAR (only visible for admin) */}
-      {isAdmin && (
-        <AdminRightSidebar
-          isOpen={showAdminSidebar}
-          toggleSidebar={() => setShowAdminSidebar(!showAdminSidebar)}
-        />
-      )}
+      <div className="content-wrapper">
+        {/* ADMIN SIDEBAR (only visible for admin) */}
+        {isAdmin && (
+          <AdminRightSidebar
+            isOpen={showAdminSidebar}
+            toggleSidebar={() => setShowAdminSidebar(!showAdminSidebar)}
+          />
+        )}
 
-      {isCustodian && (
-        <CustodianRightSidebar
-          isOpen={showCustodianSidebar}
-          toggleSidebar={() => setShowCustodianSidebar(!showCustodianSidebar)}
-        />
-      )}
-
-      <div className="main-content">
-        <Routes>
-          {/* PUBLIC ROUTES */}
-          <Route path="/" element={<Homepage />} />
-   
-          <Route path="/bookings/*" element={<Bookings />} />
-          <Route path="custodian/bookings/*" element={<CustodianBookings />} />
-         <Route path="/faq" element={<FAQ />} />
-          <Route path="custodian/bookings/*" element={<CustodianBookings />} />
-          <Route path="/account" element={<AccountPage />} />
-          <Route path="/account/edit" element={<EditAccountPage />} />
-          <Route path="/guide" element={<GuidePage />} />
-          
-          {/* Custodian Routes */}
-          <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
-          <Route path="/custodian/my-venues" element={<CustodianVenues />} />
-          <Route path="/custodian/add-venue" element={<AddVenuePage />} />
-
-          {/* Admin Routes */}
-          <Route path="/admin/dashboard" element={
-            <ProtectedAdminRoute>
-              <AdminDashboard />
-            </ProtectedAdminRoute>
-          } />
-          <Route path="/admin/users" element={
-            <ProtectedAdminRoute>
-              <UserManagement />
-            </ProtectedAdminRoute>
-          } />
-          <Route path="/admin/venues" element={
-            <ProtectedAdminRoute>
-              <VenueManagement />
-            </ProtectedAdminRoute>
-          } />
-          <Route path="/admin/bookings" element={
-            <ProtectedAdminRoute>
-              <BookingRequests />
-            </ProtectedAdminRoute>
-          } />
-          <Route path="/admin/analytics" element={
-            <ProtectedAdminRoute>
-              <Analytics />
-            </ProtectedAdminRoute>
-          } />
-        </Routes>
-      </div>
+        {isCustodian && (
+          <CustodianRightSidebar
+            isOpen={showCustodianSidebar}
+            toggleSidebar={() => setShowCustodianSidebar(!showCustodianSidebar)}
+          />
+        )}
 
         {/* MAIN CONTENT */}
-        <div className="main-content">
+        <main className="main-content">
           <Routes>
-            <Route path="/" element={<Homepage />} />         
+            {/* PUBLIC ROUTES */}
+            <Route path="/" element={<Homepage />} />
+            
+            {/* VENUES ROUTE */}
             <Route path="/venues/*" element={
               <Dashboard onOpenLoginModal={handleOpenLoginModal} />
-            } />  
-            <Route path="/bookings/*" element={<Bookings />} />  
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/aboutus" element={<AboutUs />} />
+            } />
+            
+            {/* BOOKINGS ROUTES */}
+            <Route path="/bookings/*" element={<Bookings />} />
+            <Route path="/custodian/bookings/*" element={<CustodianBookings />} />
+            
+            {/* USER ROUTES */}
             <Route path="/account" element={<AccountPage />} />
             <Route path="/account/edit" element={<EditAccountPage />} />
+            
+            {/* INFORMATION ROUTES */}
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/aboutus" element={<AboutUs />} />
             <Route path="/guide" element={<GuidePage />} />
+            
+            {/* CUSTODIAN ROUTES */}
+            <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
+            <Route path="/custodian/my-venues" element={<CustodianVenues />} />
+            <Route path="/custodian/add-venue" element={<AddVenuePage />} />
+
+            {/* ADMIN ROUTES */}
+            <Route path="/admin/dashboard" element={
+              <ProtectedAdminRoute>
+                <AdminDashboard />
+              </ProtectedAdminRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedAdminRoute>
+                <UserManagement />
+              </ProtectedAdminRoute>
+            } />
+            <Route path="/admin/venues" element={
+              <ProtectedAdminRoute>
+                <VenueManagement />
+              </ProtectedAdminRoute>
+            } />
+            <Route path="/admin/bookings" element={
+              <ProtectedAdminRoute>
+                <BookingRequests />
+              </ProtectedAdminRoute>
+            } />
+            <Route path="/admin/analytics" element={
+              <ProtectedAdminRoute>
+                <Analytics />
+              </ProtectedAdminRoute>
+            } />
           </Routes>
-        </div>
+        </main>
+      </div>
 
       {/* FOOTER */}
       <Footer />
