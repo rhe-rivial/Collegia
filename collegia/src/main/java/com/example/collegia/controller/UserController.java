@@ -1,8 +1,14 @@
 package com.example.collegia.controller;
 
+import com.example.collegia.entity.CoordinatorEntity;
+import com.example.collegia.entity.FacultyEntity;
+import com.example.collegia.entity.StudentEntity;
 import com.example.collegia.entity.UserEntity;
 import com.example.collegia.repository.UserRepository;
 import com.example.collegia.service.UserService;
+import com.example.collegia.service.CoordinatorService;
+import com.example.collegia.service.FacultyService;
+import com.example.collegia.service.StudentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +34,15 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private StudentService studentService;
+
+    @Autowired
+    private FacultyService facultyService;
+
+    @Autowired
+    private CoordinatorService coordinatorService;
 
     @GetMapping
     public List<UserEntity> getAllUsers() {
@@ -122,40 +137,151 @@ public class UserController {
             String email = (row.get("email") + "").trim();
             String userType = (row.get("userType") + "").trim();
 
-            // Skip if required fields missing
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || userType.isEmpty()) {
                 skippedCount++;
                 continue;
             }
 
-            // Skip if email already exists
             if (userService.emailExists(email)) {
                 skippedCount++;
                 continue;
             }
 
-            // Create user
-            UserEntity user = new UserEntity();
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setEmail(email);
-            user.setUserType(userType);
+            try {
+                switch (userType) {
 
-            // Default password
-            user.setPassword("12345678");
-            user.setFirstLogin(true);
+                    case "Student": {
+                        StudentEntity s = new StudentEntity();
+                        s.setFirstName(firstName);
+                        s.setLastName(lastName);
+                        s.setEmail(email);
+                        s.setUserType("Student");
+                        s.setPassword("12345678");
+                        s.setFirstLogin(true);
 
-            // Optional fields (ignored if missing)
-            if (row.containsKey("course")) user.setAbout((String) row.get("course"));
-            if (row.containsKey("organization")) user.setLocation((String) row.get("organization"));
+                        // sub fields
+                        s.setCourse((String) row.getOrDefault("course", ""));
+                        s.setOrganization((String) row.getOrDefault("organization", ""));
 
-            userService.createUser(user);
-            importedCount++;
+                        studentService.createStudent(s);
+                        break;
+                    }
+
+                    case "Faculty": {
+                        FacultyEntity f = new FacultyEntity();
+                        f.setFirstName(firstName);
+                        f.setLastName(lastName);
+                        f.setEmail(email);
+                        f.setUserType("Faculty");
+                        f.setPassword("12345678");
+                        f.setFirstLogin(true);
+
+                        f.setDepartment((String) row.getOrDefault("department", ""));
+
+                        facultyService.createFaculty(f);
+                        break;
+                    }
+
+                    case "Coordinator": {
+                        CoordinatorEntity c = new CoordinatorEntity();
+                        c.setFirstName(firstName);
+                        c.setLastName(lastName);
+                        c.setEmail(email);
+                        c.setUserType("Coordinator");
+                        c.setPassword("12345678");
+                        c.setFirstLogin(true);
+
+                        c.setAffiliation((String) row.getOrDefault("affiliation", ""));
+
+                        coordinatorService.createCoordinator(c);
+                        break;
+                    }
+
+                    default: {
+                        // Admin, Custodian, etc.
+                        UserEntity user = new UserEntity();
+                        user.setFirstName(firstName);
+                        user.setLastName(lastName);
+                        user.setEmail(email);
+                        user.setUserType(userType);
+                        user.setPassword("12345678");
+                        user.setFirstLogin(true);
+
+                        userService.createUser(user);
+                    }
+                }
+
+                importedCount++;
+
+            } catch (Exception e) {
+                skippedCount++;
+            }
         }
 
         return ResponseEntity.ok(
                 "Imported: " + importedCount + " | Skipped: " + skippedCount
         );
     }
+
+
+    @PostMapping("/create-by-admin")
+    public ResponseEntity<?> createByAdmin(@RequestBody Map<String, Object> body) {
+
+        String userType = (String) body.get("userType");
+
+        switch (userType) {
+            case "Student":
+                StudentEntity student = new StudentEntity();
+                student.setFirstName((String) body.get("firstName"));
+                student.setLastName((String) body.get("lastName"));
+                student.setEmail((String) body.get("email"));
+                student.setUserType("Student");
+                student.setPassword("12345678");
+                student.setFirstLogin(true);
+
+                student.setCourse((String) body.get("course"));
+                student.setOrganization((String) body.get("organization"));
+
+                return ResponseEntity.ok(studentService.createStudent(student));
+
+            case "Faculty":
+                FacultyEntity faculty = new FacultyEntity();
+                faculty.setFirstName((String) body.get("firstName"));
+                faculty.setLastName((String) body.get("lastName"));
+                faculty.setEmail((String) body.get("email"));
+                faculty.setUserType("Faculty");
+                faculty.setPassword("12345678");
+                faculty.setFirstLogin(true);
+
+                faculty.setDepartment((String) body.get("department"));
+
+                return ResponseEntity.ok(facultyService.createFaculty(faculty));
+
+            case "Coordinator":
+                CoordinatorEntity coordinator = new CoordinatorEntity();
+                coordinator.setFirstName((String) body.get("firstName"));
+                coordinator.setLastName((String) body.get("lastName"));
+                coordinator.setEmail((String) body.get("email"));
+                coordinator.setUserType("Coordinator");
+                coordinator.setPassword("12345678");
+                coordinator.setFirstLogin(true);
+
+                coordinator.setAffiliation((String) body.get("affiliation"));
+
+                return ResponseEntity.ok(coordinatorService.createCoordinator(coordinator));
+
+            default:
+                UserEntity user = new UserEntity();
+                user.setFirstName((String) body.get("firstName"));
+                user.setLastName((String) body.get("lastName"));
+                user.setEmail((String) body.get("email"));
+                user.setUserType(userType);
+                user.setPassword("12345678");
+                user.setFirstLogin(true);
+
+                return ResponseEntity.ok(userService.createUser(user));
+        }
+    }
+
 
 }

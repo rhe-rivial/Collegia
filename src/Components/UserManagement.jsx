@@ -6,6 +6,7 @@ import UserSearchAndFilter from "./UserSearchAndFilter";
 import UserAddModal from "./UserAddModal";
 import UserEditModal from "./UserEditModal";
 import UserExcelModal from "./UserExcelModal";
+import { userAPI } from "../api";
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -102,35 +103,8 @@ export default function UserManagement() {
     return null;
   };
 
-  const createUser = async () => {
-    const err = validateAddUser();
-    if (err) return setAddError(err);
-
-    setAddError("");
-
-    try {
-      await fetch("http://localhost:8080/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newUser),
-      });
-
-      setShowAddModal(false);
-
-      setNewUser({
-        firstName: "",
-        lastName: "",
-        email: "",
-        userType: "Student",
-        about: "",
-        location: "",
-      });
-
-      loadUsers();
-
-    } catch (err) {
-      setAddError("Failed to create user. Please try again.");
-    }
+  const createUser = async (createdUser) => {
+    setUsers((prev) => [...prev, createdUser]);
   };
 
   /* ==============================
@@ -322,9 +296,6 @@ export default function UserManagement() {
       {/* ========= ADD USER MODAL ========= */}
       {showAddModal && (
         <UserAddModal
-          newUser={newUser}
-          setNewUser={setNewUser}
-          addError={addError}
           onClose={() => setShowAddModal(false)}
           onSave={createUser}
         />

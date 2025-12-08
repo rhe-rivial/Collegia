@@ -23,13 +23,26 @@
    MODAL CARD
 =========================== */
 .umod-card {
-  background: var(--white);
+  background: #FFFFFF;
   width: 100%;
   max-width: 520px;
   padding: 2rem;
   border-radius: 14px;
   position: relative;
   box-shadow: var(--shadow);
+
+  max-height: 85vh;        
+  overflow-y: auto;        
+  scrollbar-gutter: stable both-edges;
+}
+
+.umod-card::-webkit-scrollbar {
+  width: 8px;
+}
+
+.umod-card::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 10px;
 }
 
 /* CLOSE BUTTON */

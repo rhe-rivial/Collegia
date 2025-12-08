@@ -3,7 +3,7 @@ import { UserContext } from "./UserContext";
 import { authAPI } from "../api.js";
 import "../styles/SignInModal.css";
 import CustomModal from "./CustomModal";
-import ChangePasswordModal from "./ChangePasswordModal"; // new
+import ChangePasswordModal from "./ChangePasswordModal"; 
 
 export default function SignInModal({ onClose, openSignUp }) {
   const [form, setForm] = useState({ email: "", password: "" });
