@@ -4,17 +4,16 @@ import { UserContext } from './UserContext';
 import VenuesCard from "./VenuesCard.jsx";
 import "../styles/VenuesCard.css";
 
-
 export default function VenuesGrid({ searchQuery, showFilters, filters, onOpenLoginModal }) {
   const location = useLocation();
   const { user } = useContext(UserContext);
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
+  
 
   const path = location.pathname.split("/").pop();
   const currentTag = path.toUpperCase() === "VENUES" || path === "" ? "NGE" : path.toUpperCase();
 
-useEffect(() => {
   const fetchVenues = async () => {
     try {
       setLoading(true);
@@ -26,7 +25,7 @@ useEffect(() => {
         // DEDUPLICATE HERE - Add this critical step
         const uniqueVenues = [...new Map(venuesData.map(venue => [venue.venueId, venue])).values()];
         
-        // Get favorites from localStorage for current user
+        // Get favorites from localStorage for current user (or empty array if no user)
         let favorites = [];
         if (user?.userId) {
           favorites = favoritesStorage.getFavorites(user.userId);
@@ -48,9 +47,31 @@ useEffect(() => {
     }
   };
 
-  fetchVenues();
-}, []); // Empty dependency array - runs only once
+  useEffect(() => {
+    fetchVenues();
+  }, []); 
 
+  // Listen for user changes and refresh favorites
+  useEffect(() => {
+    // When user changes (logs in or out), update favorites
+    fetchVenues();
+  }, [user]); // This will run whenever user changes
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      console.log('🔄 Auth changed, refreshing venues data');
+      fetchVenues();
+    };
+    
+    // Listen for custom event from UserContext
+    window.addEventListener('loginStatusChange', handleAuthChange);
+    
+    return () => {
+      window.removeEventListener('loginStatusChange', handleAuthChange);
+    };
+  }, []);
+
+  
   // Handle favorite toggle using localStorage 
   const handleFavoriteToggle = (venueId) => {
     if (!user) {

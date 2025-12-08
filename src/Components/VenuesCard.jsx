@@ -21,22 +21,6 @@ export default function VenuesCard({ id, title, image, isFavorite, onFavoriteTog
       <div className="venue-image-container" onClick={handleImageClick}>
         <img className="venue-image" src={image} alt={title} />
 
-        <button
-          className="favorite-button"
-          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-          onClick={handleFavoriteClick}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <span className="favorite-loading"></span>
-          ) : (
-            <img
-              alt="favorite-button"
-              src={isFavorite ? "/icons/favorite-filled.png" : "/icons/favorite.png"}
-              className="heart-icon"
-            />
-          )}
-        </button>
       </div>
 
       <h3 className="venue-title">{title}</h3>

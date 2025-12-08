@@ -606,3 +606,60 @@
   height: 24px;
 
 }
+
+.share-button-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.copied-message {
+  position: absolute;
+  top: -30px;
+  right: 0;
+  background: #4CAF50;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  animation: fadeInOut 2s ease;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  10%, 90% { opacity: 1; }
+}
+
+/* Tooltip style - appears above the button */
+.copied-message-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-primary);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  animation: fadeInOut 2s ease-in-out forwards;
+  pointer-events: none;
+  min-width: 120px;
+  text-align: center;
+}
+
+.copied-message-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #7B282A;
+}

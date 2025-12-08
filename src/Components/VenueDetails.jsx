@@ -79,7 +79,7 @@ export default function VenueDetails({ onOpenLoginModal }) {
       }
     };
 
-    window.addEventListener('favoritesUpdated', handleFavoritesUpdated);
+     window.addEventListener('favoritesUpdated', handleFavoritesUpdated);
     
     return () => {
       window.removeEventListener('favoritesUpdated', handleFavoritesUpdated);
@@ -270,7 +270,6 @@ export default function VenueDetails({ onOpenLoginModal }) {
               venueId={venueData?.venueId}
               isFavorite={isFavorite}
               onFavoriteToggle={handleFavoriteToggle}
-              onShare={handleShare}
             />
           </div>
 
