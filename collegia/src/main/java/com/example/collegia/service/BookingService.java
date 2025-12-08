@@ -147,4 +147,9 @@ public class BookingService {
         return bookings.stream()
             .noneMatch(booking -> !"canceled".equals(booking.getStatus()));
     }
+
+    // used by Admin Dashboard for Booking Status Summary
+    public long countByStatus(String status) {
+        return bookingRepository.countByStatus(status);
+    }
 }

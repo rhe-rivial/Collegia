@@ -1,0 +1,388 @@
+:root {
+  --abr-red: #7B282A;
+  --abr-yellow: #E7C51D;
+  --abr-white: #F7F7F7;
+  --abr-border: #E6E6E6;
+  --abr-muted: #6b7280;
+  --abr-bg: #f5f5f5;
+}
+
+/* Page container */
+.abr-container {
+  padding: 35px 50px;
+  font-family: 'Montserrat', sans-serif;
+  margin-bottom: 100px;
+}
+
+.abr-card {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  border-radius: 12px;
+  padding: 18px 20px;
+  min-height: 650px;
+}
+
+/* Header */
+.abr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.abr-title {
+  color: var(--abr-red);
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+}
+
+/* Tabs */
+.abr-tabs {
+  display: flex;
+  gap: 12px;
+  margin: 10px 0 8px;
+}
+
+.abr-tab {
+  background: transparent;
+  border: none;
+  color: var(--abr-red);
+  font-weight: 600;
+  font-size: 15px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.08s ease;
+}
+
+.abr-tab.active {
+  background: var(--abr-red);
+  color: var(--abr-white);
+  transform: translateY(-1px);
+}
+
+.abr-divider {
+  height: 1px;
+  width: 100%;
+  background: var(--abr-red);
+  margin-bottom: 12px;
+}
+
+/* Table */
+.abr-table-wrapper {
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.abr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.abr-table thead {
+  position: sticky;
+  top: 0;
+  background: var(--abr-red);
+  color: white;
+  z-index: 5;
+}
+
+.abr-table th,
+.abr-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.abr-table th {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.abr-table tbody tr:hover {
+  background: #faf4f4;
+}
+
+.abr-event-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.abr-event-name {
+  font-weight: 600;
+  color: var(--abr-red);
+}
+
+.abr-event-type {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.abr-requester-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.abr-requester-name {
+  font-weight: 600;
+}
+
+.abr-requester-type {
+  font-size: 0.8rem;
+  color: var(--abr-muted);
+}
+
+/* Status pill */
+.abr-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--abr-muted);
+  background: #fff;
+}
+
+.abr-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.abr-status-text {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Actions */
+.abr-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.abr-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.08s ease;
+  white-space: nowrap;
+}
+
+.abr-btn:hover {
+  transform: translateY(-1px);
+}
+
+.abr-approve {
+  background: #28a745;
+  color: white;
+}
+
+.abr-approve:hover {
+  background: #218838;
+}
+
+.abr-reject {
+  background: #b3261e;
+  color: white;
+}
+
+.abr-reject:hover {
+  background: #7B282A;
+}
+
+.abr-cancel {
+  background: #6c757d;
+  color: white;
+}
+
+.abr-cancel:hover {
+  background: #5a6268;
+}
+
+.abr-details {
+  background: var(--abr-yellow);
+  color: #3b3000;
+}
+
+.abr-details:hover {
+  background: #d1b017;
+}
+
+.abr-no-actions {
+  font-size: 0.8rem;
+  color: var(--abr-muted);
+}
+
+/* Empty + loading + error */
+.abr-empty {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--abr-muted);
+}
+
+.abr-empty h3 {
+  color: var(--abr-red);
+  margin-bottom: 6px;
+}
+
+.abr-loading {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--abr-red);
+  font-weight: 600;
+}
+
+.abr-error {
+  color: #b3261e;
+  background: #ffe5e5;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 4px solid #b3261e;
+}
+
+/* Details Modal */
+.abr-details-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.abr-details-card {
+  background: white;
+  width: 90%;
+  max-width: 800px;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.abr-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-bottom: 1px solid #eee;
+}
+
+.abr-details-header h2 {
+  margin: 0;
+  color: var(--abr-red);
+  font-size: 1.4rem;
+}
+
+.abr-close-btn {
+  background: #f5f5f5;
+  border: none;
+  font-size: 1.6rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.abr-close-btn:hover {
+  background: var(--abr-red);
+  color: white;
+}
+
+.abr-details-body {
+  padding: 20px 24px 22px;
+}
+
+.abr-details-section h3 {
+  margin: 0 0 16px 0;
+  color: var(--abr-red);
+  font-size: 1.2rem;
+}
+
+.abr-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 20px;
+}
+
+.abr-details-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+
+.abr-full-width {
+  grid-column: 1 / -1;
+}
+
+.abr-details-item strong {
+  color: #555;
+  font-weight: 600;
+}
+
+.abr-details-item span {
+  color: #222;
+}
+
+.abr-description-text {
+  background: #f5f5f5;
+  padding: 10px 12px;
+  border-radius: 6px;
+  line-height: 1.4;
+  font-size: 0.9rem;
+}
+
+/* Modal actions */
+.abr-details-actions {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .abr-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .abr-details-actions {
+    flex-direction: column;
+  }
+
+  .abr-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .abr-container {
+    padding: 16px;
+  }
+
+  .abr-title {
+    font-size: 26px;
+  }
+
+  .abr-table th,
+  .abr-table td {
+    font-size: 0.8rem;
+    padding: 8px 6px;
+  }
+}

@@ -26,4 +26,6 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
     
     @Query("SELECT b FROM BookingEntity b WHERE b.venue.custodian.userId = :custodianId AND b.status = 'pending'")
     List<BookingEntity> findPendingBookingsForCustodian(@Param("custodianId") Long custodianId);
+
+    long countByStatus(String status);
 }

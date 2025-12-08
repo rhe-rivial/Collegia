@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -116,4 +117,17 @@ public class BookingController {
         boolean isAvailable = bookingService.isVenueAvailable(venueId, date);
         return ResponseEntity.ok(isAvailable);
     }
+
+
+    // Booking status summary for Admin Dashboard
+    @GetMapping("/status-summary")
+    public ResponseEntity<Map<String, Long>> getBookingStatusSummary() {
+        Map<String, Long> summary = new HashMap<>();
+        summary.put("pending",   bookingService.countByStatus("pending"));
+        summary.put("approved",  bookingService.countByStatus("approved"));
+        summary.put("rejected",  bookingService.countByStatus("rejected"));
+        summary.put("canceled",  bookingService.countByStatus("canceled"));
+        return ResponseEntity.ok(summary);
+    }
+
 }
