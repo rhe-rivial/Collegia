@@ -101,21 +101,11 @@ function AppContent() {
         <Routes>
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<Homepage />} />
-          
-          <Route path="/venues/*" element={
-            <Dashboard onOpenLoginModal={handleOpenLoginModal} />
-          } />
-          
-          
-          <Route path="/venues/*" element={
-            <Dashboard onOpenLoginModal={handleOpenLoginModal} />
-          } />
-          
+   
           <Route path="/bookings/*" element={<Bookings />} />
           <Route path="custodian/bookings/*" element={<CustodianBookings />} />
          <Route path="/faq" element={<FAQ />} />
           <Route path="custodian/bookings/*" element={<CustodianBookings />} />
-         <Route path="/faq" element={<FAQ />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/account/edit" element={<EditAccountPage />} />
           <Route path="/guide" element={<GuidePage />} />

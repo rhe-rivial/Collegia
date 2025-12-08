@@ -14,38 +14,42 @@ export default function VenuesGrid({ searchQuery, showFilters, filters, onOpenLo
   const path = location.pathname.split("/").pop();
   const currentTag = path.toUpperCase() === "VENUES" || path === "" ? "NGE" : path.toUpperCase();
 
-  useEffect(() => {
-    const fetchVenues = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('http://localhost:8080/api/venues');
+useEffect(() => {
+  const fetchVenues = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:8080/api/venues');
+      
+      if (response.ok) {
+        const venuesData = await response.json();
         
-        if (response.ok) {
-          const venuesData = await response.json();
-          // Get favorites from localStorage for current user
-          let favorites = [];
-          if (user?.userId) {
-            favorites = favoritesStorage.getFavorites(user.userId);
-          }
-          
-          const venuesWithFavorites = venuesData.map(venue => ({
-            ...venue,
-            isFavorite: favorites.includes(venue.venueId.toString())
-          }));
-          
-          setVenues(venuesWithFavorites);
-        } else {
-          console.error('Failed to fetch venues, status:', response.status);
+        // DEDUPLICATE HERE - Add this critical step
+        const uniqueVenues = [...new Map(venuesData.map(venue => [venue.venueId, venue])).values()];
+        
+        // Get favorites from localStorage for current user
+        let favorites = [];
+        if (user?.userId) {
+          favorites = favoritesStorage.getFavorites(user.userId);
         }
-      } catch (error) {
-        console.error('Error fetching venues:', error);
-      } finally {
-        setLoading(false);
+        
+        const venuesWithFavorites = uniqueVenues.map(venue => ({
+          ...venue,
+          isFavorite: favorites.includes(venue.venueId.toString())
+        }));
+        
+        setVenues(venuesWithFavorites);
+      } else {
+        console.error('Failed to fetch venues, status:', response.status);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching venues:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchVenues();
-  }, [user]);
+  fetchVenues();
+}, []); // Empty dependency array - runs only once
 
   // Handle favorite toggle using localStorage 
   const handleFavoriteToggle = (venueId) => {
