@@ -67,6 +67,7 @@ export default function UserAddModal({ onClose, onSave }) {
       userType: form.userType,
       about: form.about,
       location: form.location,
+      password: "12345678", // Default password for new users
 
       ...(form.userType === "Student" && {
         course: form.course,
