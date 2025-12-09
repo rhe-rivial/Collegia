@@ -3,7 +3,7 @@ import { UserContext } from "./UserContext";
 import { authAPI } from "../api.js";
 import "../styles/SignInModal.css";
 import CustomModal from "./CustomModal";
-import ChangePasswordModal from "./ChangePasswordModal"; 
+import ChangePasswordModal from "./ChangePasswordModal";
 
 export default function SignInModal({ onClose, openSignUp }) {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -15,9 +15,8 @@ export default function SignInModal({ onClose, openSignUp }) {
   const [modalMessage, setModalMessage] = useState("");
   const [closeAfterModal, setCloseAfterModal] = useState(false);
 
-  // Force-change-password modal state
   const [showChangePassword, setShowChangePassword] = useState(false);
-  const [pendingUser, setPendingUser] = useState(null); // user object coming from backend
+  const [pendingUser, setPendingUser] = useState(null);
 
   const handleAction = (message, shouldCloseParent = false) => {
     setModalMessage(message);
@@ -34,11 +33,8 @@ export default function SignInModal({ onClose, openSignUp }) {
     }
   };
 
-  // FIX: prevent modal from closing during text selection
   const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+    if (e.target === e.currentTarget) onClose();
   };
 
   const handleChange = (e) => {
@@ -51,38 +47,31 @@ export default function SignInModal({ onClose, openSignUp }) {
     setIsLoading(true);
 
     try {
-      // call your auth API
       const response = await authAPI.signIn({
         email: form.email,
         password: form.password,
       });
 
-      // store token & user (so we can call change-password endpoint)
       localStorage.setItem("authToken", response.token);
       localStorage.setItem("currentUser", JSON.stringify(response.user));
 
       const loginEvent = new Event("loginStatusChange");
       window.dispatchEvent(loginEvent);
 
-      // if firstLogin flag set -> force change password
       const user = response.user;
+
       if (user && user.firstLogin) {
-        // keep sign-in modal open until password changed
         setPendingUser(user);
         setShowChangePassword(true);
-        // show a temporary message
-        handleAction("You must change your password before continuing.", false);
-        // DO NOT call login(user) yet — we'll call after password is successfully changed
+        handleAction("You must change your password before continuing.");
         return;
       }
 
-      // normal flow
       handleAction("Login successful", true);
       login(response.user);
 
     } catch (err) {
-      const message =
-        err?.message || "Login failed. Please check your credentials.";
+      const message = err?.message || "Login failed. Please check your credentials.";
       setError(message);
       handleAction(message, false);
     } finally {
@@ -95,15 +84,12 @@ export default function SignInModal({ onClose, openSignUp }) {
     openSignUp();
   };
 
-  // Called by ChangePasswordModal when user submits a new password
   const handleChangePasswordSave = async (newPassword) => {
-    if (!pendingUser) {
-      throw new Error("No pending user");
-    }
+    if (!pendingUser) throw new Error("No pending user");
 
     try {
-      // call backend endpoint to change password
-      const userId = pendingUser.userId || pendingUser.id; // depending on backend field name
+      const userId = pendingUser.userId || pendingUser.id;
+
       const res = await fetch(`http://localhost:8080/api/users/${userId}/change-password`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -115,86 +101,78 @@ export default function SignInModal({ onClose, openSignUp }) {
         throw new Error(txt || "Failed to change password");
       }
 
-      // update local copy of user and mark firstLogin false
       const updatedUser = { ...pendingUser, firstLogin: false };
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));
 
-      // close change password modal, then close sign-in modal and proceed to login
       setShowChangePassword(false);
       setPendingUser(null);
       handleAction("Password updated. Login successful.", true);
       login(updatedUser);
 
     } catch (err) {
-      // bubble error back to ChangePasswordModal via thrown error
       throw err;
     }
   };
 
   return (
     <>
-      <div className="modal-overlay" onClick={handleOverlayClick}>
-        <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-          <button className="close-btn" onClick={onClose}>✕</button>
+      <div className="signin-modal">
+        <div className="modal-overlay" onClick={handleOverlayClick}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <button className="close-btn" onClick={onClose}>✕</button>
 
-          <h2 className="signin-title ">Sign In</h2>
-         
-          {error && <p className="error-text">{error}</p>}
+            <h2 className="signin-title">Sign In</h2>
 
-          <form className="modal-form" onSubmit={handleSubmit}>
-            <label className="label">Email</label>
-            <input
-              className="input-pill"
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
+            {error && <p className="error-text">{error}</p>}
 
-            <label className="label">Password</label>
-            <input
-              className="input-pill"
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
+            <form className="modal-form" onSubmit={handleSubmit}>
+              <label className="label">Email</label>
+              <input
+                className="input-pill"
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
 
-            <button type="submit" className="btn-continue" disabled={isLoading}>
-              {isLoading ? "Signing In..." : "Continue"}
-            </button>
-          </form>
+              <label className="label">Password</label>
+              <input
+                className="input-pill"
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
 
-          <hr className="divider" />
-
-          <div className="switch-row">
-            <p>
-              Don't have an account?{" "}
-              <button className="link-button" onClick={smoothlySwitchToSignup}>
-                Sign up here
+              <button type="submit" className="btn-continue" disabled={isLoading}>
+                {isLoading ? "Signing In..." : "Continue"}
               </button>
-            </p>
+            </form>
+
+            <hr className="divider" />
+
+            <div className="switch-row">
+              <p>
+                Don't have an account?{" "}
+                <button className="link-button" onClick={smoothlySwitchToSignup}>
+                  Sign up here
+                </button>
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      <CustomModal
-        isOpen={isModalOpen}
-        message={modalMessage}
-        onClose={handleCloseModal}
-      />
+      <CustomModal isOpen={isModalOpen} message={modalMessage} onClose={handleCloseModal} />
 
       {showChangePassword && pendingUser && (
         <ChangePasswordModal
           userId={pendingUser.userId || pendingUser.id}
-          onClose={() => {
-            setShowChangePassword(false);
-            // keep sign-in modal open — user must change password
-          }}
+          onClose={() => setShowChangePassword(false)}
           onSave={handleChangePasswordSave}
         />
       )}

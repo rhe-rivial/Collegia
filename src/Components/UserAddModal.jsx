@@ -129,6 +129,8 @@ export default function UserAddModal({ onClose, onSave }) {
             name="firstName"
             value={form.firstName}
             onChange={handleChange}
+            placeholder="Enter first name"
+            required
           />
 
           <label className="umod-label">Last Name *</label>
@@ -137,6 +139,8 @@ export default function UserAddModal({ onClose, onSave }) {
             name="lastName"
             value={form.lastName}
             onChange={handleChange}
+            placeholder="Enter last name"
+            required
           />
 
           <label className="umod-label">Email *</label>
@@ -146,6 +150,8 @@ export default function UserAddModal({ onClose, onSave }) {
             type="email"
             value={form.email}
             onChange={handleChange}
+            placeholder="Enter user email"
+            required
           />
 
           <label className="umod-label">Role *</label>
@@ -154,8 +160,9 @@ export default function UserAddModal({ onClose, onSave }) {
             name="userType"
             value={form.userType}
             onChange={handleChange}
+            required
           >
-            <option value="">Select Role</option>
+            <option value="">Select role</option>
             <option value="Coordinator">Coordinator</option>
             <option value="Faculty">Faculty</option>
             <option value="Student">Student</option>
@@ -169,6 +176,8 @@ export default function UserAddModal({ onClose, onSave }) {
                 name="course"
                 value={form.course}
                 onChange={handleChange}
+                placeholder="Enter course"
+                required
               />
 
               <label className="umod-label">Organization *</label>
@@ -177,6 +186,8 @@ export default function UserAddModal({ onClose, onSave }) {
                 name="organization"
                 value={form.organization}
                 onChange={handleChange}
+                placeholder="Enter organization"
+                required
               />
             </>
           )}
@@ -189,6 +200,8 @@ export default function UserAddModal({ onClose, onSave }) {
                 name="affiliation"
                 value={form.affiliation}
                 onChange={handleChange}
+                placeholder="Enter affiliation"
+                required
               />
             </>
           )}
@@ -201,6 +214,8 @@ export default function UserAddModal({ onClose, onSave }) {
                 name="department"
                 value={form.department}
                 onChange={handleChange}
+                placeholder="Enter department"
+                required
               />
             </>
           )}
@@ -211,6 +226,7 @@ export default function UserAddModal({ onClose, onSave }) {
             name="about"
             value={form.about}
             onChange={handleChange}
+            placeholder="Enter additional information"
           />
 
           <label className="umod-label">Location</label>
@@ -219,6 +235,7 @@ export default function UserAddModal({ onClose, onSave }) {
             name="location"
             value={form.location}
             onChange={handleChange}
+            placeholder="Enter location"
           />
 
           <div className="umod-actions">
@@ -232,6 +249,7 @@ export default function UserAddModal({ onClose, onSave }) {
           </div>
 
         </form>
+
       </div>
     </div>
   );
