@@ -1,40 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap%27');
- 
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 :root {
   --font-primary: 'Montserrat', sans-serif;
-  --color-primary: #7B282A;   /* Deep maroon/red */
-  --color-accent: #E7C51D;    /* Gold accent */
-  --color-background: #F7F7F7;/* Light background */
-  --color-border: #E6E6E6;    /* Subtle border gray */
+  --color-primary: #7B282A;
+  --color-accent: #E7C51D;
+  --color-background: #F7F7F7;
+  --color-border: #E6E6E6;
 }
- 
-/* HTML, BODY take full height */
+
 html, body {
   height: 100%;
   margin: 0;
 }
- 
-/* Wrapper contains all page content */
+
 .page-wrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
- 
-/* Main content grows to fill available space */
+
+.content-wrapper {
+  flex: 1;
+  display: flex;
+}
+
 .main-content {
   flex: 1;
-  padding-top: 60px; /* Add extra padding at top */
+  padding-top: 60px;
 }
- 
- 
+
 .search-bar {
-  /* margin-top: 15px; */
   margin: 40px auto 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* margin: 0 auto; */
   max-width: 320px;
   width: 100%;
   height: auto;
@@ -48,7 +47,7 @@ html, body {
   background-size: 13px 13px;
   transition: all 0.2s ease-in-out;
 }
- 
+
 .search-bar:focus-within,
 .search-bar input:focus {
   border-color: var(--color-primary);
@@ -56,7 +55,7 @@ html, body {
   outline: none;
   transform: translateY(-2px);
 }
- 
+
 .search-bar input {
   width: 100%;
   height: fit-content;
@@ -64,24 +63,24 @@ html, body {
   background: transparent;
   outline: none;
   font-size: 16px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
 }
- 
+
 .App {
   text-align: center;
 }
- 
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
- 
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
 }
- 
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -91,4 +90,13 @@ html, body {
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+
+.footer {
+  box-shadow: 0 -15px 20px rgba(255, 255, 255, 0.6);
+  border-top: #bea9aa solid 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(204, 185, 185, 0.94) 23%, rgba(230, 230, 230, 0.96) 79%);
+  font-family: var(--font-primary);
+  padding: 40px 20px;
 }

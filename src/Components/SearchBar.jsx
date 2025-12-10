@@ -15,12 +15,6 @@ export default function SearchBar({
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
       />
-      <button 
-        className="filter-toggle-button"
-        onClick={onFilterToggle}
-      >
-        <img src="/icons/filter.png" alt="Filter" />
-      </button>
     </div>
   );    
 }

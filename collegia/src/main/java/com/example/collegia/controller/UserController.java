@@ -9,17 +9,19 @@ import com.example.collegia.service.UserService;
 import com.example.collegia.service.CoordinatorService;
 import com.example.collegia.service.FacultyService;
 import com.example.collegia.service.StudentService;
+import com.example.collegia.service.FileStorageService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,6 +46,9 @@ public class UserController {
     @Autowired
     private CoordinatorService coordinatorService;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
     @GetMapping
     public List<UserEntity> getAllUsers() {
         return userService.getAllUsers();
@@ -65,7 +70,6 @@ public class UserController {
 
     @PostMapping
     public UserEntity createUser(@RequestBody UserEntity user) {
-
         // Default password WITHOUT hashing
         String defaultPassword = "12345678";
         user.setPassword(defaultPassword);
@@ -84,6 +88,98 @@ public class UserController {
             return ResponseEntity.ok(updatedUser);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Upload profile photo endpoint
+    @PutMapping("/{id}/profile-photo")
+    public ResponseEntity<?> uploadProfilePhoto(
+            @PathVariable Long id,
+            @RequestParam("photo") MultipartFile photoFile) {
+        
+        try {
+            // Upload the file
+            String fileName = fileStorageService.storeFile(photoFile);
+            String photoUrl = "http://localhost:8080/api/files/uploads/" + fileName;
+            
+            // Update user's profile photo
+            UserEntity user = userService.getUserById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            user.setProfilePhoto(photoUrl);
+            UserEntity updatedUser = userRepository.save(user);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Profile photo uploaded successfully");
+            response.put("photoUrl", photoUrl);
+            response.put("user", updatedUser);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            System.err.println("Error uploading profile photo: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to upload profile photo: " + e.getMessage());
+        }
+    }
+
+    // Update user with profile photo (like venue update)
+    @PutMapping(value = "/{id}/update-with-photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateUserWithPhoto(
+            @PathVariable Long id,
+            @RequestParam(value = "firstName", required = false) String firstName,
+            @RequestParam(value = "lastName", required = false) String lastName,
+            @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "about", required = false) String about,
+            @RequestParam(value = "location", required = false) String location,
+            @RequestParam(value = "profilePhoto", required = false) MultipartFile photoFile,
+            @RequestParam(value = "profilePhotoUrl", required = false) String photoUrl) {
+        
+        try {
+            // Get existing user
+            Optional<UserEntity> userOpt = userRepository.findById(id);
+            if (!userOpt.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            UserEntity user = userOpt.get();
+            
+            // Update basic fields if provided
+            if (firstName != null) user.setFirstName(firstName);
+            if (lastName != null) user.setLastName(lastName);
+            if (email != null) user.setEmail(email);
+            if (about != null) user.setAbout(about);
+            if (location != null) user.setLocation(location);
+            
+            // Handle profile photo
+            String finalPhotoUrl = null;
+            
+            if (photoFile != null && !photoFile.isEmpty()) {
+                // Upload new photo
+                String fileName = fileStorageService.storeFile(photoFile);
+                finalPhotoUrl = "http://localhost:8080/api/files/uploads/" + fileName;
+                System.out.println("✅ Uploaded new profile photo: " + finalPhotoUrl);
+            } else if (photoUrl != null && !photoUrl.trim().isEmpty()) {
+                // Use provided URL
+                finalPhotoUrl = photoUrl;
+                System.out.println("✅ Using provided photo URL: " + finalPhotoUrl);
+            }
+            
+            if (finalPhotoUrl != null) {
+                user.setProfilePhoto(finalPhotoUrl);
+            }
+            
+            // Save updated user
+            UserEntity updatedUser = userRepository.save(user);
+            
+            return ResponseEntity.ok(updatedUser);
+            
+        } catch (Exception e) {
+            System.err.println("❌ ERROR updating user with photo: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update user: " + e.getMessage());
         }
     }
 
@@ -282,6 +378,4 @@ public class UserController {
                 return ResponseEntity.ok(userService.createUser(user));
         }
     }
-
-
 }

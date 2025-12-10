@@ -1,3 +1,36 @@
+:root {
+  --red: #7B282A;
+  --yellow: #E7C51D;
+  --white: #F7F7F7;
+  --gray: #E6E6E6;
+}
+
+
+.profile-photo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-btn {
+  background-color: var(--red);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.3s;
+}
+
+.upload-btn:hover {
+  background-color: #531819;
+}
+
+.profile-info {
+  flex: 1;
+}
+
 .profile-card {
   background: #ffffff;
   border-radius: 12px;

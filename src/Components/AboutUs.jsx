@@ -12,10 +12,13 @@ export default function AboutUs() {
   return (
     <div className="aboutus-page">
 
-      {/* Hero Section with background image */}
+      {/* Hero Section with image */}
       <div className="aboutus-hero">
+        <img src="/images/school.jpg" alt="" className="aboutus-hero-img" />
         <h1 className="aboutus-hero-title">About Us</h1>
       </div>
+
+
 
       {/* Team Section */}
       <div className="aboutus-team">
@@ -24,21 +27,24 @@ export default function AboutUs() {
           It was born out of a need for students, coordinators, and faculty alike to be able to schedule rooms for usage in a
           relatively simple, convenient way that can be accessed remotely.
         </p>
-
+        
         <div className="aboutus-image-row">
           <div className="aboutus-image-slot">
             <img src="/images/sy.jpg" alt="Brye Sy" />
+            <div className="aboutus-image-name">Brye Sy</div>
           </div>
 
           <div className="aboutus-image-slot">
-            <img src="/images/tupas.jpg" alt="Niña Tupas" />
+            <img src="/images/tupas.png" alt="Niña Tupas" />
+            <div className="aboutus-image-name">Niña Tupas</div>
           </div>
 
           <div className="aboutus-image-slot">
             <img src="/images/hisoler.jpg" alt="Rhegynne Hisoler" />
+            <div className="aboutus-image-name">Rhegynne Hisoler</div>
           </div>
-          
         </div>
+
       </div>
 
       <button className="back-button" onClick={() => navigate("/")}>← Back to Homepage</button>

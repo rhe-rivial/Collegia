@@ -27,7 +27,6 @@ public class UserService {
     }
 
     public UserEntity createUser(UserEntity user) {
-
         // Always use default password "12345678"
         String defaultPassword = "12345678";
         user.setPassword(defaultPassword);
@@ -46,7 +45,20 @@ public class UserService {
         user.setUserType(userDetails.getUserType());
         user.setAbout(userDetails.getAbout());
         user.setLocation(userDetails.getLocation());
+        
+        // Update profile photo if provided
+        if (userDetails.getProfilePhoto() != null) {
+            user.setProfilePhoto(userDetails.getProfilePhoto());
+        }
 
+        return userRepository.save(user);
+    }
+
+    public UserEntity updateProfilePhoto(Long id, String photoUrl) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        
+        user.setProfilePhoto(photoUrl);
         return userRepository.save(user);
     }
 

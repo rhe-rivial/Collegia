@@ -1,5 +1,51 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
+.profile-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--red);
+  transition: transform 0.2s ease;
+}
+
+.profile-icon:hover {
+  transform: scale(1.05);
+}
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn-logout {
+  padding: 8px 16px;
+  background-color: var(--red);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-logout:hover {
+  background-color: #531819;
+}
+
+.header-buttons > *:not(:last-child) {
+  margin-right: 10px;
+}
 
 .header.hidden {
   transform: translateY(-100%);
@@ -113,25 +159,5 @@
 
 .btn-logout:hover {
   background-color: #5E1E20;
-}
-
-.profile-btn {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.profile-btn:hover {
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
-}
-
-.profile-icon {
-  width: 28px;
 }
 

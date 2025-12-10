@@ -36,17 +36,19 @@ export function UserProvider({ children }) {
               const freshUserData = await userAPI.getUserById(userData.userId);
               console.log('🟢 UserContext - Fresh user data from API:', freshUserData);
               
-              // Create complete user object with all properties
+              // Create complete user object with all properties including profilePhoto
               const completeUser = {
                 userId: freshUserData.userId,
                 firstName: freshUserData.firstName,
                 lastName: freshUserData.lastName,
                 email: freshUserData.email,
-                userType: freshUserData.userType, // Use the type from backend
+                userType: freshUserData.userType,
                 about: freshUserData.about,
                 location: freshUserData.location,
                 work: freshUserData.work,
-                name: freshUserData.name || `${freshUserData.firstName} ${freshUserData.lastName}`
+                profilePhoto: freshUserData.profilePhoto, // NEW: Include profile photo
+                name: freshUserData.name || `${freshUserData.firstName} ${freshUserData.lastName}`,
+                firstLogin: freshUserData.firstLogin || false
               };
               
               console.log('🟢 UserContext - Complete user object:', completeUser);
@@ -91,9 +93,10 @@ export function UserProvider({ children }) {
       
       const updatedUser = await userAPI.updateUser(user.userId, updatePayload);
       
-      // Create complete updated user object
+      // Create complete updated user object including profilePhoto
       const completeUpdatedUser = {
         ...updatedUser,
+        profilePhoto: updatedUser.profilePhoto || user.profilePhoto, // Preserve existing photo if not updated
         name: `${updatedUser.firstName} ${updatedUser.lastName}`
       };
       
@@ -104,6 +107,18 @@ export function UserProvider({ children }) {
       console.error("Error updating user:", error);
       throw error;
     }
+  };
+
+  const updateUserPhoto = (photoUrl) => {
+    if (!user) return;
+    
+    const updatedUser = {
+      ...user,
+      profilePhoto: photoUrl
+    };
+    
+    setUser(updatedUser);
+    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
   };
 
   const login = (userData) => {
@@ -118,11 +133,13 @@ export function UserProvider({ children }) {
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
-      userType: userData.userType, // Use the actual type from API
+      userType: userData.userType,
       about: userData.about,
       location: userData.location,
       work: userData.work,
-      name: userData.name || `${userData.firstName} ${userData.lastName}`
+      profilePhoto: userData.profilePhoto, // NEW: Include profile photo
+      name: userData.name || `${userData.firstName} ${userData.lastName}`,
+      firstLogin: userData.firstLogin || false
     };
     
     console.log('🟢 UserContext - Complete login user:', completeUser);
@@ -136,7 +153,7 @@ export function UserProvider({ children }) {
       userId: completeUser.userId,
       userType: completeUser.userType,
       name: completeUser.name,
-      isCustodian: completeUser.userType === 'Custodian'
+      hasPhoto: !!completeUser.profilePhoto
     });
   };
 
@@ -153,7 +170,7 @@ export function UserProvider({ children }) {
   // Helper function to check if user is custodian
   const isCustodian = user && (user.userType === 'CUSTODIAN' || user.userType === 'Custodian');
 
-  // ⭐ Added missing property — does NOT remove any logs
+  // Check if user is admin
   const isAdmin = user && (user.userType === 'ADMIN' || user.userType === 'Admin');
 
   return (
@@ -162,6 +179,7 @@ export function UserProvider({ children }) {
       setUser, 
       isLoading, 
       updateUser,
+      updateUserPhoto, // NEW: Added photo update function
       login,
       logout,
       isCustodian,

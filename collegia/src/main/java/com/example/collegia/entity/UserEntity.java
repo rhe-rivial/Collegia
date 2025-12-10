@@ -19,6 +19,15 @@ public class UserEntity {
     private String about;
     private String location;
     private boolean firstLogin = true; 
+    private String profilePhoto;
+
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+public void setProfilePhoto(String profilePhoto) {
+    this.profilePhoto = profilePhoto;
+}
 
 
     public String getAbout() { return about; }

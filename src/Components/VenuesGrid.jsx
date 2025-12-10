@@ -121,7 +121,7 @@ export default function VenuesGrid({ searchQuery, showFilters, filters, onOpenLo
     console.log("VENUE:", venue.venueName, "| LOCATION:", `"${venue.venueLocation}"`);
 
     const loc = venue.venueLocation?.trim().toUpperCase() || "";
-    const knownAreas = ["NGE", "SAL", "GLE", "COURT", "ACAD"];
+    const knownAreas = ["NGE", "SAL", "GLE", "COURT", "ACAD", "LRAC"];
 
     let categoryMatch = true;
 

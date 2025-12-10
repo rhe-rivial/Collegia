@@ -95,3 +95,41 @@
   padding-top: 25px;
   font-family: var(--font-primary);
 }
+
+.edit-photo-section {
+  margin-bottom: 20px;
+}
+
+.edit-photo-container {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.edit-photo-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--gray);
+}
+
+.edit-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.edit-photo-upload {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.photo-file-name {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 4px 0 0 0;
+}

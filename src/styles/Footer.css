@@ -16,6 +16,7 @@
   background: linear-gradient(180deg, rgba(204, 185, 185, 0.94) 23%, rgba(230, 230, 230, 0.96) 79%);
   font-family: var(--font-primary);
   padding: 40px 20px;
+  bottom: 0;
 }
 
 /* Main Footer Content */
