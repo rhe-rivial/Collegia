@@ -72,7 +72,6 @@
 .filter-pill {
   display: flex;
   align-items: center;
-   margin-top: 15px;
   gap: 6px;
   cursor: pointer;
   padding: 4px 8px;
@@ -115,8 +114,8 @@
 
 .filter-dropdown {
   position: absolute;
-  top: 100%;
-  right: 0;
+  top: 100%; 
+  right: 0; /* Align to right edge of wrapper */
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -124,9 +123,11 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   z-index: 1000;
   min-width: 250px;
+  margin-top: 8px; /* Add some spacing */
 }
 
 .filter-header {
+    color: var(--color-primary);
   display: flex;
   justify-content: space-between;
   align-items: center;

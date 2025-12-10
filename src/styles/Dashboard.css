@@ -198,29 +198,10 @@ body {
   align-self: center;
 }
 
-.filter-pill {
-  position: sticky;
-  right: 70;
-  top: 20%;
-  transform: translateY(-40%);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 100px;
-  background: var(--color-background);
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  height: 25px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
 
-.filter-pill:hover {
-  background-color: var(--color-border);
-}
 
 .filter-icon-container {
+  color: #7B282A;
   display: flex;
   align-items: center;
   justify-content: center;

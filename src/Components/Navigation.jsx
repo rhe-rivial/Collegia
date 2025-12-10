@@ -80,9 +80,7 @@ export default function Navigation({ searchQuery, filters, showFilters, onFilter
           </div>
           <p className="filter-text">Filters</p>
         </div>
-      </div>
-
-      {showFilters && (
+          {showFilters && (
         <div className="filter-dropdown">
           <div className="filter-header">
             <h3>Filters</h3>
@@ -109,6 +107,9 @@ export default function Navigation({ searchQuery, filters, showFilters, onFilter
           </div>
         </div>
       )}
+      </div>
+
+    
     </nav>
   );
 }
