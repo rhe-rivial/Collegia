@@ -141,12 +141,7 @@ export default function VenueDetails({ onOpenLoginModal }) {
         icon: getAmenityIcon(amenity)
       }));
     } else {
-      return [
-        { name: "Air Conditioner", icon: "/icons/air-conditioner.png" },
-        { name: "Basic Furniture", icon: "/icons/furniture.png" },
-        { name: "Lighting", icon: "/icons/lighting.png" },
-        { name: "Free Wireless Internet", icon: "/icons/wifi.png" }
-      ];
+      return [      ];
     }
   };
 
@@ -207,7 +202,7 @@ export default function VenueDetails({ onOpenLoginModal }) {
       'internet': '/icons/wifi.png'
     };
     
-    return iconMap[amenity] || '/icons/default.svg';
+    return iconMap[amenity] || '/icons/default.png';
   };
 
   if (loading) {
