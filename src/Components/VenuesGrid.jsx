@@ -158,13 +158,14 @@ export default function VenuesGrid({ searchQuery, showFilters, filters, onOpenLo
 
   const venuesGridStyle = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-    gap: "60px",
+    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gap: "20px", 
     paddingTop: "40px",
     width: "100%",
     maxWidth: "1200px",
     margin: "0 auto",
     marginBottom: "100px",
+    justifyItems: "center", 
   };
 
   if (loading) {
