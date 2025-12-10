@@ -19,7 +19,7 @@ export default function Navigation({ searchQuery, filters, showFilters, onFilter
 
   useLayoutEffect(() => {
     // Hide indicator when search is active OR when filters are shown
-    if (searchQuery || showFilters) {
+    if (searchQuery) {
       setIndicatorStyle({ width: 0, left: 0, opacity: 0 });
     } else {
       const activeIndex = navItems.findIndex(item => location.pathname.startsWith(item.path));
@@ -39,8 +39,7 @@ export default function Navigation({ searchQuery, filters, showFilters, onFilter
   const clearFilters = () => onFiltersChange({ capacity: "", location: "" });
   const hasActiveFilters = filters.capacity || filters.location;
 
-  // Determine if we should show the navigation
-  const shouldShowNav = !searchQuery && !showFilters;
+  const shouldShowNav = !searchQuery;
 
   return (
     <nav className="nav-container">
