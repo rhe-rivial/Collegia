@@ -584,31 +584,32 @@
   border-top: 1px solid #e0e0e0;
 }
 
-.modal-accept-btn, .modal-reject-btn, .modal-cancel-btn {
+.modal-accept-btn, .accept-btn, .reject-btn, .modal-reject-btn, .modal-cancel-btn {
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 14px;
   cursor: pointer;
   border: none;
   transition: all 0.2s ease;
 }
 
-.modal-accept-btn {
-  background-color: #1e7e34;
+.modal-accept-btn, .accept-btn {
+  background-color: #E7C51D;
+  color: rgb(8, 4, 4);
+}
+
+.modal-accept-btn:hover,  .accept-btn:hover{
+  background-color: #998418;
   color: white;
 }
 
-.modal-accept-btn:hover {
-  background-color: #1e7e34;
-}
-
-.modal-reject-btn {
+.modal-reject-btn,.reject-btn {
   background-color: #7B282A;
   color: white;
 }
 
-.modal-reject-btn:hover {
+.modal-reject-btn:hover, .reject-btn:hover{
   background-color: #5a1e20;
 }
 
