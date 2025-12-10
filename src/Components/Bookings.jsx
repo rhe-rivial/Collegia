@@ -265,7 +265,7 @@ export default function Bookings() {
       return (
         <div className="booking-actions">
           <button 
-            className="cancel-btn"
+            className="cancel-btn-bookings"
             onClick={() => {
               showConfirmModal(
                 "Are you sure you want to cancel this booking?", 
