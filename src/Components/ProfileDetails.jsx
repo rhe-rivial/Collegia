@@ -11,21 +11,19 @@ export default function ProfileDetails() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage("File size too large. Maximum size is 5MB.");
-      setShowErrorModal(true);
+      showErrorModal("File size too large. Maximum size is 5MB.");
       return;
     }
 
-    // Validate file type
+    //  file type
     if (!file.type.startsWith('image/')) {
-      setErrorMessage("Please select an image file (JPEG, PNG, etc.).");
-      setShowErrorModal(true);
+      showErrorModal("Please select an image file (JPEG, PNG, etc.).");
       return;
     }
 
@@ -41,18 +39,15 @@ export default function ProfileDetails() {
 
       if (response.ok) {
         const data = await response.json();
-        // Update user context with new photo
         updateUser({ ...user, profilePhoto: data.photoUrl });
-        setShowSuccessModal(true);
+        showSuccessModal("Profile photo updated successfully!");
       } else {
         const errorData = await response.text();
-        setErrorMessage(errorData || "Failed to upload photo");
-        setShowErrorModal(true);
+        showErrorModal(errorData || "Failed to upload photo");
       }
     } catch (error) {
       console.error("Error uploading photo:", error);
-      setErrorMessage("Network error. Please try again.");
-      setShowErrorModal(true);
+      showErrorModal("Network error. Please try again.");
     } finally {
       setIsUploading(false);
       e.target.value = ""; // Reset file input
@@ -103,10 +98,6 @@ export default function ProfileDetails() {
         <div className="section-value">{user.location || "No location provided"}</div>
       </div>
 
-      <div className="profile-section">
-        <div className="section-label">User ID</div>
-        <div className="section-value">{user.userId}</div>
-      </div>
 
       <div className="profile-section">
         <div className="section-label">Status</div>

@@ -2,17 +2,18 @@ import React, { useContext, useState, useEffect } from "react";
 import "../styles/ExtendProfile.css";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
-import { bookingAPI, userAPI } from "../api.js";
+import { bookingAPI } from "../api.js";
 import CustomModal from "./CustomModal";
 
-export default function ExtendProfile({ isEditing }) {
+export default function ExtendProfile({ isEditing, showSuccessModal, showErrorModal }) {
   const navigate = useNavigate();
   const { user, updateUser } = useContext(UserContext);
   const [bookingCount, setBookingCount] = useState(0);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [localModalState, setLocalModalState] = useState({
+    isOpen: false,
+    message: "",
+    type: "success"
+  });
 
   useEffect(() => {
     if (!user || !user.userId) {
@@ -31,7 +32,44 @@ export default function ExtendProfile({ isEditing }) {
     };
 
     loadBookingCount();
-  }, [user]); 
+  }, [user]);
+
+  const handleSave = async (formData) => {
+    try {
+      const updatedUser = await updateUser(formData);
+      
+      if (showSuccessModal) {
+        showSuccessModal("Profile updated successfully!");
+      } else {
+        setLocalModalState({
+          isOpen: true,
+          message: "Profile updated successfully!",
+          type: "success"
+        });
+      }
+
+      setTimeout(() => {
+        if (!showSuccessModal) {
+          setLocalModalState(prev => ({ ...prev, isOpen: false }));
+        }
+        navigate("/account");
+      }, 1500);
+    } catch (error) {
+      if (showErrorModal) {
+        showErrorModal("Failed to update profile. Please try again.");
+      } else {
+        setLocalModalState({
+          isOpen: true,
+          message: "Failed to update profile. Please try again.",
+          type: "error"
+        });
+      }
+    }
+  };
+
+  const closeLocalModal = () => {
+    setLocalModalState(prev => ({ ...prev, isOpen: false }));
+  };
 
   if (!user) {
     return (
@@ -40,24 +78,6 @@ export default function ExtendProfile({ isEditing }) {
       </div>
     );
   }
-
-  const handleSave = async (formData) => {
-    try {
-      // Update user data via API
-      const updatedUser = await updateUser(formData);
-      setSuccessMessage("Profile updated successfully!");
-      setShowSuccessModal(true);
-      
-      // Navigate back after a short delay
-      setTimeout(() => {
-        navigate("/account");
-      }, 1500);
-      
-    } catch (error) {
-      setErrorMessage("Failed to update profile. Please try again.");
-      setShowErrorModal(true);
-    }
-  };
 
   return (
     <div className="extend-card">
@@ -78,31 +98,23 @@ export default function ExtendProfile({ isEditing }) {
           user={user} 
           onSave={handleSave} 
           onCancel={() => navigate("/account")}
-          setSuccessMessage={setSuccessMessage}
-          setErrorMessage={setErrorMessage}
-          setShowSuccessModal={setShowSuccessModal}
-          setShowErrorModal={setShowErrorModal}
+          showSuccessModal={showSuccessModal || ((msg) => setLocalModalState({ isOpen: true, message: msg, type: "success" }))}
+          showErrorModal={showErrorModal || ((msg) => setLocalModalState({ isOpen: true, message: msg, type: "error" }))}
         />
       )}
 
-      {/* Success Modal */}
-      <CustomModal
-        isOpen={showSuccessModal}
-        message={successMessage}
-        onClose={() => setShowSuccessModal(false)}
-      />
-
-      {/* Error Modal */}
-      <CustomModal
-        isOpen={showErrorModal}
-        message={errorMessage}
-        onClose={() => setShowErrorModal(false)}
-      />
+      {!showSuccessModal && !showErrorModal && (
+        <CustomModal
+          isOpen={localModalState.isOpen}
+          message={localModalState.message}
+          onClose={closeLocalModal}
+        />
+      )}
     </div>
   );
 }
 
-function EditForm({ user, onSave, onCancel, setSuccessMessage, setErrorMessage, setShowSuccessModal, setShowErrorModal }) {
+function EditForm({ user, onSave, onCancel, showSuccessModal, showErrorModal }) {
   const [formData, setFormData] = useState({
     about: user.about || "",
     location: user.location || "",
@@ -127,55 +139,48 @@ function EditForm({ user, onSave, onCancel, setSuccessMessage, setErrorMessage, 
   };
 
   const handleSubmit = async () => {
+    let photoUploaded = false;
+    
     try {
-      let photoUploadSuccess = false;
-      
-      if (photoFile) {
-        // If there's a new photo, upload it first
-        setIsUploading(true);
-        try {
-          const photoFormData = new FormData();
-          photoFormData.append("photo", photoFile);
-          
-          const response = await fetch(`http://localhost:8080/api/users/${user.userId}/profile-photo`, {
-            method: "PUT",
-            body: photoFormData,
-          });
+      setIsUploading(true);
 
-          if (response.ok) {
-            const data = await response.json();
-            photoUploadSuccess = true;
-            // Show immediate success message for photo upload
-            setSuccessMessage("Profile photo uploaded successfully!");
-            setShowSuccessModal(true);
-          } else {
-            const errorData = await response.text();
-            throw new Error(errorData || "Failed to upload photo");
-          }
-        } catch (error) {
-          console.error("Error uploading photo:", error);
-          setErrorMessage(error.message || "Failed to upload profile photo. Please try again.");
-          setShowErrorModal(true);
-          setIsUploading(false);
-          return; // Stop if photo upload fails
-        } finally {
-          setIsUploading(false);
+      if (photoFile) {
+        const photoFormData = new FormData();
+        photoFormData.append("photo", photoFile);
+
+        const response = await fetch(
+          `http://localhost:8080/api/users/${user.userId}/profile-photo`,
+          { method: "PUT", body: photoFormData }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.text();
+          throw new Error(errorData || "Failed to upload profile photo");
         }
+
+        photoUploaded = true;
       }
 
-      // Save the rest of the user data
-      await onSave(formData);
+      const hasFormChanges = formData.about !== user.about || 
+                           formData.location !== user.location || 
+                           formData.work !== user.work;
       
-      // If both photo upload and profile update succeeded
-      if (photoUploadSuccess) {
-        setSuccessMessage("Profile and photo updated successfully!");
-        setShowSuccessModal(true);
+      if (hasFormChanges) {
+        await onSave(formData);
+      } else if (photoUploaded) {
+        showSuccessModal("Profile photo uploaded successfully!");
+        
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        onCancel();
       }
       
     } catch (error) {
-      console.error("Error in handleSubmit:", error);
-      setErrorMessage("Failed to save changes. Please try again.");
-      setShowErrorModal(true);
+      showErrorModal(error.message || "Failed to save changes. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -184,7 +189,6 @@ function EditForm({ user, onSave, onCancel, setSuccessMessage, setErrorMessage, 
       <h2>Edit Profile</h2>
       <p className="joined">Update your personal information</p>
 
-      {/* Photo Upload in Edit Mode */}
       <div className="edit-photo-section">
         <label>Profile Photo</label>
         <div className="edit-photo-container">
@@ -232,14 +236,6 @@ function EditForm({ user, onSave, onCancel, setSuccessMessage, setErrorMessage, 
         placeholder="Where are you located?"
       />
 
-      <label>Work</label>
-      <input 
-        type="text" 
-        name="work"
-        value={formData.work} 
-        onChange={handleInputChange}
-        placeholder="What do you do?"
-      />
 
       <div className="ep-edit-actions">
         <button className="ep-cancel-btn" onClick={onCancel}>
