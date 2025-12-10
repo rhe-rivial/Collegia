@@ -234,44 +234,42 @@ const normalizeStatus = (status) => {
         </div>
       )}
       
-      {/* Today's Schedule Section */}
-      <div className="todays-schedule">
-        <h2>Today's Schedule: {formatDate(new Date())}</h2>
-        
-        {todaysSchedule.length === 0 ? (
-          <div className="no-bookings">
-            <p>No bookings scheduled for today.</p>
-          </div>
-        ) : (
-          todaysSchedule.map((booking, index) => (
-            <div key={booking.bookingId || index} className="schedule-item">
-              <div className="venue-header">
-                <h3>{booking.venue?.venueName || "Venue"}</h3>
-                <span className={`status-badge ${getStatusBadgeClass(booking.status)}`}>
-                  {getStatusText(booking.status)}
-                </span>
-              </div>
-              <div className="event-details">
-                <div className="event-time">
-                  {formatTime(booking.timeSlot)}
-                </div>
-                <div className="event-name">
-                  {booking.eventName || "Event"}
-                </div>
-                <div className="event-organizer">
-                  Organizer: {booking.user?.firstName} {booking.user?.lastName}
-                </div>
-                {booking.description && (
-                  <div className="event-notice">
-                    <span className="notice-icon">📋</span>
-                    Description: {booking.description}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))
-        )}
+     <div className="todays-schedule">
+  <div className="section-header">
+    <h3>Today's Schedule</h3>
+  </div>
+  
+  <div className="bookings-grid"> {/* Change this line - remove "-today" */}
+    {todaysSchedule.length === 0 ? (
+      <div className="no-bookings">
+        <p>No bookings scheduled for today.</p>
       </div>
+    ) : (
+      todaysSchedule.map((booking, index) => (
+        <div key={booking.bookingId || index} className="booking-card">
+          <div className="booking-date">
+            {formatDate(booking.date)}
+          </div>
+          <div className="booking-details">
+            <div className="booking-event">{booking.eventName || "Event"}</div>
+            <div className="booking-venue">{booking.venue?.venueName || "Venue"}</div>
+            <div className="booking-time">{formatTime(booking.timeSlot)}</div>
+            <div className="booking-guests">{booking.capacity || 0} guests</div>
+            <div className="booking-organizer">
+              Organizer: {booking.user?.firstName} {booking.user?.lastName}
+            </div>
+            {booking.description && (
+              <div className="event-notice">
+                <span className="notice-icon"></span>
+                {booking.description}
+              </div>
+            )}
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+</div>
 
       {/* Dashboard Stats Section */}
       <div className="dashboard-stats">

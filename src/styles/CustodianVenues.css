@@ -17,6 +17,15 @@
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
+.location-icon img { 
+  filter: var(--red);
+  padding-top: 5px;
+  width: 25px;
+  height: 25px;
+  object-fit: fill;
+}
+
+
 .stat-card , .venues-stats{
 background-color: transparent;
 

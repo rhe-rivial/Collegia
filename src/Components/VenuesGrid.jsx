@@ -179,6 +179,7 @@ export default function VenuesGrid({ searchQuery, showFilters, filters, onOpenLo
 
   return (
     <>
+      
       {(searchQuery || filters.capacity || filters.location) && (
         <div className="results-info">
           <p>
