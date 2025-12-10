@@ -7,7 +7,6 @@ import VenueBookingCard from "./VenueBookingCard.jsx";
 import "../styles/VenueDetails.css";
 import { favoritesStorage } from "./VenuesGrid"; 
 
-
 export default function VenueDetails({ onOpenLoginModal }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -27,6 +26,8 @@ export default function VenueDetails({ onOpenLoginModal }) {
         if (response.ok) {
           const venueFromApi = await response.json();
           
+          console.log("API Response:", venueFromApi); // Debug log
+          
           if (!venueFromApi || !venueFromApi.venueId) {
             throw new Error("Invalid venue data received from API");
           }
@@ -43,11 +44,15 @@ export default function VenueDetails({ onOpenLoginModal }) {
             venueId: venueFromApi.venueId,
             venueName: venueFromApi.venueName || `Venue ${id}`,
             building: venueFromApi.venueLocation || "University Campus",
-            venueCapacity: `${venueFromApi.venueCapacity || 50} persons`,
+            venueCapacity: venueFromApi.venueCapacity || 50, // Remove "persons" text
             description: formatDescription(venueFromApi),
             amenities: formatAmenities(venueFromApi),
             images: formatGalleryImages(venueFromApi),
+            custodianId: venueFromApi.custodianId, // Add this
+            custodianName: venueFromApi.custodianName || "Campus Facilities" // Add this
           };
+          
+          console.log("Transformed data:", transformedData); // Debug log
           
           setVenueData(transformedData);
           setError(null);
@@ -79,7 +84,7 @@ export default function VenueDetails({ onOpenLoginModal }) {
       }
     };
 
-     window.addEventListener('favoritesUpdated', handleFavoritesUpdated);
+    window.addEventListener('favoritesUpdated', handleFavoritesUpdated);
     
     return () => {
       window.removeEventListener('favoritesUpdated', handleFavoritesUpdated);
@@ -109,11 +114,10 @@ export default function VenueDetails({ onOpenLoginModal }) {
 
   // Handle share
   const handleShare = () => {
-
     console.log("Sharing venue:", id);
   };
 
-  // Helper functions (keep your existing formatDescription, formatAmenities, etc.)
+  // Helper functions
   const formatDescription = (venue) => {
     if (venue.description && venue.description.trim() !== "") {
       return [venue.description];
@@ -270,6 +274,9 @@ export default function VenueDetails({ onOpenLoginModal }) {
               venueId={venueData?.venueId}
               isFavorite={isFavorite}
               onFavoriteToggle={handleFavoriteToggle}
+              onShare={handleShare}
+              custodianId={venueData?.custodianId}
+              custodianName={venueData?.custodianName || "Campus Facilities"}
             />
           </div>
 

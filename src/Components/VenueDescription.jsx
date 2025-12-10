@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { userAPI } from "../api";
 import "../styles/VenueDetails.css";
+
+const profilePicCache = new Map();
 
 export default function VenueDescription({ 
   title, 
@@ -10,19 +13,67 @@ export default function VenueDescription({
   venueId,
   isFavorite,
   onFavoriteToggle,
-  onShare 
+  onShare,
+  custodianId,
+  custodianName 
 }) {
   
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
+  const [custodianProfilePic, setCustodianProfilePic] = useState(null);
+  const [loadingProfilePic, setLoadingProfilePic] = useState(false);
 
-  // Handle favorite toggle
+  useEffect(() => {
+    if (custodianId) {
+      fetchCustodianProfilePic();
+    }
+  }, [custodianId]);
+
+  const fetchCustodianProfilePic = async () => {
+    if (profilePicCache.has(custodianId)) {
+      const cachedPic = profilePicCache.get(custodianId);
+      setCustodianProfilePic(cachedPic);
+      return;
+    }
+
+    try {
+      setLoadingProfilePic(true);
+      const custodianData = await userAPI.getUserById(custodianId);
+      
+      console.log("Custodian data for profile pic:", custodianData);
+      
+      if (custodianData) {
+        const profilePhoto = custodianData.profilePhoto || 
+                            custodianData.image || 
+                            custodianData.profileImage ||
+                            custodianData.photo ||
+                            null;
+        
+        console.log("Extracted profile photo:", profilePhoto);
+        
+        if (profilePhoto) {
+          profilePicCache.set(custodianId, profilePhoto);
+          setCustodianProfilePic(profilePhoto);
+        } else {
+          // If no profile photo, use default
+          profilePicCache.set(custodianId, null);
+          setCustodianProfilePic(null);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching custodian profile picture:", error);
+      // Use default if error
+      setCustodianProfilePic(null);
+    } finally {
+      setLoadingProfilePic(false);
+    }
+  };
+
   const handleFavoriteClick = () => {
     if (onFavoriteToggle) {
       onFavoriteToggle(venueId, !isFavorite);
     }
   };
 
-  // Share function
   const handleShareClick = () => {
     if (onShare) {
       onShare();
@@ -36,7 +87,6 @@ export default function VenueDescription({
         })
         .catch(err => {
           console.error("Failed to copy: ", err);
-          // Fallback
           const textArea = document.createElement("textarea");
           textArea.value = shareUrl;
           document.body.appendChild(textArea);
@@ -65,7 +115,36 @@ export default function VenueDescription({
             <div className="capacity-icon">
               <img src="/icons/team.png" alt="Capacity" />
             </div>
-            <span>{capacity}</span>
+            <span>{capacity} people</span>
+          </div>
+
+          {/* Custodian section */}
+          <div className="venue-custodian">
+            <div className="custodian-photo">
+              {loadingProfilePic ? (
+                <div className="custodian-photo-loading">
+                  <div className="loading-spinner-small"></div>
+                </div>
+              ) : (
+                <img 
+                  src={custodianProfilePic || "/images/default-profile.jpg"} 
+                  alt={custodianName || "Custodian"}
+                  onError={(e) => {
+                    console.log("Profile image failed to load, using default");
+                    e.target.src = "/images/default-profile.jpg";
+                  }}
+                />
+              )}
+            </div>
+            <div className="custodian-info">
+              <span className="custodian-label">Managed by:</span>
+              <span className="custodian-name">
+                {custodianName || "Campus Facilities"} {/* Name from venue data */}
+              </span>
+              {loadingProfilePic && (
+                <span className="custodian-loading-text">Loading photo...</span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -80,7 +159,7 @@ export default function VenueDescription({
             </button>
             {showCopiedMessage && (
               <div className="copied-message-tooltip"> 
-              Link Copied!
+                Link Copied!
               </div>
             )}
           </div>

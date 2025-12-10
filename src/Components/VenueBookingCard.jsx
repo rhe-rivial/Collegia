@@ -153,30 +153,7 @@ export default function VenueBookingCard({ venueId, venueData, onOpenLoginModal 
         >
           {isLoggedIn ? "Book Now" : "Sign in to book"}
         </button>
-        
-        <div className="action-links">
-          <button 
-            className={`action-link ${!isLoggedIn ? 'disabled' : ''}`}
-            onClick={handleVenueInquiry}
-            disabled={!isLoggedIn}
-          >
-            <div className="link-icon inquiry-icon">
-              <img src="/icons/office-building.svg" alt="Venue Inquiry" />
-            </div>
-            <span>Venue Inquiry</span>
-          </button>
-          
-          <button 
-            className={`action-link ${!isLoggedIn ? 'disabled' : ''}`}
-            onClick={handleContactHost}
-            disabled={!isLoggedIn}
-          >
-            <div className="link-icon contact-icon">
-              <img src="/icons/contact.svg" alt="Contact Host" />
-            </div>
-            <span>Contact Host</span>
-          </button>
-        </div>
+
       </div>
 
       {/* Booking Form Modal */}

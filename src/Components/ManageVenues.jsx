@@ -159,7 +159,7 @@ export default function ManageVenues({ venues, loading, onVenueUpdated }) {
                 <div className="venue-info">
                   <h3>{venue.venueName}</h3>
                   <div className="venue-location">
-                    <span className="location-icon">📍</span>
+                    <span className="location-icon"><img src="/icons/office-building.svg"></img></span>
                     {venue.venueLocation}
                   </div>
                   
