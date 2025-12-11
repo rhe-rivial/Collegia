@@ -31,6 +31,7 @@
 .um-table-container {
   background: white;
   padding: 20px;
+  margin: 20px;
   border-radius: 12px;
   box-shadow: var(--shadow);
   min-height: 450px;
@@ -180,6 +181,56 @@
   border: none;
   padding: 0.7rem 2rem;
   border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.um-row-selected {
+  background-color: #ffe5e5 !important;
+}
+
+/* Highlight selected rows */
+.um-row-selected {
+  background-color: #ffe5e5 !important;
+}
+
+/* Undo toast at bottom right */
+.undo-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  background: #7B282A;
+  color: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  z-index: 3000;
+  font-family: 'Montserrat', sans-serif;
+  max-width: 320px;
+}
+
+.undo-toast-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.undo-btn {
+  background: #E7C51D;
+  color: #7B282A;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.undo-close {
+  background: #ccc;
+  color: black;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
 }
