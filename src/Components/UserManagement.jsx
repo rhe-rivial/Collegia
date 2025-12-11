@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "../styles/UserManagement.css";
 import * as XLSX from "xlsx";
 
@@ -6,51 +6,48 @@ import UserSearchAndFilter from "./UserSearchAndFilter";
 import UserAddModal from "./UserAddModal";
 import UserEditModal from "./UserEditModal";
 import UserExcelModal from "./UserExcelModal";
-import { userAPI } from "../api";
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-  const [excelMessage, setExcelMessage] = useState("");
-  const [excelError, setExcelError] = useState("");
-
 
   // Pagination
   const [page, setPage] = useState(0);
   const size = 150;
   const [totalPages, setTotalPages] = useState(1);
 
-  // ADD Modal
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [addError, setAddError] = useState("");
-  const [newUser, setNewUser] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    userType: "Student",
-    about: "",
-    location: "",
-  });
+  // Multi-select
+  const [selectedUsers, setSelectedUsers] = useState([]);
 
-  // EDIT Modal
+  // Modals
+  const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editError, setEditError] = useState("");
+  const [showExcelModal, setShowExcelModal] = useState(false);
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [editData, setEditData] = useState({});
+  const [editError, setEditError] = useState("");
 
-  // DELETE Modal
+  // Single delete modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState(null);
 
-  // EXCEL Modal
-  const [showExcelModal, setShowExcelModal] = useState(false);
+  // Undo delete
+  const [showUndoToast, setShowUndoToast] = useState(false);
+  const [undoCountdown, setUndoCountdown] = useState(10);
+  const [pendingDeleteUsers, setPendingDeleteUsers] = useState([]);
+  const timerRef = useRef(null);
 
-  /* ==============================
-            LOAD USERS
-  =============================== */
+  // Excel messages
+  const [excelMessage, setExcelMessage] = useState("");
+  const [excelError, setExcelError] = useState("");
+
+  // LOAD USERS (WITH PAGINATION)
+  
   useEffect(() => {
     loadUsers();
+    return () => clearInterval(timerRef.current);
   }, [page]);
 
   const loadUsers = async () => {
@@ -60,56 +57,97 @@ export default function UserManagement() {
       );
       const data = await response.json();
 
-      const list = data.content || data;
-      setUsers(Array.isArray(list) ? list : []);
-      setTotalPages(data.totalPages || 1);
-
+      const list = data.content || [];
+      setUsers(list);
+      setTotalPages(data.totalPages ?? 1);
     } catch (err) {
       console.error("Failed to load users:", err);
     }
   };
 
-  /* ==============================
-            SEARCH + FILTER
-  =============================== */
+  // SEACH & FILTER
   const filteredUsers = users.filter((u) => {
-    const first = (u.firstName || "").toLowerCase();
-    const last = (u.lastName || "").toLowerCase();
-    const email = (u.email || "").toLowerCase();
-    const role = (u.userType || "").toLowerCase();
-    const query = search.toLowerCase();
-
+    const q = search.toLowerCase();
     const matchSearch =
-      first.includes(query) ||
-      last.includes(query) ||
-      email.includes(query);
+      u.firstName.toLowerCase().includes(q) ||
+      u.lastName.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q);
 
     const matchFilter =
-      filter === "All" || role === filter.toLowerCase();
+      filter === "All" ||
+      u.userType.toLowerCase() === filter.toLowerCase();
 
     return matchSearch && matchFilter;
   });
 
-  /* ==============================
-            ADD USER
-  =============================== */
-  const validateAddUser = () => {
-    if (!newUser.firstName || !newUser.lastName || !newUser.email)
-      return "Please fill in all required fields.";
-
-    if (!newUser.email.includes("@"))
-      return "Invalid email format.";
-
-    return null;
+  // MULTI SELECT
+  const toggleUser = (id) => {
+    setSelectedUsers((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
   };
 
-  const createUser = async (createdUser) => {
-    setUsers((prev) => [...prev, createdUser]);
+  const toggleSelectAll = () => {
+    if (selectedUsers.length === filteredUsers.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filteredUsers.map((u) => u.userId));
+    }
   };
 
-  /* ==============================
-            EDIT USER
-  =============================== */
+  // BULK DELETE (UNDO FEATURE)
+  const deleteSelectedUsers = () => {
+    if (selectedUsers.length === 0) return;
+
+    const usersToDelete = users.filter((u) =>
+      selectedUsers.includes(u.userId)
+    );
+
+    setPendingDeleteUsers(usersToDelete);
+    setShowUndoToast(true);
+    setUndoCountdown(10);
+
+    timerRef.current = setInterval(() => {
+      setUndoCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          finalizeBulkDelete();
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const finalizeBulkDelete = async () => {
+    for (const user of pendingDeleteUsers) {
+      await fetch(`http://localhost:8080/api/users/${user.userId}`, {
+        method: "DELETE",
+      });
+    }
+
+    setShowUndoToast(false);
+    setPendingDeleteUsers([]);
+    setSelectedUsers([]);
+    loadUsers();
+  };
+
+  const undoBulkDelete = () => {
+    clearInterval(timerRef.current);
+    setShowUndoToast(false);
+    setPendingDeleteUsers([]);
+    setSelectedUsers([]);
+  };
+
+  // SINGLE DELETE
+  const deleteUser = async () => {
+    await fetch(`http://localhost:8080/api/users/${deleteUserId}`, {
+      method: "DELETE",
+    });
+    setShowDeleteModal(false);
+    loadUsers();
+  };
+
+  // EDIT MODAL
   const openEditModal = (user) => {
     setSelectedUser(user);
     setEditData({
@@ -120,113 +158,15 @@ export default function UserManagement() {
       about: user.about || "",
       location: user.location || "",
     });
-    setEditError("");
     setShowEditModal(true);
   };
 
-  const validateEditUser = () => {
-    if (!editData.firstName || !editData.lastName || !editData.email)
-      return "Please fill in all required fields.";
-    if (!editData.email.includes("@"))
-      return "Invalid email format.";
-    return null;
-  };
-
-  const saveChanges = async () => {
-    const err = validateEditUser();
-    if (err) return setEditError(err);
-
-    try {
-      await fetch(
-        `http://localhost:8080/api/users/${selectedUser.userId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(editData),
-        }
-      );
-
-      setShowEditModal(false);
-      loadUsers();
-
-    } catch (err) {
-      setEditError("Failed to update user. Please try again.");
-    }
-  };
-
-  /* ==============================
-            DELETE USER
-  =============================== */
-  const deleteUser = async () => {
-    try {
-      await fetch(`http://localhost:8080/api/users/${deleteUserId}`, {
-        method: "DELETE",
-      });
-
-      setShowDeleteModal(false);
-      loadUsers();
-
-    } catch (err) {
-      console.error("Failed to delete user:", err);
-    }
-  };
-
-  // Excel Import
-  const uploadExcel = async (file) => {
-    const reader = new FileReader();
-
-    reader.onload = async (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet);
-
-      // Reset messages
-      setExcelMessage("");
-      setExcelError("");
-
-      try {
-        const res = await fetch("http://localhost:8080/api/users/import-excel", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(rows)
-        });
-
-        const message = await res.text();
-
-        if (res.ok) {
-          setExcelMessage(message);
-
-          setTimeout(() => {
-            setShowExcelModal(false);
-            setExcelMessage("");
-            loadUsers();
-          }, 1500);
-
-        } else {
-          setExcelError(message || "Import failed.");
-        }
-
-      } catch (err) {
-        console.error(err);
-        setExcelError("Import failed. Please check the file format.");
-      }
-    };
-
-    reader.readAsArrayBuffer(file);
-  };
-
-
-
-  /* ==============================
-            RENDER
-  =============================== */
+  // RENDER UI
   return (
     <div className="um-page">
 
       <h1 className="um-title">User Management</h1>
 
-      {/* SEARCH + FILTER + ACTIONS */}
       <UserSearchAndFilter
         search={search}
         setSearch={setSearch}
@@ -234,18 +174,30 @@ export default function UserManagement() {
         setFilter={setFilter}
         onAddUser={() => setShowAddModal(true)}
         onExcelUpload={() => setShowExcelModal(true)}
+        selectedUsers={selectedUsers}
+        deleteSelectedUsers={deleteSelectedUsers}
       />
 
-      {/* USER TABLE */}
       <div className="um-table-container">
         <table className="um-table">
+
           <thead>
             <tr>
               <th>ID</th>
               <th>Full Name</th>
               <th>Email</th>
               <th>Role</th>
-              <th>Actions</th>
+              <th>
+                <input
+                  type="checkbox"
+                  checked={
+                    filteredUsers.length > 0 &&
+                    selectedUsers.length === filteredUsers.length
+                  }
+                  onChange={toggleSelectAll}
+                />
+                &nbsp;Actions
+              </th>
             </tr>
           </thead>
 
@@ -256,12 +208,27 @@ export default function UserManagement() {
               </tr>
             ) : (
               filteredUsers.map((user) => (
-                <tr key={user.userId}>
+                <tr
+                  key={user.userId}
+                  className={
+                    selectedUsers.includes(user.userId)
+                      ? "um-row-selected"
+                      : ""
+                  }
+                >
                   <td>{user.userId}</td>
                   <td>{user.firstName} {user.lastName}</td>
                   <td>{user.email}</td>
                   <td>{user.userType}</td>
+
                   <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.includes(user.userId)}
+                      onChange={() => toggleUser(user.userId)}
+                      style={{ marginRight: "10px" }}
+                    />
+
                     <button
                       className="um-btn-edit"
                       onClick={() => openEditModal(user)}
@@ -287,57 +254,92 @@ export default function UserManagement() {
 
         {/* PAGINATION */}
         <div className="um-pagination">
-          <button disabled={page === 0} onClick={() => setPage(page - 1)}>&lt;</button>
+          <button disabled={page === 0} onClick={() => setPage(page - 1)}>
+            &lt;
+          </button>
           <span>Page {page + 1} of {totalPages}</span>
-          <button disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>&gt;</button>
+          <button
+            disabled={page >= totalPages - 1}
+            onClick={() => setPage(page + 1)}
+          >
+            &gt;
+          </button>
         </div>
       </div>
 
-      {/* ========= ADD USER MODAL ========= */}
+      {/* ADD USER */}
       {showAddModal && (
         <UserAddModal
           onClose={() => setShowAddModal(false)}
-          onSave={createUser}
+          onSave={loadUsers}
         />
       )}
 
-      {/* ========= EDIT USER MODAL ========= */}
+      {/* EDIT USER */}
       {showEditModal && (
         <UserEditModal
           editData={editData}
           setEditData={setEditData}
           editError={editError}
           onClose={() => setShowEditModal(false)}
-          onSave={saveChanges}
+          onSave={() => {
+            setShowEditModal(false);
+            loadUsers();
+          }}
         />
       )}
 
-      {/* ========= EXCEL IMPORT MODAL ========= */}
+      {/* EXCEL IMPORT MODAL */}
       {showExcelModal && (
         <UserExcelModal
           onClose={() => setShowExcelModal(false)}
-          onUploadExcel={uploadExcel}
           excelMessage={excelMessage}
           excelError={excelError}
         />
       )}
 
-      {/* ========= DELETE CONFIRM MODAL ========= */}
+      {/* SINGLE DELETE CONFIRM MODAL */}
       {showDeleteModal && (
         <div className="um-modal-overlay">
           <div className="um-modal-card small">
-            <button className="um-close-btn" onClick={() => setShowDeleteModal(false)}>✕</button>
+            <button
+              className="um-close-btn"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              ✕
+            </button>
+
             <h3 className="um-modal-title">Confirm Delete</h3>
             <p>Are you sure you want to delete this user?</p>
 
             <div className="um-modal-actions">
-              <button className="um-btn-secondary" onClick={() => setShowDeleteModal(false)}>
+              <button
+                className="um-btn-secondary"
+                onClick={() => setShowDeleteModal(false)}
+              >
                 Cancel
               </button>
               <button className="um-btn-primary" onClick={deleteUser}>
                 Delete
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* UNDO TOAST */}
+      {showUndoToast && (
+        <div className="undo-toast">
+          <p>
+            {pendingDeleteUsers.length} user(s) deleted. Undo? Auto-closing in{" "}
+            {undoCountdown}s.
+          </p>
+
+          <div className="undo-toast-actions">
+            <button className="undo-btn" onClick={undoBulkDelete}>Undo</button>
+            <button className="undo-close" onClick={finalizeBulkDelete}>
+              Close Now
+            </button>
           </div>
         </div>
       )}

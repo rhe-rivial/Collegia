@@ -138,3 +138,243 @@
   margin-top: 20px;
   margin-bottom: 65px;
 }
+
+/* "+X more" tag style */
+.amenity-more {
+  background: #9b3b3d;
+  opacity: 0.9;
+}
+
+
+
+/* TOP ROW: pills + search */
+.top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+/* category pills row */
+.category-pills {
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+/* pill style */
+.cat-pill {
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--primary);
+  transition: background 0.12s, color 0.12s;
+}
+
+.cat-pill:hover {
+  background: rgba(123, 40, 42, 0.08);
+}
+
+.cat-pill.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* search styling */
+.top-row .venue-search-input {
+  flex: 1;
+  max-width: 420px;
+  height: 40px;
+  padding: 8px 14px;
+  border-radius: 50px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  outline: none;
+}
+
+.top-row .venue-search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 4px rgba(123, 40, 42, 0.25);
+}
+
+/* Smooth animation for layout */
+.venue-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  margin-bottom: 25px;
+  transition: all 0.3s ease;
+}
+
+/* Smooth Search Input */
+.venue-search-input {
+  width: 420px;
+  height: 45px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.venue-search-input:focus {
+  border-color: #7B282A;
+  box-shadow: 0 0 8px rgba(123, 40, 42, 0.25);
+  transform: scale(1.02);
+}
+
+/* Category Tabs */
+.venue-category-tabs {
+  display: flex;
+  gap: 18px;
+}
+
+/* Category Button (non-active) */
+.venue-category-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 22px;
+  cursor: pointer;
+  color: #7B282A;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* Hover animation */
+.venue-category-btn:hover {
+  transform: translateY(-3px);
+  color: #5e1e20;
+}
+
+/* Active category */
+.venue-category-btn.active {
+  background: #7B282A;
+  color: white;
+  transform: scale(1.12);
+  box-shadow: 0px 4px 12px rgba(123, 40, 42, 0.25);
+}
+
+/* Add smooth fade-in when switching venues */
+.venue-grid {
+  animation: fadeIn 0.35s ease;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Category Tabs */
+.venue-category-tabs {
+  display: flex;
+  gap: 20px;
+}
+
+.venue-category-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  color: #7B282A;
+}
+
+.venue-category-btn.active {
+  background: #7B282A;
+  color: white;
+}
+
+.venue-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  overflow: hidden;
+  transition: all 0.35s ease;
+  transform: translateY(0);
+  opacity: 0;
+  animation: cardFadeIn 0.45s ease forwards;
+}
+
+/* Fade-in on load */
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover motion */
+.venue-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.18);
+}
+
+/* Image smooth zoom */
+.venue-card-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.venue-card:hover .venue-card-img {
+  transform: scale(1.06);
+}
+
+/* Card Body */
+.venue-card-body {
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+/* Title transition */
+.venue-card-title {
+  transition: all 0.3s ease;
+}
+
+.venue-card:hover .venue-card-title {
+  color: #5e1e20;
+  transform: translateX(4px);
+}
+
+/* Amenities smooth animation */
+.amenity-chip {
+  transition: all 0.25s ease;
+}
+
+.venue-card:hover .amenity-chip {
+  transform: scale(1.06);
+}
+
+/* Fade-in & Fade-out wrapper */
+.venue-transition-wrapper {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.fade-in {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.fade-out {
+  opacity: 0 !important;
+  transform: translateY(12px) !important;
+  pointer-events: none;
+}

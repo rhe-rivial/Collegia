@@ -7,11 +7,14 @@ export default function UserSearchAndFilter({
   filter,
   setFilter,
   onAddUser,
-  onExcelUpload
+  onExcelUpload,
+  selectedUsers,
+  deleteSelectedUsers
 }) {
   return (
     <div className="usf-controls">
 
+      {/* SEARCH */}
       <input
         className="usf-search"
         type="text"
@@ -20,6 +23,7 @@ export default function UserSearchAndFilter({
         placeholder="Search users..."
       />
 
+      {/* ROLE FILTER */}
       <select
         className="usf-filter"
         value={filter}
@@ -33,12 +37,23 @@ export default function UserSearchAndFilter({
         <option>Student</option>
       </select>
 
+      {/* ADD USER */}
       <button className="usf-btn-add" onClick={onAddUser}>
         Add User
       </button>
 
+      {/* EXCEL IMPORT */}
       <button className="usf-btn-excel" onClick={onExcelUpload}>
         Import Excel
+      </button>
+
+      {/* DELETE SELECTED */}
+      <button
+        className="usf-btn-delete-multi"
+        disabled={selectedUsers.length === 0}
+        onClick={deleteSelectedUsers}
+      >
+        Delete Selected
       </button>
 
     </div>
