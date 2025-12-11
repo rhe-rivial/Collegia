@@ -94,7 +94,7 @@ background-color: transparent;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  min-height: 520px !important;
+  min-height: 320px !important;
 }
 
 .venue-card:hover {
