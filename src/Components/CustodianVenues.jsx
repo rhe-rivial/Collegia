@@ -1,17 +1,27 @@
 import React, { useState, useContext, useEffect } from "react";
 import { UserContext } from "./UserContext";
 import ManageVenues from "./ManageVenues";
-import AddVenueForm from "./AddVenueForm"; // Import the AddVenueForm component
+import AddVenueForm from "./AddVenueForm";
+import SearchBar from "./SearchBar";
+import CustodianNavigation from "./CustodianNavigation"; // Import custodian navigation
 import apiCall from "../api.js";
 import "../styles/CustodianVenues.css";
 import "../styles/AddVenueForm.css";
+import "../styles/DashboardRoutes.css";
 
 export default function CustodianVenues() {
   const { user } = useContext(UserContext);
   const [myVenues, setMyVenues] = useState([]);
+  const [filteredVenues, setFilteredVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showAddForm, setShowAddForm] = useState(false); // State to control form visibility
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    capacity: "",
+    location: ""
+  });
 
   useEffect(() => {
     if (user?.userId) {
@@ -19,30 +29,87 @@ export default function CustodianVenues() {
     }
   }, [user]);
 
+  useEffect(() => {
+    // Apply search and filters
+    let filtered = [...myVenues];
+
+    // Apply search filter
+    if (searchQuery.trim() !== "") {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(venue => {
+        return (
+          venue.venueName?.toLowerCase().includes(query) ||
+          venue.venueLocation?.toLowerCase().includes(query) ||
+          venue.description?.toLowerCase().includes(query) ||
+          (venue.amenities && venue.amenities.some(amenity => 
+            amenity.toLowerCase().includes(query)
+          ))
+        );
+      });
+    }
+
+    // Apply capacity filter
+    if (filters.capacity) {
+      filtered = filtered.filter(venue => 
+        venue.venueCapacity >= parseInt(filters.capacity)
+      );
+    }
+
+    // Apply location filter
+    if (filters.location) {
+      const knownAreas = ["NGE", "SAL", "GLE", "COURT", "ACAD", "LRAC"];
+      
+      if (filters.location !== "More") {
+        filtered = filtered.filter(venue => 
+          venue.venueLocation?.trim().toUpperCase() === filters.location.toUpperCase()
+        );
+      } else {
+        filtered = filtered.filter(venue => 
+          !knownAreas.includes(venue.venueLocation?.trim().toUpperCase())
+        );
+      }
+    }
+
+    setFilteredVenues(filtered);
+  }, [searchQuery, filters, myVenues]);
+
   const fetchMyVenues = async () => {
     setLoading(true);
     setError(null);
     try {
       const venues = await apiCall(`/venues/custodian/${user.userId}`);
-      setMyVenues(Array.isArray(venues) ? venues : []);
+      const venuesArray = Array.isArray(venues) ? venues : [];
+      setMyVenues(venuesArray);
+      setFilteredVenues(venuesArray);
     } catch (error) {
       console.error("Error fetching venues:", error);
       setError("Failed to load venues. Please try again.");
       setMyVenues([]);
+      setFilteredVenues([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleVenueAdded = () => {
-    // Refresh the venues list
     fetchMyVenues();
-    // Hide the form
     setShowAddForm(false);
   };
 
   const handleCancelAdd = () => {
     setShowAddForm(false);
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchQuery(value);
+  };
+
+  const handleFilterToggle = () => {
+    setShowFilters(!showFilters);
+  };
+
+  const handleFiltersChange = (newFilters) => {
+    setFilters(newFilters);
   };
 
   const isCustodian = user && (user.userType === "Custodian" || user.userType === "custodian" || user.userType === "CUSTODIAN");
@@ -59,30 +126,59 @@ export default function CustodianVenues() {
   }
 
   return (
-<div className="custodian-venues">
-  <div className="venues-header">
-    <h1>My Venues ({myVenues.length})</h1>
-    
-    {/* Toggle Button only if there are venues */}
-    {myVenues.length > 0 && (
-      <button 
-        className={`toggle-btn ${showAddForm ? 'cancel' : 'add'}`}
-        onClick={() => setShowAddForm(!showAddForm)}
-      >
-        {showAddForm ? 'Cancel' : '+ Add New Venue'}
-      </button>
-    )}
-  </div>
-  
-  {showAddForm ? (
-    <AddVenueForm onVenueAdded={handleVenueAdded} />
-  ) : (
-    <ManageVenues 
-      venues={myVenues} 
-      loading={loading}
-      onVenueUpdated={fetchMyVenues}
-    />
-  )}
-</div>
+    <div className="custodian-venues">
+      <div className="search-container">
+        <SearchBar 
+          placeholderText="Search my venues..."
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          onFilterToggle={handleFilterToggle}
+        />
+      </div>
+
+      <div className="venues-header">
+        <h1>My Venues ({filteredVenues.length})</h1>
+        <div className="header-controls">
+          <button 
+            className={`toggle-btn ${showAddForm ? 'cancel' : 'add'}`}
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            {showAddForm ? 'Cancel' : '+ Add New Venue'}
+          </button>
+        </div>
+      </div>
+
+      <CustodianNavigation 
+        searchQuery={searchQuery}
+        filters={filters}
+        showFilters={showFilters}
+        onFiltersChange={handleFiltersChange}
+        onFilterToggle={handleFilterToggle}
+        basePath="/custodian/my-venues" 
+      />
+
+      {/* Results info */}
+      {(searchQuery || filters.capacity || filters.location) && (
+        <div className="results-info">
+          <p>
+            Showing {filteredVenues.length} venue{filteredVenues.length !== 1 ? 's' : ''}
+            {searchQuery && ` for "${searchQuery}"`}
+            {filters.location && ` in ${filters.location}`}
+            {filters.capacity && ` with ${filters.capacity}+ capacity`}
+          </p>
+        </div>
+      )}
+      
+      {showAddForm ? (
+        <AddVenueForm onVenueAdded={handleVenueAdded} />
+      ) : (
+        <ManageVenues 
+          venues={filteredVenues} 
+          loading={loading}
+          onVenueUpdated={fetchMyVenues}
+          searchQuery={searchQuery}
+        />
+      )}
+    </div>
   );
 }

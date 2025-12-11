@@ -5,13 +5,33 @@ import CustomModal from "./CustomModal";
 import "../styles/CustodianVenues.css";
 import "../styles/AddVenueForm.css";
 import { UserContext } from "./UserContext";
+import { useLocation } from "react-router-dom";
 
-export default function ManageVenues({ venues, loading, onVenueUpdated }) {
+export default function ManageVenues({ searchQuery, venues, loading, onVenueUpdated }) {
   const [editingVenue, setEditingVenue] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [deleteVenueId, setDeleteVenueId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
+  const location = useLocation();
+
+  const pathSegments = location.pathname.split("/");
+  const currentTag = pathSegments[pathSegments.length - 1] || "";
+
+  const filteredVenues = venues.filter((venue) => {
+    const loc = venue.venueLocation?.trim().toUpperCase() || "";
+    const knownAreas = ["NGE", "SAL", "GLE", "COURT", "ACAD", "LRAC"];
+
+    if (currentTag && currentTag !== "my-venues" && !searchQuery) {
+      if (currentTag.toUpperCase() === "MORE") {
+        return !knownAreas.includes(loc);
+      } else {
+        return loc === currentTag.toUpperCase();
+      }
+    }
+    
+    return true;
+  });
+
   const { user } = useContext(UserContext); 
   const currentUserId = user?.userId;       
 
@@ -127,21 +147,15 @@ export default function ManageVenues({ venues, loading, onVenueUpdated }) {
       )}
 
       {/* Venues Grid */}
-      {venues.length === 0 && !showAddForm ? (
+    {filteredVenues.length === 0 && !showAddForm ? (
         <div className="no-venues">
-          <h3>No Venues Yet</h3>
-          <p>You haven't added any venues yet.</p>
-          <button 
-            className="add-first-venue-btn"
-            onClick={handleAddVenue}
-          >
-            + Add Your First Venue
-          </button>
+          <h3>No Venues Found</h3>
+          <p>No venues match your current filter.</p>
         </div>
       ) : !showAddForm && (
         <>
           <div className="venues-grid">
-            {venues.map((venue) => (
+            {filteredVenues.map((venue) => (
               <div key={venue.venueId} className="venue-card">
                 <div className="venue-image">
                   <img 

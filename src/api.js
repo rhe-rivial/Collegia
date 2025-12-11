@@ -1,4 +1,3 @@
-// api.js
 const API_BASE_URL = 'http://localhost:8080/api';
 
 async function apiCall(endpoint, options = {}) {
@@ -16,28 +15,21 @@ async function apiCall(endpoint, options = {}) {
       config.body = JSON.stringify(options.body);
     }
 
-    console.log(' MAKING API CALL:', `${API_BASE_URL}${endpoint}`);
-    console.log(' REQUEST BODY:', options.body);
+    console.log('🔵 MAKING API CALL:', `${API_BASE_URL}${endpoint}`);
+    console.log('🔵 REQUEST BODY:', options.body);
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
-    console.log(' RESPONSE STATUS:', response.status);
+    console.log('🔵 RESPONSE STATUS:', response.status);
 
     if (!response.ok) {
       let errorMessage = `HTTP error! status: ${response.status}`;
       try {
         const errorText = await response.text();
-        console.log(' ERROR RESPONSE TEXT:', errorText);
-        
-        // Try to parse as JSON for structured error messages
-        try {
-          const errorJson = JSON.parse(errorText);
-          errorMessage = errorJson.message || errorJson.error || errorText || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
+        console.log('🔵 ERROR RESPONSE TEXT:', errorText);
+        errorMessage = errorText || errorMessage;
       } catch (e) {
-        console.log(' ERROR READING RESPONSE:', e);
+        console.log('🔵 ERROR READING RESPONSE:', e);
       }
       throw new Error(errorMessage);
     }
@@ -46,7 +38,7 @@ async function apiCall(endpoint, options = {}) {
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
       const data = await response.json();
-      console.log(' SUCCESS RESPONSE:', data);
+      console.log('🟢 SUCCESS RESPONSE:', data);
       return data;
     } else {
       console.log('🟢 SUCCESS RESPONSE: No content');
@@ -59,9 +51,9 @@ async function apiCall(endpoint, options = {}) {
   }
 }
 
-// Booking API
+//Booking API
 export const bookingAPI = {
-  createBooking: async (bookingData, userId) => {
+    createBooking: async (bookingData, userId) => {
     const response = await fetch(`${API_BASE_URL}/bookings?userId=${userId}`, {
       method: 'POST',
       headers: {
@@ -133,5 +125,6 @@ export const authAPI = {
     localStorage.removeItem("userId");
   }
 };
+
 
 export default apiCall;

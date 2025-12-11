@@ -121,6 +121,7 @@ function AppContent() {
             {/* CUSTODIAN ROUTES */}
             <Route path="/custodian/dashboard" element={<CustodianDashboard />} />
             <Route path="/custodian/my-venues" element={<CustodianVenues />} />
+            <Route path="/custodian/my-venues/:tag" element={<CustodianVenues />} />
             <Route path="/custodian/add-venue" element={<AddVenuePage />} />
  
             {/* ADMIN ROUTES */}

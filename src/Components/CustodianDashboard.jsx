@@ -45,28 +45,22 @@ const fetchDashboardData = async () => {
 
     console.log('🟢 Dashboard - Raw Bookings:', custodianBookings);
 
-    // Get today's date in YYYY-MM-DD format
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
     
-    // Filter for today's bookings (any status)
     const todaysBookings = custodianBookings.filter(booking => {
       if (!booking.date) return false;
       const bookingDate = new Date(booking.date).toISOString().split('T')[0];
       return bookingDate === todayStr;
     });
     
-    // Get ALL pending bookings (future dates only)
     const pending = custodianBookings.filter(booking => {
       if (!booking.date) return false;
       
-      // Convert status using SAME logic as bookings page
       const bookingStatus = normalizeStatus(booking.status);
       const bookingDate = new Date(booking.date);
       const now = new Date();
-      
-      // Remove date comparison for pending - show ALL future pending
-      // return bookingDate > now && bookingStatus === "pending";
+
       return bookingStatus === "pending";
     });
     
@@ -78,9 +72,7 @@ const fetchDashboardData = async () => {
       const bookingStatus = normalizeStatus(booking.status);
       const bookingDate = new Date(booking.date);
       const now = new Date();
-      
-      // Remove date comparison for approved - show ALL future approved
-      // return bookingDate > now && bookingStatus === "approved";
+
       return bookingStatus === "approved";
     });
     
