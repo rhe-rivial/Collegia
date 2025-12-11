@@ -453,7 +453,7 @@ export default function BookingForm({ venueId, venueData, onClose }) {
 
   return (
     <div className="booking-form-modal">
-      <div className="modal-header">
+      <div className="modal-header-booking">
         <h2 id="bookingTitle">Booking Form - {venueName}</h2>
         <button className="close-button" onClick={onClose}>×</button>
       </div>
