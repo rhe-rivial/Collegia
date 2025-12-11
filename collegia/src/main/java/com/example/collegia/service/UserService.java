@@ -2,6 +2,7 @@ package com.example.collegia.service;
 
 import com.example.collegia.entity.UserEntity;
 import com.example.collegia.repository.UserRepository;
+import com.example.collegia.util.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
@@ -29,7 +33,8 @@ public class UserService {
     public UserEntity createUser(UserEntity user) {
         // Always use default password "12345678"
         String defaultPassword = "12345678";
-        user.setPassword(defaultPassword);
+        String encryptedPassword = passwordEncoder.encode(defaultPassword);
+        user.setPassword(encryptedPassword);
         user.setFirstLogin(true);
 
         return userRepository.save(user);
@@ -72,14 +77,30 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-    // Plain text password change (NO HASHING)
     public void changePassword(Long id, String newPassword) {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
-        user.setPassword(newPassword);
+        // Always encrypt new passwords
+        String encryptedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encryptedPassword);
         user.setFirstLogin(false);
 
+        userRepository.save(user);
+    }
+    
+    // Special method for admin to set password (for existing users with unencrypted passwords)
+    public void setPassword(Long id, String newPassword, boolean encrypt) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        
+        if (encrypt) {
+            String encryptedPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(encryptedPassword);
+        } else {
+            user.setPassword(newPassword); // For DEMO PURPOSES
+        }
+        
         userRepository.save(user);
     }
 }

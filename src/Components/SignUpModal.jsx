@@ -17,7 +17,20 @@ export default function SignUpModal({ onClose, openSignIn }) {
     department: "",
   });
 
-  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    userType: "",
+    course: "",
+    organization: "",
+    affiliation: "",
+    department: "",
+  });
+
+  const [generalError, setGeneralError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,41 +55,119 @@ export default function SignUpModal({ onClose, openSignIn }) {
   };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError("");
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    
+    // Clear the specific field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors({ ...fieldErrors, [name]: "" });
+    }
+    
+    // Clear general error if it exists
+    if (generalError) {
+      setGeneralError("");
+    }
   };
 
-  const validate = () => {
-    if (!form.firstName || !form.lastName || !form.email || !form.password || !form.confirmPassword)
-      return "Please fill in all required fields.";
+  const validateField = (name, value) => {
+    let error = "";
+    
+    switch (name) {
+      case "firstName":
+        if (!value.trim()) error = "First name is required";
+        break;
+      case "lastName":
+        if (!value.trim()) error = "Last name is required";
+        break;
+      case "email":
+        if (!value.trim()) {
+          error = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          error = "Please enter a valid email address";
+        }
+        break;
+      case "password":
+        if (!value.trim()) {
+          error = "Password is required";
+        } else if (value.length < 8) {
+          error = "Password must be at least 8 characters long";
+        }
+        break;
+      case "confirmPassword":
+        if (!value.trim()) {
+          error = "Please confirm your password";
+        } else if (value !== form.password) {
+          error = "Passwords do not match";
+        }
+        break;
+      case "userType":
+        if (!value) error = "Please select a role";
+        break;
+      case "course":
+        if (form.userType === "Student" && !value.trim()) {
+          error = "Course is required for Students";
+        }
+        break;
+      case "organization":
+        if (form.userType === "Student" && !value.trim()) {
+          error = "Organization is required for Students";
+        }
+        break;
+      case "affiliation":
+        if (form.userType === "Coordinator" && !value.trim()) {
+          error = "Affiliation is required for Coordinators";
+        }
+        break;
+      case "department":
+        if (form.userType === "Faculty" && !value.trim()) {
+          error = "Department is required for Faculty";
+        }
+        break;
+      default:
+        break;
+    }
+    
+    return error;
+  };
 
-    if (!form.userType) return "Please select a role.";
+  const validateForm = () => {
+    const newFieldErrors = {};
+    let isValid = true;
 
-    if (form.password !== form.confirmPassword)
-      return "Passwords do not match.";
+    // Validate all fields
+    Object.keys(form).forEach((fieldName) => {
+      const error = validateField(fieldName, form[fieldName]);
+      if (error) {
+        newFieldErrors[fieldName] = error;
+        isValid = false;
+      }
+    });
 
-    if (form.password.length < 6)
-      return "Password must be at least 6 characters long.";
-
-    if (form.userType === "Student" && (!form.course || !form.organization))
-      return "Course and Organization are required for Students.";
-
-    if (form.userType === "Coordinator" && !form.affiliation)
-      return "Affiliation is required for Coordinators.";
-
-    if (form.userType === "Faculty" && !form.department)
-      return "Department is required for Faculty.";
-
-    return null;
+    setFieldErrors(newFieldErrors);
+    return isValid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const err = validate();
-    if (err) {
-      setError(err);
+    // Clear all errors
+    setGeneralError("");
+    setFieldErrors({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      userType: "",
+      course: "",
+      organization: "",
+      affiliation: "",
+      department: "",
+    });
+
+    // Validate form
+    if (!validateForm()) {
       setIsLoading(false);
       return;
     }
@@ -88,9 +179,16 @@ export default function SignUpModal({ onClose, openSignIn }) {
         email: form.email,
         password: form.password,
         userType: form.userType,
-        ...(form.userType === "Student" && { course: form.course, organization: form.organization }),
-        ...(form.userType === "Coordinator" && { affiliation: form.affiliation }),
-        ...(form.userType === "Faculty" && { department: form.department }),
+        ...(form.userType === "Student" && { 
+          course: form.course, 
+          organization: form.organization 
+        }),
+        ...(form.userType === "Coordinator" && { 
+          affiliation: form.affiliation 
+        }),
+        ...(form.userType === "Faculty" && { 
+          department: form.department 
+        }),
       };
 
       await authAPI.signUp(userData);
@@ -99,12 +197,54 @@ export default function SignUpModal({ onClose, openSignIn }) {
 
     } catch (err) {
       const message = err?.message || "Sign up failed. Please try again.";
-      setError(message);
+      
+      if (message.toLowerCase().includes("email")) {
+        setFieldErrors({ ...fieldErrors, email: message });
+      } else {
+        setGeneralError(message);
+      }
+      
       handleAction(message, false);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const renderField = (name, label, type = "text", placeholder = "", required = true) => (
+    <div className="form-field-group">
+      <label className="label">{label} {required && "*"}</label>
+      <input
+        className={`input-pill ${fieldErrors[name] ? 'input-error' : ''}`}
+        name={name}
+        type={type}
+        value={form[name]}
+        onChange={handleChange}
+        placeholder={placeholder}
+        required={required}
+      />
+      {fieldErrors[name] && (
+        <div className="field-error-text">{fieldErrors[name]}</div>
+      )}
+    </div>
+  );
+
+  const renderSelectField = (name, label, options, required = true) => (
+    <div className="form-field-group">
+      <label className="label">{label} {required && "*"}</label>
+      <select
+        className={`input-pill ${fieldErrors[name] ? 'input-error' : ''}`}
+        name={name}
+        value={form[name]}
+        onChange={handleChange}
+        required={required}
+      >
+        {options}
+      </select>
+      {fieldErrors[name] && (
+        <div className="field-error-text">{fieldErrors[name]}</div>
+      )}
+    </div>
+  );
 
   return (
     <>
@@ -115,125 +255,40 @@ export default function SignUpModal({ onClose, openSignIn }) {
 
             <h2 className="signup-title">Sign Up</h2>
 
-            {error && <p className="error-text">{error}</p>}
+            {generalError && <p className="error-text general-error">{generalError}</p>}
 
             <form className="modal-form" onSubmit={handleSubmit}>
-              <label className="label">First Name *</label>
-              <input
-                className="input-pill"
-                name="firstName"
-                value={form.firstName}
-                onChange={handleChange}
-                placeholder="Enter your first name"
-                required
-              />
+              {renderField("firstName", "First Name", "text", "Enter your first name")}
+              {renderField("lastName", "Last Name", "text", "Enter your last name")}
+              {renderField("email", "Email", "email", "Enter your email")}
+              {renderField("password", "Password", "password", "Create a password")}
+              {renderField("confirmPassword", "Confirm Password", "password", "Confirm your password")}
 
-              <label className="label">Last Name *</label>
-              <input
-                className="input-pill"
-                name="lastName"
-                value={form.lastName}
-                onChange={handleChange}
-                placeholder="Enter your last name"
-                required
-              />
-
-              <label className="label">Email *</label>
-              <input
-                className="input-pill"
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="Enter your email"
-                required
-              />
-
-              <label className="label">Password *</label>
-              <input
-                className="input-pill"
-                name="password"
-                type="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="Create a password"
-                required
-              />
-
-              <label className="label">Confirm Password *</label>
-              <input
-                className="input-pill"
-                name="confirmPassword"
-                type="password"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm your password"
-                required
-              />
-
-              <label className="label">Role *</label>
-              <select
-                className="input-pill"
-                name="userType"
-                value={form.userType}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Role</option>
-                <option value="Student">Student</option>
-                <option value="Coordinator">Coordinator</option>
-                <option value="Faculty">Faculty</option>
-              </select>
+              {renderSelectField("userType", "Role", 
+                <>
+                  <option value="">Select Role</option>
+                  <option value="Student">Student</option>
+                  <option value="Coordinator">Coordinator</option>
+                  <option value="Faculty">Faculty</option>
+                </>
+              )}
 
               {form.userType === "Student" && (
                 <>
-                  <label className="label">Course *</label>
-                  <input
-                    className="input-pill"
-                    name="course"
-                    value={form.course}
-                    onChange={handleChange}
-                    placeholder="e.g., BSIT"
-                    required
-                  />
-
-                  <label className="label">Organization *</label>
-                  <input
-                    className="input-pill"
-                    name="organization"
-                    value={form.organization}
-                    onChange={handleChange}
-                    placeholder="e.g., CCS"
-                    required
-                  />
+                  {renderField("course", "Course", "text", "e.g., BSIT")}
+                  {renderField("organization", "Organization", "text", "e.g., CCS")}
                 </>
               )}
 
               {form.userType === "Coordinator" && (
                 <>
-                  <label className="label">Affiliation *</label>
-                  <input
-                    className="input-pill"
-                    name="affiliation"
-                    value={form.affiliation}
-                    onChange={handleChange}
-                    placeholder="Enter organization"
-                    required
-                  />
+                  {renderField("affiliation", "Affiliation", "text", "Enter organization")}
                 </>
               )}
 
               {form.userType === "Faculty" && (
                 <>
-                  <label className="label">Department *</label>
-                  <input
-                    className="input-pill"
-                    name="department"
-                    value={form.department}
-                    onChange={handleChange}
-                    placeholder="Enter department"
-                    required
-                  />
+                  {renderField("department", "Department", "text", "Enter department")}
                 </>
               )}
 

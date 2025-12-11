@@ -3,6 +3,7 @@ import { useState, useLayoutEffect, useRef } from "react";
 import "../styles/DashboardRoutes.css";
 
 const navItems = [
+  { path: "/venues", label: "All" },
   { path: "/venues/nge", label: "NGE" },
   { path: "/venues/sal", label: "SAL" },
   { path: "/venues/gle", label: "GLE" },
@@ -18,12 +19,18 @@ export default function Navigation({ searchQuery, filters, showFilters, onFilter
   const navRefs = useRef([]);
 
   useLayoutEffect(() => {
-    // Hide indicator when search is active OR when filters are shown
     if (searchQuery) {
       setIndicatorStyle({ width: 0, left: 0, opacity: 0 });
     } else {
-      const activeIndex = navItems.findIndex(item => location.pathname.startsWith(item.path));
-      const activeTab = navRefs.current[activeIndex >= 0 ? activeIndex : 0];
+      // Find active tab - default to "All" if at /venues
+      const activeIndex = navItems.findIndex(item => 
+        location.pathname === item.path || 
+        (item.path !== "/venues" && location.pathname.startsWith(item.path))
+      );
+      
+      const defaultIndex = 0; // "All" is at index 0
+      const activeTab = navRefs.current[activeIndex >= 0 ? activeIndex : defaultIndex];
+      
       if (activeTab) {
         setIndicatorStyle({
           width: `${activeTab.offsetWidth}px`,
@@ -57,7 +64,17 @@ export default function Navigation({ searchQuery, filters, showFilters, onFilter
             >
               <NavLink
                 to={item.path}
-                className={({ isActive }) => `nav-link ${location.pathname.startsWith(item.path) ? "active" : ""}`}
+                end={item.path === "/venues"} // Use "end" for exact match on "/venues"
+                className={({ isActive: navLinkIsActive }) => {
+                  // Rename the parameter to avoid conflict
+                  // For "All" (/venues), check if it's exactly active
+                  // For others, check if path starts with
+                  const isItemActive = item.path === "/venues" 
+                    ? location.pathname === "/venues"
+                    : location.pathname.startsWith(item.path);
+                  
+                  return `nav-link ${isItemActive ? "active" : ""}`;
+                }}
               >
                 {item.label}
               </NavLink>
@@ -99,9 +116,12 @@ export default function Navigation({ searchQuery, filters, showFilters, onFilter
             <label>Location Area</label>
             <select value={filters.location} onChange={handleLocationChange}>
               <option value="">All areas</option>
-              {navItems.map((item) => (
-                <option key={item.path} value={item.label}>{item.label}</option>
-              ))}
+              {navItems
+                .filter(item => item.path !== "/venues") // Exclude "All" from filter dropdown
+                .map((item) => (
+                  <option key={item.path} value={item.label}>{item.label}</option>
+                ))}
+              <option value="More">More</option>
             </select>
           </div>
         </div>

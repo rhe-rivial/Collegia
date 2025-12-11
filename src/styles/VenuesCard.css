@@ -11,6 +11,16 @@
   transition: transform 0.2s ease; 
 }
 
+.results-info { 
+  padding-left: 120px;
+}
+
+.no-results {
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  text-align: center;
+}
 .venue-card:hover {
   transform: scale(1.02); 
 }

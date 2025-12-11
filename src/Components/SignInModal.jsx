@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "./UserContext";
-import { authAPI } from "../api.js";
+import { userAPI, authAPI } from "../api.js";
 import "../styles/SignInModal.css";
 import CustomModal from "./CustomModal";
 import ChangePasswordModal from "./ChangePasswordModal";
@@ -84,22 +84,14 @@ export default function SignInModal({ onClose, openSignUp }) {
     openSignUp();
   };
 
-  const handleChangePasswordSave = async (newPassword) => {
+//updated for password encyrption
+    const handleChangePasswordSave = async (newPassword) => {
     if (!pendingUser) throw new Error("No pending user");
 
     try {
       const userId = pendingUser.userId || pendingUser.id;
 
-      const res = await fetch(`http://localhost:8080/api/users/${userId}/change-password`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: newPassword }),
-      });
-
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(txt || "Failed to change password");
-      }
+      await userAPI.changePassword(userId, newPassword);
 
       const updatedUser = { ...pendingUser, firstLogin: false };
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));

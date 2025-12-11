@@ -5,7 +5,6 @@ import VenueGallery from "./VenueGallery.jsx";
 import VenueDescription from "./VenueDescription.jsx";
 import VenueBookingCard from "./VenueBookingCard.jsx";
 import "../styles/VenueDetails.css";
-import { favoritesStorage } from "./VenuesGrid"; 
 
 export default function VenueDetails({ onOpenLoginModal }) {
   const { id } = useParams();
@@ -14,7 +13,6 @@ export default function VenueDetails({ onOpenLoginModal }) {
   const [venueData, setVenueData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
 
   // Fetch venue data from API
   useEffect(() => {
@@ -32,13 +30,6 @@ export default function VenueDetails({ onOpenLoginModal }) {
             throw new Error("Invalid venue data received from API");
           }
           
-          // Check if this venue is in favorites from localStorage
-          let favoriteStatus = false;
-          if (user?.userId) {
-            favoriteStatus = favoritesStorage.isFavorite(user.userId, venueFromApi.venueId);
-          }
-          
-          setIsFavorite(favoriteStatus);
           
           const transformedData = {
             venueId: venueFromApi.venueId,
@@ -72,45 +63,6 @@ export default function VenueDetails({ onOpenLoginModal }) {
 
     fetchVenueData();
   }, [id, user]);
-
-  // Listen for favorites updates from VenuesGrid
-  useEffect(() => {
-    const handleFavoritesUpdated = (event) => {
-      const { userId, venueId, isFavorite: newFavoriteState } = event.detail;
-      
-      // Only update if it's the same user and same venue
-      if (user?.userId === userId && venueData?.venueId?.toString() === venueId) {
-        setIsFavorite(newFavoriteState);
-      }
-    };
-
-    window.addEventListener('favoritesUpdated', handleFavoritesUpdated);
-    
-    return () => {
-      window.removeEventListener('favoritesUpdated', handleFavoritesUpdated);
-    };
-  }, [user, venueData]);
-
-  // Handle favorite toggle - using localStorage only
-  const handleFavoriteToggle = (venueId, shouldBeFavorite) => {
-    if (!user) {
-      onOpenLoginModal();
-      return;
-    }
-    
-    // Update localStorage
-    const result = favoritesStorage.toggleFavorite(user.userId, venueId);
-    setIsFavorite(result.isFavorite);
-    
-    // Dispatch event to notify VenuesGrid about the change
-    window.dispatchEvent(new CustomEvent('favoritesUpdated', {
-      detail: {
-        userId: user.userId,
-        venueId: venueId.toString(),
-        isFavorite: result.isFavorite
-      }
-    }));
-  };
 
   // Handle share
   const handleShare = () => {
@@ -267,8 +219,6 @@ export default function VenueDetails({ onOpenLoginModal }) {
               description={venueData?.description || []}
               amenities={venueData?.amenities || []}
               venueId={venueData?.venueId}
-              isFavorite={isFavorite}
-              onFavoriteToggle={handleFavoriteToggle}
               onShare={handleShare}
               custodianId={venueData?.custodianId}
               custodianName={venueData?.custodianName || "Campus Facilities"}
