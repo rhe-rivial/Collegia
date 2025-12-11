@@ -299,7 +299,6 @@
   overflow-y: auto;
 }
 
-
 .modal-header {
   border-radius: 10px;
   display: flex;
@@ -320,4 +319,58 @@
 
 .close-button:hover {
   color: #333;
+}
+
+/* Add to your BookingForm.css */
+
+.unavailable-date {
+  background-color: #f8f8f8;
+  border-color: #ddd;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.unavailable-time {
+  color: #999;
+  background-color: #f5f5f5;
+}
+
+option.unavailable-time {
+  color: #999;
+  font-style: italic;
+}
+
+option:disabled {
+  color: #ccc;
+  background-color: #f9f9f9;
+}
+
+.form-warning {
+  color: #7B282A;
+  font-size: 0.85em;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Calendar specific styles for unavailable dates */
+.react-calendar__tile--unavailable {
+  background-color: #f0f0f0 !important;
+  color: #ccc !important;
+  cursor: not-allowed !important;
+}
+
+.react-calendar__tile--unavailable:hover {
+  background-color: #f0f0f0 !important;
+}
+
+.react-calendar__tile--unavailable:enabled:hover,
+.react-calendar__tile--unavailable:enabled:focus {
+  background-color: #f0f0f0 !important;
 }
